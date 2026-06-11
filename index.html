@@ -248,6 +248,9 @@
     .admin-login h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; }
     .admin-login p { font-size: .85rem; color: rgba(255,255,255,.5); margin-bottom: 24px; }
 
+    /* ── RADAR ── */
+    .radar-section { max-width: 640px; width: 100%; margin-bottom: 28px; text-align: center; }
+
     /* ── MISC ── */
     .gradient-cyan { background: linear-gradient(135deg, var(--cyan), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .admin-link { position: fixed; bottom: 16px; right: 16px; z-index: 99; font-size: .7rem; color: rgba(255,255,255,.15); cursor: pointer; text-decoration: none; }
@@ -349,6 +352,10 @@
       <a href="https://wa.me/573112525255?text=Hola%20Jorge%2C%20acabo%20de%20completar%20mi%20diagn%C3%B3stico%20de%20IA%20y%20quiero%20hablar%20sobre%20mi%20plan%20de%20acompa%C3%B1amiento" class="btn-cta" target="_blank">Quiero mi plan de acción →</a>
       <button class="btn-outline-light" onclick="restart()">Hacer de nuevo</button>
     </div>
+  </div>
+  <div class="radar-section">
+    <div class="dims-chart-title">Perfil radar de madurez</div>
+    <div id="radar-container"></div>
   </div>
   <div class="dims-chart">
     <div class="dims-chart-title">Análisis por dimensión</div>
@@ -640,6 +647,8 @@ function selectAnswer(i) {
     btn.querySelector('.opt-letter').style.color = isSelected ? '#000' : '';
   });
   document.getElementById('btn-next').classList.add('ready');
+  // Auto-advance to next question after brief visual feedback
+  setTimeout(() => { nextQ(); }, 350);
 }
 
 function nextQ() {
@@ -719,6 +728,9 @@ function showResult(score, raw, dimNorm, level) {
   document.getElementById('res-title').innerHTML = `<span style="color:${level.color}">${level.title}</span>`;
   document.getElementById('res-desc').textContent = level.desc;
 
+  // Radar chart
+  document.getElementById('radar-container').innerHTML = drawRadar(dimNorm, DIMS);
+
   // Dim chart
   const chartEl = document.getElementById('dims-chart-rows');
   chartEl.innerHTML = '';
@@ -735,6 +747,70 @@ function showResult(score, raw, dimNorm, level) {
       document.getElementById('dimfill-' + i).style.width = dimNorm[i] + '%';
     }, 200 + i * 100);
   });
+}
+
+// ═══════════════════════════════════════════════════════
+// RADAR CHART (SVG)
+// ═══════════════════════════════════════════════════════
+function drawRadar(dimNorm, dims) {
+  const cx = 150, cy = 155, maxR = 95;
+  const angles = dims.map((_, i) => (i * 72 - 90) * Math.PI / 180);
+  const pt = (r, i) => [cx + r * Math.cos(angles[i]), cy + r * Math.sin(angles[i])];
+  const polyPts = r => dims.map((_, i) => pt(r, i).map(v => v.toFixed(1)).join(',')).join(' ');
+
+  // Grid rings
+  const grids = [25, 50, 75, 100].map(p => {
+    const r = maxR * p / 100;
+    const op = p === 100 ? 0.14 : 0.07;
+    return `<polygon points="${polyPts(r)}" fill="none" stroke="rgba(255,255,255,${op})" stroke-width="1"/>`;
+  }).join('');
+
+  // Percent labels on center axis (top)
+  const ringLabels = [25, 50, 75].map(p => {
+    const r = maxR * p / 100;
+    const [lx, ly] = pt(r, 0);
+    return `<text x="${(lx + 4).toFixed(1)}" y="${ly.toFixed(1)}" fill="rgba(255,255,255,0.2)" font-size="8" font-family="Inter,system-ui,sans-serif" dominant-baseline="middle">${p}</text>`;
+  }).join('');
+
+  // Axis lines
+  const axes = dims.map((_, i) => {
+    const [x, y] = pt(maxR, i);
+    return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>`;
+  }).join('');
+
+  // Data polygon
+  const dataPts = dims.map((_, i) => {
+    return pt(maxR * (dimNorm[i] / 100), i).map(v => v.toFixed(1)).join(',');
+  }).join(' ');
+
+  // Vertex labels
+  const labelR = 120;
+  const labels = dims.map((dim, i) => {
+    const [x, y] = pt(labelR, i);
+    const anchor = x < cx - 8 ? 'end' : x > cx + 8 ? 'start' : 'middle';
+    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="middle" fill="${dim.color}" font-size="10" font-weight="700" font-family="Inter,system-ui,sans-serif">${dim.short}</text>`;
+  }).join('');
+
+  // Dots on data polygon vertices
+  const dots = dims.map((dim, i) => {
+    const [x, y] = pt(maxR * (dimNorm[i] / 100), i);
+    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${dim.color}" stroke="#050d1f" stroke-width="2"/>`;
+  }).join('');
+
+  return `<svg viewBox="0 0 300 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:300px;display:block;margin:0 auto">
+    <defs>
+      <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.28"/>
+        <stop offset="100%" stop-color="#7b2fff" stop-opacity="0.28"/>
+      </linearGradient>
+    </defs>
+    ${grids}
+    ${ringLabels}
+    ${axes}
+    <polygon points="${dataPts}" fill="url(#rg)" stroke="#00d4ff" stroke-width="2" stroke-opacity="0.75"/>
+    ${dots}
+    ${labels}
+  </svg>`;
 }
 
 function restart() {
