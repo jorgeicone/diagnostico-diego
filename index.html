@@ -1,487 +1,858 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Diagnóstico de Madurez en IA · Director Comercial Salud LATAM</title>
-<style>
-  :root {
-    --bg: #050d1f;
-    --bg2: #0a1628;
-    --cyan: #00d4ff;
-    --purple: #7b2fff;
-    --orange: #ff8c00;
-    --green: #00d48a;
-    --red: #ff4757;
-    --text: #e8f4fd;
-    --text-muted: #7a9bb5;
-    --card-bg: rgba(10,22,40,0.85);
-    --border: rgba(0,212,255,0.15);
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif; min-height:100vh; overflow-x:hidden; }
-  #particles-canvas { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
-  .page-wrapper { position:relative; z-index:1; }
-  .hero { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px 20px; }
-  .badge { display:inline-block; background:rgba(0,212,255,0.08); border:1px solid rgba(0,212,255,0.3); color:var(--cyan); font-size:11px; font-weight:700; letter-spacing:2.5px; padding:6px 16px; border-radius:20px; margin-bottom:28px; text-transform:uppercase; }
-  .hero h1 { font-size:clamp(28px,5vw,52px); font-weight:800; line-height:1.15; background:linear-gradient(135deg,#fff 0%,var(--cyan) 50%,var(--purple) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:16px; }
-  .hero .tagline { font-size:clamp(14px,2vw,18px); color:var(--text-muted); max-width:600px; margin:0 auto 40px; line-height:1.6; }
-  .name-input-block { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:32px; max-width:500px; width:100%; backdrop-filter:blur(20px); box-shadow:0 0 40px rgba(0,212,255,0.08); }
-  .name-input-block label { display:block; font-size:13px; font-weight:600; color:var(--cyan); letter-spacing:1px; margin-bottom:12px; text-transform:uppercase; }
-  .name-input-block input { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(0,212,255,0.25); border-radius:10px; color:#fff; font-size:17px; font-weight:600; padding:14px 18px; outline:none; transition:border-color .3s,box-shadow .3s; }
-  .name-input-block input:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(0,212,255,0.12); }
-  .name-input-block input::placeholder { color:#3a5a7a; }
-  .btn-primary { display:block; width:100%; margin-top:20px; background:linear-gradient(135deg,var(--cyan),var(--purple)); color:#fff; font-size:16px; font-weight:700; border:none; border-radius:10px; padding:15px; cursor:pointer; letter-spacing:.5px; transition:transform .2s,box-shadow .2s; }
-  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,212,255,0.3); }
-  .hero-stats { display:flex; gap:32px; justify-content:center; margin-top:40px; flex-wrap:wrap; }
-  .stat-item { text-align:center; }
-  .stat-item .num { font-size:28px; font-weight:800; color:var(--cyan); }
-  .stat-item .lbl { font-size:11px; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; }
-  #quiz-section { display:none; padding:40px 20px; max-width:800px; margin:0 auto; }
-  .progress-header { margin-bottom:32px; text-align:center; }
-  .progress-header .q-counter { font-size:13px; color:var(--text-muted); margin-bottom:8px; letter-spacing:1px; text-transform:uppercase; }
-  .progress-bar-wrap { height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
-  .progress-bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--cyan),var(--purple)); transition:width .5s cubic-bezier(.4,0,.2,1); }
-  .dim-label { display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:20px; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:20px; border:1px solid currentColor; }
-  .question-card { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:36px; backdrop-filter:blur(20px); box-shadow:0 4px 40px rgba(0,0,0,0.3); animation:fadeInUp .4s ease; }
-  @keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-  .question-card h2 { font-size:clamp(16px,2.5vw,20px); font-weight:700; line-height:1.45; margin-bottom:28px; color:#fff; }
-  .options-list { list-style:none; display:flex; flex-direction:column; gap:12px; }
-  .option-item { display:flex; align-items:flex-start; gap:14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px 18px; cursor:pointer; transition:all .25s; }
-  .option-item:hover { background:rgba(0,212,255,0.06); border-color:rgba(0,212,255,0.3); transform:translateX(4px); }
-  .option-item.selected { background:rgba(0,212,255,0.1); border-color:var(--cyan); box-shadow:0 0 20px rgba(0,212,255,0.15); }
-  .option-letter { width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--text-muted); flex-shrink:0; transition:all .25s; }
-  .option-item.selected .option-letter { background:var(--cyan); border-color:var(--cyan); color:var(--bg); }
-  .option-text { font-size:15px; line-height:1.5; color:var(--text); padding-top:2px; }
-  .nav-btns { display:flex; justify-content:space-between; align-items:center; margin-top:32px; gap:16px; }
-  .btn-sec { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); padding:12px 24px; border-radius:10px; cursor:pointer; font-size:14px; font-weight:600; transition:all .2s; }
-  .btn-sec:hover { background:rgba(255,255,255,0.1); color:#fff; }
-  .btn-next { background:linear-gradient(135deg,var(--cyan),var(--purple)); color:#fff; padding:13px 32px; border-radius:10px; border:none; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s; box-shadow:0 4px 20px rgba(0,212,255,0.2); }
-  .btn-next:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(0,212,255,0.35); }
-  .btn-next:disabled { opacity:.4; cursor:not-allowed; transform:none; }
-  .dim-progress { display:flex; gap:8px; justify-content:center; margin-bottom:28px; flex-wrap:wrap; }
-  .dim-dot { width:10px; height:10px; border-radius:50%; background:rgba(255,255,255,0.1); transition:all .3s; }
-  .dim-dot.done { background:var(--cyan); box-shadow:0 0 8px rgba(0,212,255,0.6); }
-  .dim-dot.active { background:var(--purple); box-shadow:0 0 8px rgba(123,47,255,0.6); transform:scale(1.3); }
-  #result-section { display:none; padding:40px 20px; max-width:900px; margin:0 auto; }
-  .result-hero { text-align:center; margin-bottom:48px; }
-  .level-badge { font-size:clamp(36px,8vw,72px); margin-bottom:16px; display:block; animation:popIn .6s cubic-bezier(.34,1.56,.64,1); }
-  @keyframes popIn { from{transform:scale(.5);opacity:0} to{transform:scale(1);opacity:1} }
-  .level-label { display:inline-block; font-size:13px; font-weight:800; letter-spacing:3px; padding:8px 20px; border-radius:24px; margin-bottom:16px; text-transform:uppercase; }
-  .result-hero h2 { font-size:clamp(24px,4vw,40px); font-weight:800; margin-bottom:12px; }
-  .result-hero p { font-size:16px; color:var(--text-muted); max-width:640px; margin:0 auto 24px; line-height:1.7; }
-  .score-display { background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:32px; margin-bottom:32px; backdrop-filter:blur(20px); text-align:center; box-shadow:0 0 0 1px rgba(123,47,255,0.15),0 4px 40px rgba(123,47,255,0.08); }
-  .score-number { font-size:80px; font-weight:900; line-height:1; background:linear-gradient(135deg,var(--cyan),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-  .score-label { font-size:14px; color:var(--text-muted); margin-top:4px; letter-spacing:1px; }
-  .dim-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-bottom:32px; }
-  .dim-card { background:var(--card-bg); border-radius:16px; padding:20px 24px; border:1px solid rgba(255,255,255,0.07); backdrop-filter:blur(20px); }
-  .dim-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-  .dim-card-title { font-size:13px; font-weight:700; color:var(--text-muted); }
-  .dim-card-score { font-size:20px; font-weight:800; }
-  .dim-bar-wrap { height:6px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
-  .dim-bar { height:100%; border-radius:3px; transition:width 1.2s cubic-bezier(.4,0,.2,1); }
-  .recs-section { margin-bottom:32px; }
-  .recs-section h3 { font-size:20px; font-weight:800; margin-bottom:20px; background:linear-gradient(135deg,var(--cyan),#fff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-  .rec-card { background:var(--card-bg); border:1px solid rgba(0,212,255,0.12); border-radius:14px; padding:20px 24px; margin-bottom:12px; display:flex; gap:16px; align-items:flex-start; transition:border-color .2s,box-shadow .2s; }
-  .rec-card:hover { border-color:rgba(0,212,255,0.3); box-shadow:0 4px 20px rgba(0,212,255,0.07); }
-  .rec-icon { font-size:24px; flex-shrink:0; margin-top:2px; }
-  .rec-text { font-size:14px; line-height:1.6; color:var(--text); }
-  .cta-block { background:linear-gradient(135deg,rgba(0,212,255,0.08),rgba(123,47,255,0.08)); border:1px solid rgba(0,212,255,0.2); border-radius:20px; padding:36px; text-align:center; }
-  .cta-block h3 { font-size:22px; font-weight:800; margin-bottom:12px; }
-  .cta-block p { color:var(--text-muted); margin-bottom:24px; font-size:15px; }
-  .btn-cta { background:linear-gradient(135deg,var(--cyan),var(--purple)); color:#fff; font-size:16px; font-weight:700; padding:15px 36px; border:none; border-radius:12px; cursor:pointer; transition:all .2s; display:inline-block; text-decoration:none; }
-  .btn-cta:hover { transform:translateY(-2px); box-shadow:0 10px 40px rgba(0,212,255,0.3); }
-  .restart-btn { display:block; width:fit-content; margin:24px auto 0; background:transparent; border:1px solid rgba(255,255,255,0.15); color:var(--text-muted); padding:11px 24px; border-radius:10px; cursor:pointer; font-size:14px; font-weight:600; transition:all .2s; }
-  .restart-btn:hover { border-color:rgba(255,255,255,0.3); color:#fff; }
-  #admin-section { display:none; padding:40px 20px; max-width:1100px; margin:0 auto; }
-  .admin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:32px; flex-wrap:wrap; gap:16px; }
-  .admin-header h2 { font-size:24px; font-weight:800; color:var(--cyan); }
-  .admin-table-wrap { overflow-x:auto; border-radius:16px; }
-  .admin-table { width:100%; border-collapse:collapse; font-size:13px; background:var(--card-bg); border-radius:16px; overflow:hidden; }
-  .admin-table th { background:rgba(0,212,255,0.08); color:var(--cyan); font-size:11px; letter-spacing:1.5px; text-transform:uppercase; padding:14px 16px; text-align:left; font-weight:700; border-bottom:1px solid rgba(0,212,255,0.12); }
-  .admin-table td { padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.04); color:var(--text); vertical-align:middle; }
-  .admin-table tr:last-child td { border-bottom:none; }
-  .admin-table tr:hover td { background:rgba(0,212,255,0.03); }
-  .admin-level-badge { display:inline-block; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; letter-spacing:.5px; }
-  .admin-empty { text-align:center; padding:60px 20px; color:var(--text-muted); font-size:15px; }
-  .admin-stats-row { display:flex; gap:16px; margin-bottom:28px; flex-wrap:wrap; }
-  .admin-stat { background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:16px 22px; flex:1; min-width:120px; }
-  .admin-stat .n { font-size:28px; font-weight:800; color:var(--cyan); }
-  .admin-stat .l { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
-  .clear-btn { background:rgba(255,71,87,0.1); border:1px solid rgba(255,71,87,0.3); color:#ff4757; padding:9px 18px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; transition:all .2s; }
-  .clear-btn:hover { background:rgba(255,71,87,0.2); }
-  .back-btn { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); color:var(--text-muted); padding:9px 18px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; transition:all .2s; }
-  .back-btn:hover { color:#fff; }
-  #admin-login { display:none; padding:40px 20px; }
-  .login-card { max-width:420px; margin:80px auto 0; background:var(--card-bg); border:1px solid var(--border); border-radius:20px; padding:36px; backdrop-filter:blur(20px); box-shadow:0 0 0 1px rgba(123,47,255,0.15),0 0 60px rgba(0,212,255,0.06); text-align:center; }
-  .login-card h2 { font-size:20px; font-weight:800; margin-bottom:8px; }
-  .login-card p { color:var(--text-muted); font-size:14px; margin-bottom:28px; }
-  .login-card input { width:100%; background:rgba(255,255,255,0.04); border:1px solid rgba(0,212,255,0.2); border-radius:10px; color:#fff; font-size:16px; padding:13px 16px; outline:none; margin-bottom:16px; transition:border-color .3s; }
-  .login-card input:focus { border-color:var(--cyan); }
-  .login-error { color:var(--red); font-size:13px; margin-top:-8px; margin-bottom:12px; min-height:18px; }
-  .admin-link-wrap { text-align:center; padding:40px 20px 20px; }
-  .admin-link { font-size:12px; color:rgba(255,255,255,0.15); cursor:pointer; text-decoration:none; transition:color .2s; letter-spacing:.5px; }
-  .admin-link:hover { color:rgba(255,255,255,0.4); }
-  @media(max-width:640px) { .question-card{padding:24px 18px} .nav-btns{flex-direction:column-reverse} .btn-next,.btn-sec{width:100%;text-align:center} }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico IA | Diego Andrés Artunduaga | ICONE ialabs</title>
+  <style>
+    :root {
+      --navy: #050d1f;
+      --navy2: #0a1628;
+      --cyan: #00d4ff;
+      --purple: #7b2fff;
+      --orange: #ff8c00;
+      --green: #00d48a;
+      --red: #ff4757;
+      --white: #ffffff;
+      --card-bg: rgba(255,255,255,0.04);
+      --card-border: rgba(0,212,255,0.18);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    canvas#particles {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 0;
+      opacity: 0.5;
+    }
+    .view { display: none; position: relative; z-index: 1; }
+    .view.active { display: block; }
+
+    /* ── INTRO ── */
+    #view-intro {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 20px; text-align: center;
+    }
+    .intro-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 50px; padding: 8px 18px;
+      font-size: .78rem; font-weight: 700; letter-spacing: 1.5px;
+      color: var(--cyan); text-transform: uppercase; margin-bottom: 28px;
+    }
+    .intro-logo { font-size: .8rem; font-weight: 800; letter-spacing: 3px; color: rgba(255,255,255,.35); text-transform: uppercase; margin-bottom: 24px; }
+    .intro-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .intro-title span {
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .intro-sub { font-size: 1.05rem; color: rgba(255,255,255,.6); max-width: 520px; margin: 0 auto 36px; line-height: 1.6; }
+    .dims-preview {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      justify-content: center; max-width: 600px; margin: 0 auto 40px;
+    }
+    .dim-tag {
+      padding: 7px 14px; border-radius: 8px;
+      font-size: .78rem; font-weight: 700;
+      background: rgba(255,255,255,.05);
+    }
+    .intro-form { background: rgba(255,255,255,.04); border: 1px solid rgba(0,212,255,.2); border-radius: 20px; padding: 36px; max-width: 460px; width: 100%; text-align: left; }
+    .intro-form h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; text-align: center; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: .82rem; color: rgba(255,255,255,.6); font-weight: 600; margin-bottom: 6px; letter-spacing: .5px; }
+    .form-group input {
+      width: 100%; background: rgba(255,255,255,.06);
+      border: 1.5px solid rgba(0,212,255,.2); border-radius: 10px;
+      padding: 13px 16px; color: #fff; font-size: .95rem;
+      outline: none; transition: .2s;
+    }
+    .form-group input:focus { border-color: var(--cyan); box-shadow: 0 0 16px rgba(0,212,255,.12); }
+    .form-group input::placeholder { color: rgba(255,255,255,.25); }
+    .btn-start {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      border: none; border-radius: 12px;
+      color: #fff; font-size: 1rem; font-weight: 800;
+      cursor: pointer; transition: .2s; margin-top: 8px;
+      letter-spacing: .5px;
+    }
+    .btn-start:hover { opacity: .9; transform: translateY(-1px); }
+    .intro-meta { margin-top: 20px; font-size: .78rem; color: rgba(255,255,255,.3); text-align: center; }
+    .intro-meta span { color: var(--cyan); }
+
+    /* ── QUIZ ── */
+    #view-quiz {
+      min-height: 100vh;
+      padding: 20px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .quiz-header { max-width: 680px; width: 100%; padding: 20px 0 8px; }
+    .progress-wrap { margin-bottom: 8px; }
+    .progress-labels { display: flex; justify-content: space-between; font-size: .78rem; color: rgba(255,255,255,.4); margin-bottom: 6px; }
+    .progress-bar-bg { background: rgba(255,255,255,.08); border-radius: 50px; height: 5px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 50px; transition: width .4s ease; }
+    .dim-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-radius: 12px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      margin-bottom: 20px;
+    }
+    .dim-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dim-name { font-size: .82rem; font-weight: 700; color: rgba(255,255,255,.7); letter-spacing: .5px; }
+    .dim-num { margin-left: auto; font-size: .75rem; color: rgba(255,255,255,.3); }
+    .question-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 20px; padding: 32px; max-width: 680px; width: 100%;
+      margin-bottom: 16px;
+    }
+    .q-number { font-size: .75rem; color: rgba(255,255,255,.3); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+    .q-text { font-size: 1.05rem; font-weight: 700; line-height: 1.5; margin-bottom: 24px; }
+    .options-list { display: flex; flex-direction: column; gap: 10px; }
+    .opt-btn {
+      background: rgba(255,255,255,.03); border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 12px; padding: 14px 18px;
+      cursor: pointer; color: #fff; transition: .2s; text-align: left;
+      font-size: .9rem; line-height: 1.45; display: flex; align-items: flex-start; gap: 12px;
+    }
+    .opt-btn:hover { border-color: rgba(0,212,255,.4); background: rgba(0,212,255,.05); }
+    .opt-btn.selected { border-color: var(--cyan) !important; background: rgba(0,212,255,.12) !important; }
+    .opt-letter {
+      flex-shrink: 0; width: 26px; height: 26px;
+      border-radius: 50%; border: 1.5px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 800; text-transform: uppercase;
+      transition: .2s;
+    }
+    .opt-btn.selected .opt-letter { background: var(--cyan); border-color: var(--cyan); color: #000; }
+    .quiz-nav { max-width: 680px; width: 100%; display: flex; gap: 12px; }
+    .btn-prev {
+      flex: 0 0 auto; padding: 14px 24px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 12px; color: rgba(255,255,255,.6); cursor: pointer;
+      font-size: .9rem; transition: .2s;
+    }
+    .btn-prev:hover { background: rgba(255,255,255,.1); }
+    .btn-next {
+      flex: 1; padding: 14px 24px;
+      border: none; border-radius: 12px;
+      color: #fff; font-size: .95rem; font-weight: 800;
+      cursor: pointer; transition: .2s; opacity: .5;
+    }
+    .btn-next.ready { opacity: 1; }
+    .btn-next:hover.ready { transform: translateY(-1px); }
+
+    /* ── SAVING ── */
+    #view-saving {
+      min-height: 100vh; display: flex;
+      flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 40px 20px;
+    }
+    .saving-spinner {
+      width: 60px; height: 60px;
+      border: 3px solid rgba(0,212,255,.2);
+      border-top-color: var(--cyan);
+      border-radius: 50%; animation: spin .8s linear infinite;
+      margin: 0 auto 24px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESULT ── */
+    #view-result {
+      min-height: 100vh; display: flex;
+      flex-direction: column; align-items: center; justify-content: flex-start;
+      padding: 40px 20px;
+    }
+    .result-logo { font-size: .75rem; font-weight: 800; letter-spacing: 3px; color: rgba(255,255,255,.3); text-transform: uppercase; margin-bottom: 32px; }
+    .result-card {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(0,212,255,.25);
+      border-radius: 24px; padding: 40px 36px; max-width: 640px; width: 100%;
+      text-align: center; margin-bottom: 28px;
+    }
+    .result-score-big {
+      font-size: 5.5rem; font-weight: 900; line-height: 1;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 4px;
+    }
+    .result-pts { font-size: .85rem; color: rgba(255,255,255,.35); margin-bottom: 16px; }
+    .result-badge {
+      display: inline-block; padding: 8px 22px;
+      border-radius: 50px; font-size: .85rem; font-weight: 800;
+      letter-spacing: .5px; margin-bottom: 20px;
+    }
+    .result-name { font-size: 1.05rem; color: rgba(255,255,255,.6); margin-bottom: 8px; }
+    .result-title-big {
+      font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 900; margin-bottom: 16px;
+    }
+    .result-desc { font-size: .95rem; color: rgba(255,255,255,.65); line-height: 1.7; margin-bottom: 28px; }
+    .dims-chart { max-width: 640px; width: 100%; margin-bottom: 28px; }
+    .dims-chart-title { font-size: .82rem; color: rgba(255,255,255,.4); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+    .dim-row { display: grid; grid-template-columns: 180px 1fr 44px; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .dim-label { font-size: .8rem; color: rgba(255,255,255,.6); font-weight: 600; text-align: right; }
+    .dim-track { background: rgba(255,255,255,.07); border-radius: 50px; height: 8px; overflow: hidden; }
+    .dim-fill { height: 100%; border-radius: 50px; transition: width 1s ease; }
+    .dim-val { font-size: .82rem; font-weight: 800; }
+    .result-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+    .btn-cta {
+      padding: 14px 28px;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      border: none; border-radius: 12px;
+      color: #fff; font-size: .95rem; font-weight: 800;
+      cursor: pointer; transition: .2s; text-decoration: none;
+      display: inline-block;
+    }
+    .btn-cta:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-outline-light {
+      padding: 14px 28px;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.15);
+      border-radius: 12px; color: rgba(255,255,255,.7);
+      font-size: .95rem; font-weight: 600; cursor: pointer; transition: .2s;
+    }
+    .btn-outline-light:hover { background: rgba(255,255,255,.08); }
+
+    /* ── ADMIN ── */
+    #view-admin {
+      min-height: 100vh; padding: 40px 20px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .admin-header { max-width: 900px; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .admin-header h2 { font-size: 1.5rem; font-weight: 900; }
+    .admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; max-width: 900px; width: 100%; margin-bottom: 28px; }
+    .stat-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 20px; text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 900; color: var(--cyan); }
+    .stat-label { font-size: .78rem; color: rgba(255,255,255,.5); margin-top: 4px; }
+    .admin-table-wrap { max-width: 900px; width: 100%; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: rgba(0,212,255,.08); padding: 12px 14px; text-align: left; font-size: .78rem; font-weight: 700; letter-spacing: .5px; color: rgba(255,255,255,.6); border-bottom: 1px solid rgba(255,255,255,.1); }
+    tbody tr { border-bottom: 1px solid rgba(255,255,255,.05); }
+    tbody tr:hover { background: rgba(255,255,255,.02); }
+    tbody td { padding: 12px 14px; font-size: .85rem; color: rgba(255,255,255,.8); }
+    .level-badge { padding: 3px 10px; border-radius: 50px; font-size: .72rem; font-weight: 700; }
+    .badge-explorador { background: rgba(255,71,87,.15); color: var(--red); }
+    .badge-aceleracion { background: rgba(255,140,0,.15); color: var(--orange); }
+    .badge-lider { background: rgba(0,212,255,.15); color: var(--cyan); }
+    .admin-login { background: rgba(255,255,255,.04); border: 1px solid rgba(0,212,255,.2); border-radius: 20px; padding: 40px; max-width: 360px; width: 100%; text-align: center; }
+    .admin-login h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; }
+    .admin-login p { font-size: .85rem; color: rgba(255,255,255,.5); margin-bottom: 24px; }
+
+    /* ── MISC ── */
+    .gradient-cyan { background: linear-gradient(135deg, var(--cyan), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .admin-link { position: fixed; bottom: 16px; right: 16px; z-index: 99; font-size: .7rem; color: rgba(255,255,255,.15); cursor: pointer; text-decoration: none; }
+    .admin-link:hover { color: rgba(255,255,255,.4); }
+    @media (max-width: 520px) {
+      .result-card { padding: 28px 20px; }
+      .dim-row { grid-template-columns: 120px 1fr 40px; }
+      .dim-label { font-size: .72rem; }
+    }
+  </style>
 </head>
 <body>
-<canvas id="particles-canvas"></canvas>
-<div class="page-wrapper">
 
-<!-- HERO -->
-<section class="hero" id="hero-section">
-  <div class="badge">ICONE DX. &middot; VERSI&Oacute;N 1.0 &middot; PARA DIRECTORES COMERCIALES</div>
-  <h1>Diagn&oacute;stico de Madurez<br>en IA &middot; Director Comercial<br>Salud LATAM</h1>
-  <p class="tagline">Descubre en qu&eacute; nivel est&aacute; tu adopci&oacute;n de IA como l&iacute;der comercial en salud</p>
-  <div class="name-input-block">
-    <label>&iquest;C&oacute;mo te llamas, Director/a?</label>
-    <input type="text" id="user-name" placeholder="Tu nombre completo" autocomplete="off" />
-    <button class="btn-primary" onclick="startQuiz()">Iniciar Diagn&oacute;stico &rarr;</button>
-  </div>
-  <div class="hero-stats">
-    <div class="stat-item"><div class="num">25</div><div class="lbl">Preguntas</div></div>
-    <div class="stat-item"><div class="num">5</div><div class="lbl">Dimensiones</div></div>
-    <div class="stat-item"><div class="num">~8</div><div class="lbl">Minutos</div></div>
-  </div>
-</section>
+<canvas id="particles"></canvas>
 
-<!-- QUIZ -->
-<section id="quiz-section">
-  <div class="progress-header">
-    <div class="q-counter" id="q-counter">Pregunta 1 de 25</div>
-    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progress-bar" style="width:4%"></div></div>
-  </div>
-  <div class="dim-progress" id="dim-progress"></div>
-  <div id="dim-label-wrap"></div>
-  <div class="question-card" id="question-card">
-    <h2 id="question-text"></h2>
-    <ul class="options-list" id="options-list"></ul>
-  </div>
-  <div class="nav-btns">
-    <button class="btn-sec" id="btn-prev" onclick="prevQuestion()">&larr; Anterior</button>
-    <button class="btn-next" id="btn-next" onclick="nextQuestion()">Siguiente &rarr;</button>
-  </div>
-</section>
+<!-- ── INTRO ── -->
+<div id="view-intro" class="view active">
+  <div class="intro-logo">ICONE ialabs</div>
+  <div class="intro-badge">🔬 Diagnóstico Personalizado</div>
+  <h1 class="intro-title">
+    Diagnóstico de Madurez IA<br>
+    <span>para Directores LATAM en Salud</span>
+  </h1>
+  <p class="intro-sub">25 preguntas adaptadas a tu rol como Director Comercial en el sector salud y ciencia. Descubre tu nivel actual y el camino para maximizar tu impacto con IA.</p>
 
-<!-- RESULTADOS -->
-<section id="result-section">
-  <div class="result-hero">
-    <span class="level-badge" id="level-emoji"></span>
-    <div class="level-label" id="level-label-el"></div>
-    <h2 id="result-title"></h2>
-    <p id="result-desc"></p>
+  <div class="dims-preview">
+    <span class="dim-tag" style="color:#00d4ff;border:1px solid rgba(0,212,255,.3)">Ecosistema IA</span>
+    <span class="dim-tag" style="color:#7b2fff;border:1px solid rgba(123,47,255,.3)">IA en Salud</span>
+    <span class="dim-tag" style="color:#ff8c00;border:1px solid rgba(255,140,0,.3)">Dirección LATAM</span>
+    <span class="dim-tag" style="color:#00d48a;border:1px solid rgba(0,212,138,.3)">Productividad</span>
+    <span class="dim-tag" style="color:#ff4757;border:1px solid rgba(255,71,87,.3)">Influencia</span>
   </div>
-  <div class="score-display">
-    <div class="score-number" id="score-number">0</div>
-    <div class="score-label">PUNTUACI&Oacute;N TOTAL &middot; MADUREZ EN IA</div>
-  </div>
-  <div class="dim-grid" id="dim-grid"></div>
-  <div class="recs-section">
-    <h3>&#9889; Tus pr&oacute;ximos pasos</h3>
-    <div id="recs-list"></div>
-  </div>
-  <div class="cta-block">
-    <h3>&iquest;Listo para acelerar?</h3>
-    <p>El acompa&ntilde;amiento estrat&eacute;gico ICONE est&aacute; dise&ntilde;ado espec&iacute;ficamente para directores comerciales que quieren convertir la IA en una ventaja competitiva real en salud LATAM.</p>
-    <a href="https://iconeialabs.com" target="_blank" class="btn-cta">Solicitar Acompa&ntilde;amiento ICONE</a>
-  </div>
-  <button class="restart-btn" onclick="restart()">&larr; Hacer el diagn&oacute;stico de nuevo</button>
-</section>
 
-<!-- ADMIN LOGIN -->
-<section id="admin-login">
-  <div class="login-card">
-    <div style="font-size:32px;margin-bottom:12px">&#128274;</div>
-    <h2>Panel de Administraci&oacute;n</h2>
-    <p>Ingresa la contrase&ntilde;a para acceder a los resultados</p>
-    <input type="password" id="admin-pwd" placeholder="Contrase&ntilde;a" onkeydown="if(event.key==='Enter') checkAdmin()" />
-    <div class="login-error" id="login-error"></div>
-    <button class="btn-primary" onclick="checkAdmin()">Acceder al Panel</button>
-    <button class="back-btn" style="width:100%;margin-top:12px;border-radius:10px;padding:12px" onclick="showSection('hero-section')">&larr; Volver</button>
-  </div>
-</section>
-
-<!-- ADMIN PANEL -->
-<section id="admin-section">
-  <div class="admin-header">
-    <h2>&#128202; Panel de Resultados</h2>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="clear-btn" onclick="clearData()">&#128465; Limpiar datos</button>
-      <button class="back-btn" onclick="showSection('hero-section')">&larr; Volver al inicio</button>
+  <div class="intro-form">
+    <h3>¿Quién va a responder el diagnóstico?</h3>
+    <div class="form-group">
+      <label>NOMBRE COMPLETO *</label>
+      <input type="text" id="inp-nombre" placeholder="Tu nombre completo" />
     </div>
+    <div class="form-group">
+      <label>CORREO ELECTRÓNICO (opcional)</label>
+      <input type="email" id="inp-email" placeholder="tu@correo.com" />
+    </div>
+    <div class="form-group">
+      <label>EMPRESA / ORGANIZACIÓN (opcional)</label>
+      <input type="text" id="inp-empresa" placeholder="Boston Medical Group..." />
+    </div>
+    <button class="btn-start" onclick="startQuiz()">Comenzar el diagnóstico →</button>
+    <div class="intro-meta">10–12 minutos · <span>25 preguntas</span> · Resultado inmediato</div>
   </div>
-  <div class="admin-stats-row" id="admin-stats"></div>
-  <div class="admin-table-wrap">
-    <table class="admin-table" id="admin-table">
-      <thead><tr>
-        <th>#</th><th>Nombre</th><th>Nivel</th><th>Total</th>
-        <th>D1 Ecosistema</th><th>D2 Salud+IA</th><th>D3 Direcci&oacute;n LATAM</th>
-        <th>D4 Productividad</th><th>D5 Influencia</th><th>Fecha</th>
-      </tr></thead>
-      <tbody id="admin-body"></tbody>
-    </table>
-    <div class="admin-empty" id="admin-empty" style="display:none">No hay resultados registrados a&uacute;n.</div>
-  </div>
-</section>
-
-<div class="admin-link-wrap" id="admin-link-wrap">
-  <span class="admin-link" onclick="showSection('admin-login')">&bull; administraci&oacute;n</span>
 </div>
 
-</div><!-- /page-wrapper -->
+<!-- ── QUIZ ── -->
+<div id="view-quiz" class="view">
+  <div class="quiz-header">
+    <div class="progress-wrap">
+      <div class="progress-labels">
+        <span id="q-counter">Pregunta 1 de 25</span>
+        <span id="q-pct">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-fill" id="progress-fill" style="width:0%;background:linear-gradient(90deg,#00d4ff,#7b2fff)"></div>
+      </div>
+    </div>
+    <div class="dim-header" id="dim-header">
+      <div class="dim-dot" id="dim-dot"></div>
+      <span class="dim-name" id="dim-name"></span>
+      <span class="dim-num" id="dim-num"></span>
+    </div>
+  </div>
+  <div class="question-card">
+    <div class="q-number" id="q-number"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options-list" id="options-list"></div>
+  </div>
+  <div class="quiz-nav">
+    <button class="btn-prev" id="btn-prev" onclick="prevQ()" style="display:none">← Anterior</button>
+    <button class="btn-next" id="btn-next" onclick="nextQ()">Siguiente →</button>
+  </div>
+</div>
+
+<!-- ── SAVING ── -->
+<div id="view-saving" class="view">
+  <div class="saving-spinner"></div>
+  <p style="color:rgba(255,255,255,.6)">Guardando tus resultados...</p>
+</div>
+
+<!-- ── RESULT ── -->
+<div id="view-result" class="view">
+  <div class="result-logo">ICONE ialabs</div>
+  <div class="result-card">
+    <p class="result-name" id="res-name"></p>
+    <div class="result-score-big" id="res-score"></div>
+    <div class="result-pts" id="res-pts"></div>
+    <div class="result-badge" id="res-badge"></div>
+    <h2 class="result-title-big" id="res-title"></h2>
+    <p class="result-desc" id="res-desc"></p>
+    <div class="result-actions">
+      <a href="https://wa.me/573112525255?text=Hola%20Jorge%2C%20acabo%20de%20completar%20mi%20diagn%C3%B3stico%20de%20IA%20y%20quiero%20hablar%20sobre%20mi%20plan%20de%20acompa%C3%B1amiento" class="btn-cta" target="_blank">Quiero mi plan de acción →</a>
+      <button class="btn-outline-light" onclick="restart()">Hacer de nuevo</button>
+    </div>
+  </div>
+  <div class="dims-chart">
+    <div class="dims-chart-title">Análisis por dimensión</div>
+    <div id="dims-chart-rows"></div>
+  </div>
+</div>
+
+<!-- ── ADMIN LOGIN ── -->
+<div id="view-admin-login" class="view">
+  <div class="admin-login" style="margin-top:80px">
+    <h3>🔐 Panel Administrativo</h3>
+    <p>Diagnóstico Diego Andrés Artunduaga</p>
+    <div class="form-group" style="text-align:left;margin-bottom:16px">
+      <label style="font-size:.8rem;color:rgba(255,255,255,.5);font-weight:600;display:block;margin-bottom:6px">CONTRASEÑA</label>
+      <input type="password" id="admin-pass-inp" placeholder="Contraseña del panel" style="width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(0,212,255,.2);border-radius:10px;padding:13px 16px;color:#fff;font-size:.95rem;outline:none" onkeydown="if(event.key==='Enter')checkAdminPass()" />
+    </div>
+    <button class="btn-start" onclick="checkAdminPass()">Ingresar</button>
+    <div id="admin-pass-err" style="color:var(--red);font-size:.82rem;margin-top:8px;display:none">Contraseña incorrecta</div>
+    <p style="margin-top:16px;font-size:.75rem;color:rgba(255,255,255,.2);cursor:pointer" onclick="showView('intro')">← Volver al diagnóstico</p>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="view-admin" class="view">
+  <div class="admin-header">
+    <h2>📊 Panel · <span class="gradient-cyan">Diego Diagnóstico</span></h2>
+    <button class="btn-outline-light" onclick="showView('intro')" style="font-size:.82rem;padding:8px 16px">Cerrar sesión</button>
+  </div>
+  <div class="admin-stats" id="admin-stats"></div>
+  <div class="admin-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Empresa</th>
+          <th>Score</th>
+          <th>Nivel</th>
+          <th>Ecosistema</th>
+          <th>Salud IA</th>
+          <th>Dirección</th>
+          <th>Productividad</th>
+          <th>Influencia</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody id="admin-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<a class="admin-link" onclick="goAdmin()">admin</a>
 
 <script>
-const DIMENSIONS=[
-  {id:'d1',name:'Conocimiento del Ecosistema IA',color:'#00d4ff',emoji:'&#128506;'},
-  {id:'d2',name:'IA Especializada en Salud y Evidencia',color:'#7b2fff',emoji:'&#128300;'},
-  {id:'d3',name:'Dirección Comercial LATAM con IA',color:'#ff8c00',emoji:'&#127758;'},
-  {id:'d4',name:'Productividad Directiva y Liderazgo',color:'#00d48a',emoji:'&#9889;'},
-  {id:'d5',name:'Influencia y Posicionamiento en Salud LATAM',color:'#ff4757',emoji:'&#127942;'}
+// ═══════════════════════════════════════════════════════
+// SUPABASE CONFIG
+// ═══════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://nvgkhdrrxqdgxktfkioa.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52Z2toZHJyeHFkZ3hrdGZraW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzY4MjYsImV4cCI6MjA5MzQxMjgyNn0.mikJZpOf6pIupH1w_hFlMIzCoOMB-wJCMJHyP46YLeg';
+const TABLE = 'diagnostico_diego';
+const ADMIN_PASS = 'Diagnosticos2026';
+
+async function sbInsert(row) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON,
+      'Authorization': `Bearer ${SUPABASE_ANON}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(row)
+  });
+  return res.ok;
+}
+
+async function sbSelect() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?select=*&order=fecha_hora.desc`, {
+    headers: {
+      'apikey': SUPABASE_ANON,
+      'Authorization': `Bearer ${SUPABASE_ANON}`
+    }
+  });
+  return res.ok ? res.json() : [];
+}
+
+// ═══════════════════════════════════════════════════════
+// DIMENSIONES
+// ═══════════════════════════════════════════════════════
+const DIMS = [
+  { id: 1, name: 'Conocimiento del Ecosistema IA', color: '#00d4ff', short: 'Ecosistema' },
+  { id: 2, name: 'IA Especializada en Salud y Ciencia', color: '#7b2fff', short: 'Salud IA' },
+  { id: 3, name: 'Dirección Comercial LATAM con IA', color: '#ff8c00', short: 'Dirección' },
+  { id: 4, name: 'Productividad Directiva y Liderazgo', color: '#00d48a', short: 'Productividad' },
+  { id: 5, name: 'Influencia y Posicionamiento en Salud LATAM', color: '#ff4757', short: 'Influencia' }
 ];
 
-const QUESTIONS=[
-  {dim:0,text:'1. ¿Cómo describirías tu conocimiento actual de las principales herramientas de IA disponibles?',
-   options:['No sé distinguir entre las diferentes IAs disponibles en el mercado.','Conozco ChatGPT y Claude, pero no sé exactamente para qué sirve cada una.','Sé diferenciar entre las principales IAs (Claude, ChatGPT, Gemini, Copilot) y cuándo usar cada una.','Tengo un mapa claro del ecosistema IA y selecciono la herramienta correcta según la tarea.']},
-  {dim:0,text:'2. ¿Con qué frecuencia usas herramientas de IA en tu trabajo diario como director/a?',
-   options:['Casi nunca. Sigo trabajando de manera tradicional.','Uso IA ocasionalmente para tareas muy básicas.','Uso IA varias veces por semana para apoyar mis actividades directivas.','La IA es parte integral de mi flujo de trabajo diario.']},
-  {dim:0,text:'3. ¿Sabes para qué sirve cada una de estas herramientas: Perplexity, Gemini, Midjourney, Copilot?',
-   options:['No las conozco o apenas he escuchado algunos nombres.','Conozco algunas pero no tengo claro cuál usar para cada situación.','Conozco la mayoría y puedo usarlas en contextos específicos de mi trabajo.','Las uso con criterio claro y las combino según la tarea que necesito realizar.']},
-  {dim:0,text:'4. ¿Cómo evalúas la confiabilidad de la información que te da una IA antes de usarla profesionalmente?',
-   options:['No lo evalúo. Uso la información tal como me la da la IA.','Verifico ocasionalmente cuando algo me parece inusual.','Siempre contrasto la información de la IA con fuentes adicionales antes de usarla.','Tengo un proceso definido para validar, cruzar y documentar la información generada por IA.']},
-  {dim:0,text:'5. ¿Sabes cómo escribir instrucciones (prompts) efectivos para obtener resultados profesionales de la IA?',
-   options:['No sé cómo formular instrucciones más allá de preguntas básicas.','Hago preguntas simples pero rara vez obtengo exactamente lo que necesito.','Sé estructurar prompts que producen resultados útiles para mi trabajo directivo.','Diseño prompts avanzados con contexto, rol, formato y restricciones para resultados ejecutivos.']},
-  {dim:1,text:'6. ¿Conoces herramientas de IA especializadas para el sector de la salud y ciencias médicas?',
-   options:['No conozco ninguna IA específica para el sector salud.','He oído de algunas pero no las he explorado para mi trabajo.','Conozco y he usado alguna IA especializada en salud o análisis de literatura científica.','Tengo IAs para salud (Consensus, Semantic Scholar, PubMed AI, etc.) integradas a mi trabajo comercial.']},
-  {dim:1,text:'7. ¿Cómo construyes actualmente las propuestas comerciales para tus clientes del sector salud?',
-   options:['Con base en mi experiencia y materiales estándar de la empresa.','Incluyo algunos datos del sector pero sin respaldo científico sistemático.','Busco estudios y evidencia clínica para soportar mis propuestas.','Uso IA para identificar, sintetizar y presentar evidencia científica relevante en cada propuesta.']},
-  {dim:1,text:'8. ¿Sabes usar IA para encontrar y resumir papers científicos o estudios clínicos relevantes para ventas?',
-   options:['No he intentado usar IA para este tipo de búsqueda.','He intentado pero los resultados no son lo suficientemente confiables.','Uso herramientas de IA para buscar y sintetizar literatura científica sobre salud.','Construyo argumentarios con evidencia científica usando IA como asistente de investigación.']},
-  {dim:1,text:'9. ¿Cómo argumentas con base científica frente a médicos, directivos de salud o compradores técnicos?',
-   options:['Dependo principalmente de los materiales de marketing de la empresa.','Complemento los materiales con algo de investigación propia.','Preparo argumentarios con datos clínicos y científicos actualizados para cada reunión clave.','Uso IA para construir argumentarios personalizados por perfil de comprador con evidencia y casos de éxito.']},
-  {dim:1,text:'10. ¿Qué tan actualizado/a estás sobre tendencias de IA aplicadas al sector salud en LATAM?',
-   options:['No sigo tendencias de IA en salud de manera activa.','Leo ocasionalmente artículos o noticias sobre el tema.','Me mantengo actualizado/a con fuentes confiables y aplico lo aprendido en mi rol.','Soy referente en mi equipo sobre IA en salud LATAM y comparto conocimiento activamente.']},
-  {dim:2,text:'11. ¿Cómo usas IA para analizar el desempeño comercial de tu equipo en los países LATAM?',
-   options:['No uso IA para análisis de desempeño. Trabajo con reportes manuales o Excel.','Uso herramientas digitales básicas pero sin integración de IA.','Uso IA para analizar datos y generar reportes de desempeño por país o región.','Tengo dashboards con IA que me permiten tomar decisiones en tiempo real sobre mi operación LATAM.']},
-  {dim:2,text:'12. ¿Usas IA para adaptar las estrategias comerciales según las particularidades de cada mercado LATAM?',
-   options:['Aplico el mismo enfoque en todos los países sin adaptación específica.','Adapto manualmente con base en mi experiencia en cada mercado.','Uso IA para identificar diferencias culturales, regulatorias y comerciales por país.','Tengo estrategias diferenciadas por mercado construidas con IA, con análisis de competencia local.']},
-  {dim:2,text:'13. ¿Cómo usas IA para gestionar y apoyar a tu equipo de ventas disperso por LATAM?',
-   options:['La gestión es por reuniones y comunicación tradicional.','Uso WhatsApp y correo para coordinar, sin apoyo de IA.','Uso IA para preparar comunicaciones, retroalimentación y gestión del equipo a distancia.','Tengo un sistema con IA para seguimiento, coaching y desarrollo del equipo comercial.']},
-  {dim:2,text:'14. ¿Cómo usas IA para el forecasting y proyecciones comerciales de tu región?',
-   options:['Las proyecciones las hago con base en experiencia e históricos en Excel.','Uso algunas herramientas digitales para proyectar, pero sin IA.','Uso IA para modelar escenarios y hacer proyecciones más precisas por mercado.','Tengo modelos predictivos con IA que alimentan mi planificación comercial LATAM.']},
-  {dim:2,text:'15. ¿Cómo usas IA para la prospección y desarrollo de nuevos clientes en salud LATAM?',
-   options:['La prospección es manual: llamadas, visitas y referidos.','Uso LinkedIn u otras plataformas pero sin apoyo de IA.','Uso IA para identificar prospectos, personalizar mensajes y gestionar el pipeline.','Tengo un sistema de prospección inteligente con IA: segmentación, contacto personalizado y seguimiento.']},
-  {dim:3,text:'16. ¿Cómo usas IA para preparar tus reuniones directivas y presentaciones ejecutivas?',
-   options:['No uso IA para preparar reuniones. Lo hago de forma tradicional.','Uso IA ocasionalmente para redactar algunas partes de presentaciones.','Uso IA regularmente para preparar agendas, materiales y puntos clave de reuniones.','La IA es mi asistente directivo: prepara briefings, opciones estratégicas y materiales ejecutivos completos.']},
-  {dim:3,text:'17. ¿Cómo usas IA para la formación y desarrollo de tu equipo comercial?',
-   options:['No uso IA para formar a mi equipo. Uso materiales tradicionales.','Comparto ocasionalmente contenido generado con IA con mi equipo.','Uso IA para crear programas de formación, casos de estudio y materiales de entrenamiento.','Tengo una estrategia de desarrollo del equipo con IA: contenidos adaptativos y seguimiento de progreso.']},
-  {dim:3,text:'18. ¿Cómo usas IA para gestionar tu comunicación con stakeholders (alta dirección, equipo, clientes)?',
-   options:['Redacto toda mi comunicación de forma manual y tradicional.','Uso IA ocasionalmente para revisar o mejorar textos importantes.','Uso IA para adaptar tono y estilo de comunicación según el interlocutor.','Tengo plantillas y flujos con IA para comunicarme con precisión y eficiencia con todos mis stakeholders.']},
-  {dim:3,text:'19. ¿Cómo usas IA para generar reportes e informes para la alta dirección?',
-   options:['Los reportes los elaboro manualmente en PowerPoint o Word.','Uso plantillas predefinidas que completo con datos manuales.','Uso IA para analizar datos y generar narrativas de reporte ejecutivo.','La IA transforma mis datos en reportes ejecutivos listos para presentar a la alta dirección.']},
-  {dim:3,text:'20. ¿Has creado artefactos propios con IA (prompts, plantillas, workflows) para tu trabajo diario como director/a?',
-   options:['No he creado ningún artefacto. Uso lo que encuentro disponible.','He probado algunos prompts básicos pero sin un sistema estructurado.','Tengo un set de prompts y plantillas que uso regularmente para mis tareas directivas.','Tengo un ecosistema personal de artefactos con IA que agiliza mis principales responsabilidades.']},
-  {dim:4,text:'21. ¿Cuál es tu presencia digital actual como líder comercial en el sector salud LATAM?',
-   options:['No tengo una presencia digital activa o estratégica.','Tengo perfiles en redes pero los actualizo de forma esporádica.','Mantengo presencia activa en LinkedIn y comparto contenido sobre ventas y salud regularmente.','Soy un referente visible en salud LATAM con comunidad, contenido estratégico y reconocimiento profesional.']},
-  {dim:4,text:'22. ¿Usas IA para crear contenido que posicione tu autoridad en ventas y salud?',
-   options:['No genero contenido digital con o sin IA.','Comparto contenido de otros, pero rara vez creo el mío propio.','Uso IA para crear artículos y posts que posicionen mi expertise en ventas B2B en salud.','Tengo una estrategia de contenido con IA que construye mi marca personal como líder en salud LATAM.']},
-  {dim:4,text:'23. ¿Cómo comunicas tu propuesta de valor diferencial frente a otros directores del sector salud?',
-   options:['No tengo una propuesta de valor diferencial claramente definida y comunicada.','Tengo claro mi diferencial pero no lo comunico de manera estratégica.','Comunico mi propuesta de valor de forma consistente en diferentes contextos profesionales.','Uso IA para construir una narrativa de valor diferencial basada en datos, resultados y evidencia científica.']},
-  {dim:4,text:'24. ¿Tu equipo comercial está siendo formado en el uso de IA para el sector salud?',
-   options:['Mi equipo no usa IA en su trabajo comercial.','Algunos miembros usan IA de forma independiente, sin lineamientos claros.','He iniciado procesos de formación en IA para mi equipo comercial.','Tengo un programa estructurado de adopción de IA en mi equipo con métricas y resultados.']},
-  {dim:4,text:'25. ¿Cómo contribuyes al conocimiento sobre IA en ventas y salud dentro de tu organización y sector?',
-   options:['No comparto conocimiento sobre IA dentro de mi organización.','Comparto información ocasionalmente cuando surge el tema.','Soy promotor/a activo/a del uso de IA en mi organización y el sector salud.','Lidero iniciativas de transformación digital con IA y tengo influencia en el sector salud LATAM.']}
+// ═══════════════════════════════════════════════════════
+// PREGUNTAS
+// ═══════════════════════════════════════════════════════
+const QS = [
+  // DIM 1
+  { dim: 1, q: '¿Qué tan bien conoces las principales herramientas de IA disponibles hoy (Claude, ChatGPT, Gemini, Copilot, etc.)?',
+    opts: ['No las conozco bien, me resultan confusas.', 'He escuchado de ellas pero las uso poco o de manera esporádica.', 'Uso 1-2 herramientas regularmente en mi trabajo como director/a.', 'Evalúo y combino varias IAs según la tarea específica que necesito resolver.'] },
+  { dim: 1, q: '¿Con qué frecuencia usas herramientas de IA en tu trabajo diario como director/a comercial?',
+    opts: ['Casi no las uso; no están integradas a mi rutina laboral.', 'Las uso ocasionalmente, menos de una vez por semana.', 'Las uso varias veces por semana para tareas concretas.', 'La IA es parte integral de mi flujo de trabajo diario como director/a.'] },
+  { dim: 1, q: '¿Conoces y usas herramientas especializadas como Perplexity, Gemini, Midjourney o Microsoft Copilot?',
+    opts: ['No conozco estas herramientas específicas.', 'He oído de algunas pero no las he probado realmente.', 'He probado 2-3 de estas herramientas con cierta regularidad.', 'Uso activamente varias según sus fortalezas para distintas tareas.'] },
+  { dim: 1, q: '¿Cómo evalúas la confiabilidad de la información que produce una herramienta de IA?',
+    opts: ['Acepto la información sin cuestionarla demasiado.', 'Tengo dudas pero no siempre sé cómo validar lo que genera.', 'Contrasto los resultados con fuentes adicionales en los temas importantes.', 'Aplico criterios estructurados para verificar y validar todo output de IA antes de usarlo.'] },
+  { dim: 1, q: '¿Cómo escribes instrucciones (prompts) para obtener resultados profesionales con IA?',
+    opts: ['Escribo preguntas simples sin estructura específica.', 'Estoy aprendiendo a dar más contexto en mis instrucciones a la IA.', 'Uso instrucciones detalladas con rol, contexto y objetivo definidos.', 'Diseño prompts especializados con cadenas de razonamiento y refinamiento iterativo.'] },
+
+  // DIM 2
+  { dim: 2, q: '¿Conoces herramientas de IA especializadas para el sector salud y ciencia, como Consensus, Semantic Scholar o PubMed AI?',
+    opts: ['No conozco herramientas de IA especializadas en salud.', 'He escuchado de alguna, pero no las he explorado en detalle.', 'Conozco y he usado alguna de estas plataformas en búsquedas.', 'Las uso regularmente para fundamentar mis propuestas y argumentos comerciales en salud.'] },
+  { dim: 2, q: '¿Cómo construyes actualmente propuestas comerciales para clientes del sector salud?',
+    opts: ['Las construyo manualmente sin apoyo de ninguna herramienta de IA.', 'Uso IA para editar o mejorar borradores que ya tengo escritos.', 'Uso IA para estructurar, redactar y adaptar propuestas por tipo de cliente.', 'Tengo templates potenciados por IA adaptables a cada perfil de cliente en salud.'] },
+  { dim: 2, q: '¿Usas IA para acceder, resumir o analizar papers científicos y estudios clínicos relevantes para tu sector?',
+    opts: ['No busco ni analizo literatura científica en mi rol comercial.', 'Uso Google o PubMed básico sin apoyo de IA para buscar información.', 'Uso IA para resumir y extraer los insights más relevantes de estudios científicos.', 'Integro evidencia científica actualizada en mis argumentos comerciales con apoyo de IA.'] },
+  { dim: 2, q: '¿Cómo preparas tu argumentación científica cuando presentas ante médicos o directivos del sector salud?',
+    opts: ['Me apoyo en materiales corporativos estándar sin mucha personalización.', 'Adapto los argumentos manualmente con información que busco por mi cuenta.', 'Uso IA para preparar argumentos basados en evidencia según el perfil del interlocutor.', 'Tengo flujos con IA que incluyen evidencia, objeciones y adaptación por especialidad médica.'] },
+  { dim: 2, q: '¿Cómo te mantienes actualizado/a sobre las tendencias de IA en el sector salud de LATAM?',
+    opts: ['Prácticamente no me actualizo sobre IA en salud de manera sistemática.', 'Leo ocasionalmente artículos generales cuando me los comparten.', 'Sigo fuentes específicas de IA en salud y me actualizo con regularidad.', 'Tengo un sistema de vigilancia con alertas y síntesis periódicas sobre IA en salud LATAM.'] },
+
+  // DIM 3
+  { dim: 3, q: '¿Cómo analizas el desempeño comercial de tu equipo en los distintos países de LATAM?',
+    opts: ['El análisis lo hago manualmente con reportes básicos.', 'Uso hojas de cálculo o dashboards estándar, sin herramientas de IA.', 'Uso IA para interpretar datos y generar insights del equipo por país.', 'Tengo sistemas con IA para análisis predictivo del desempeño por mercado en LATAM.'] },
+  { dim: 3, q: '¿Cómo adaptas tus estrategias comerciales a las diferencias de cada mercado en LATAM?',
+    opts: ['Aplico estrategias uniformes para todos los mercados de la región.', 'Adapto manualmente según mi experiencia y conocimiento de cada país.', 'Uso IA para identificar diferencias culturales, regulatorias y de comportamiento por mercado.', 'Diseño estrategias diferenciadas por país con apoyo de IA para análisis y personalización.'] },
+  { dim: 3, q: '¿Cómo gestionas a tu equipo de ventas disperso en distintos países de LATAM?',
+    opts: ['La gestión es principalmente por llamadas y reportes básicos.', 'Uso herramientas digitales básicas como email y CRM, sin integración de IA.', 'Uso IA para preparar reuniones, dar feedback estructurado y planes de desarrollo.', 'Tengo protocolos de gestión con IA: onboarding, coaching, evaluación y seguimiento por país.'] },
+  { dim: 3, q: '¿Cómo elaboras proyecciones y forecasting comercial para la región LATAM?',
+    opts: ['Las proyecciones las hago con intuición y experiencia sin metodología formal.', 'Uso métodos básicos de cálculo con datos históricos, sin apoyo de IA.', 'Consulto IA para analizar tendencias y construir escenarios comerciales.', 'Tengo modelos de forecasting asistidos por IA con variables específicas de cada mercado LATAM.'] },
+  { dim: 3, q: '¿Cómo identificas y prospectas nuevos clientes en el sector salud a lo largo de LATAM?',
+    opts: ['La prospección es manual, por referidos o contacto directo.', 'Uso LinkedIn u otras redes sin un sistema estructurado de IA.', 'Uso IA para identificar prospectos, investigar cuentas y preparar acercamientos personalizados.', 'Tengo un sistema de prospección inteligente con IA: segmentación, señales de compra y mensajes.'] },
+
+  // DIM 4
+  { dim: 4, q: '¿Cómo te preparas para reuniones directivas y la elaboración de presentaciones ejecutivas?',
+    opts: ['Me preparo de manera intuitiva con poca estructura formal.', 'Preparo agendas y presentaciones manualmente, sin IA.', 'Uso IA para estructurar, enriquecer y revisar mis materiales ejecutivos.', 'Tengo plantillas y flujos con IA para preparación directiva: resúmenes, datos, narrativas y anticipación de preguntas.'] },
+  { dim: 4, q: '¿Cómo usas la IA para la formación y el desarrollo de tu equipo comercial?',
+    opts: ['La formación es esporádica y principalmente presencial.', 'Comparto recursos y hago sesiones de equipo sin apoyo de IA.', 'Uso IA para diseñar contenidos de capacitación y planes de desarrollo del equipo.', 'Tengo programas de desarrollo co-diseñados con IA: ruta formativa, feedback y métricas de progreso.'] },
+  { dim: 4, q: '¿Cómo gestionas la comunicación con stakeholders clave (directivos, socios, clientes) con apoyo de IA?',
+    opts: ['La comunicación es reactiva y sin sistematización clara.', 'Tengo plantillas básicas de email y mensajes sin IA.', 'Uso IA para redactar, adaptar y dar seguimiento a comunicaciones clave.', 'Tengo estrategias de comunicación diferenciadas por stakeholder, asistidas por IA con seguimiento.'] },
+  { dim: 4, q: '¿Cómo generas reportes e informes para la alta dirección de tu organización?',
+    opts: ['Los reportes me toman mucho tiempo y son completamente manuales.', 'Uso formatos estándar con datos que compilo manualmente.', 'Uso IA para estructurar, redactar y visualizar reportes con datos del negocio.', 'Tengo flujos semi-automatizados con IA para generar reportes ejecutivos con insights y narrativa.'] },
+  { dim: 4, q: '¿Has creado artefactos propios con IA adaptados a tu rol (prompts especializados, plantillas, flujos de trabajo)?',
+    opts: ['No he creado ningún artefacto propio con IA.', 'He guardado algunos prompts básicos para reutilizar ocasionalmente.', 'Tengo una biblioteca personal de prompts y plantillas para mi cargo.', 'Tengo un sistema documentado de artefactos con IA: prompts, plantillas, flujos y procesos para mi trabajo.'] },
+
+  // DIM 5
+  { dim: 5, q: '¿Cómo es tu presencia digital actual como líder comercial en el sector salud de LATAM?',
+    opts: ['Tengo poca o ninguna presencia digital profesional activa.', 'Tengo perfil en LinkedIn pero no lo actualizo con regularidad.', 'Publico contenido ocasionalmente sobre temas de salud y ventas.', 'Tengo una estrategia de posicionamiento activa con contenido regular sobre salud LATAM.'] },
+  { dim: 5, q: '¿Usas IA para crear contenido de posicionamiento como líder en el sector salud?',
+    opts: ['No creo contenido de posicionamiento profesional con IA.', 'He experimentado puntualmente con IA para crear algún texto.', 'Uso IA regularmente para crear posts, artículos y material de valor para mi red.', 'Tengo un flujo editorial asistido por IA: temas, formatos, calendario y publicación en salud LATAM.'] },
+  { dim: 5, q: '¿Qué tan claro y diferenciado es tu mensaje de propuesta de valor como director/a comercial en salud?',
+    opts: ['Me cuesta articular claramente mi propuesta de valor única.', 'Tengo un mensaje básico pero no diferenciado por audiencia o contexto.', 'Tengo un pitch refinado con apoyo de IA para diferentes interlocutores.', 'Tengo una propuesta de valor sofisticada por audiencia, potenciada y validada continuamente con IA.'] },
+  { dim: 5, q: '¿Has liderado la formación o adopción de IA en tu equipo comercial para el sector salud?',
+    opts: ['No he capacitado a mi equipo en el uso de IA.', 'He compartido algún recurso o herramienta de IA de manera puntual.', 'He facilitado sesiones de entrenamiento básico en IA para el equipo.', 'Tengo un programa formal de adopción de IA en el equipo con rutas, métricas y seguimiento.'] },
+  { dim: 5, q: '¿Contribuyes activamente al ecosistema de conocimiento sobre IA en ventas y salud en LATAM?',
+    opts: ['No contribuyo aún al conocimiento colectivo sobre IA en salud.', 'Comparto esporádicamente artículos o reflexiones en mis redes.', 'Soy referente interno en mi organización sobre IA aplicada a ventas en salud.', 'Soy una voz activa en LATAM sobre IA comercial en salud: charlas, publicaciones, comunidades.'] }
 ];
 
-const LEVELS=[
-  {min:0,max:49,emoji:'🔍',label:'Nivel Explorador',labelColor:'#00d4ff',labelBg:'rgba(0,212,255,0.12)',
-   title:'El camino comienza aquí',
-   desc:'Tienes una base sólida como director comercial. El siguiente paso es integrar la IA como tu ventaja competitiva en el sector salud LATAM. El acompañamiento ICONE está diseñado exactamente para este momento.',
-   recs:[
-     {icon:'🤖',title:'Activa Claude para tareas directivas diarias',text:'Empieza usándolo para <strong>preparar reuniones, redactar comunicados y resumir informes</strong>. En 2 semanas notarás un salto en tu productividad ejecutiva.'},
-     {icon:'🗺️',title:'Mapea el ecosistema de IAs',text:'Conoce las diferencias entre ChatGPT, Claude, Gemini y Perplexity. <strong>Cada una tiene un superpoder</strong> distinto para tu trabajo como director en salud.'},
-     {icon:'📄',title:'Crea tu primer artefacto para propuestas comerciales',text:'Un prompt bien construido puede generar <strong>propuestas con evidencia científica en minutos</strong>. Este es el primer artefacto que más ROI genera.'},
-     {icon:'🔍',title:'Usa Perplexity para investigación de mercado en salud',text:'Perplexity es la IA más potente para <strong>investigar competidores, tendencias y datos del sector salud LATAM</strong> con fuentes verificadas.'}
-   ]},
-  {min:50,max:74,emoji:'🚀',label:'Nivel en Aceleración',labelColor:'#7b2fff',labelBg:'rgba(123,47,255,0.12)',
-   title:'Ya usas IA. Ahora sistématizala.',
-   desc:'Tienes herramientas y algo de experiencia con IA. El reto es construir un ecosistema estructurado que multiplique tu impacto como director comercial LATAM en salud. Aquí es donde el acompañamiento ICONE genera el mayor salto.',
-   recs:[
-     {icon:'⚙️',title:'Construye tu ecosistema de artefactos propios',text:'Pasa de usar prompts sueltos a tener <strong>un sistema de plantillas y workflows</strong> que cubran tus principales responsabilidades como director LATAM.'},
-     {icon:'🔬',title:'Integra evidencia científica en tus propuestas',text:'Conecta herramientas como <strong>Consensus o Semantic Scholar con Claude</strong> para construir argumentarios científicos que distingan tus propuestas de la competencia.'},
-     {icon:'🌎',title:'Sistema de gestión de equipo LATAM con IA',text:'Diseña un sistema de <strong>seguimiento, coaching y comunicación</strong> con IA para gestionar equipos dispersos en múltiples países de forma más efectiva.'},
-     {icon:'🏆',title:'Estrategia de posicionamiento digital en salud',text:'Usa IA para crear contenido que te posicione como <strong>referente en ventas B2B + IA en el sector salud LATAM</strong>. LinkedIn es tu campo de juego.'}
-   ]},
-  {min:75,max:100,emoji:'⚡',label:'Nivel Líder IA',labelColor:'#ff8c00',labelBg:'rgba(255,140,0,0.12)',
-   title:'Eres un director aumentado por IA',
-   desc:'Tu nivel de adopción de IA te posiciona entre los directores comerciales más avanzados del sector salud LATAM. El acompañamiento ICONE te lleva al siguiente nivel: construir artefactos propios de alto impacto y convertirte en referente del sector.',
-   recs:[
-     {icon:'🏗️',title:'Artefactos avanzados para dirección LATAM',text:'Diseña <strong>sistemas de inteligencia comercial con IA</strong> específicos para la complejidad de gestionar múltiples mercados en salud LATAM simultáneamente.'},
-     {icon:'🎓',title:'Programa de formación IA para tu equipo',text:'Transforma a tu equipo comercial en <strong>vendedores aumentados por IA</strong>. Diseña un programa estructurado que escale tu visión a toda la organización.'},
-     {icon:'✍️',title:'Thought leadership en salud + IA',text:'Tienes el conocimiento para ser voz autorizada. Usa IA para <strong>amplificar tu perspectiva</strong> y construir un perfil de liderazgo de opinión en el sector.'},
-     {icon:'📊',title:'Sistema de inteligencia comercial con IA',text:'Construye un sistema de <strong>business intelligence con IA</strong> que integre datos de múltiples países, anticipe tendencias y alimente decisiones estratégicas en tiempo real.'}
-   ]}
-];
+// ═══════════════════════════════════════════════════════
+// NIVELES
+// ═══════════════════════════════════════════════════════
+const LEVELS = {
+  explorador: {
+    label: '🌱 Explorador IA',
+    color: '#ff4757',
+    bg: 'rgba(255,71,87,.15)',
+    range: [0, 49],
+    title: 'Estás en el inicio del camino',
+    desc: 'Tienes una base desde la cual construir. Las IAs representan una enorme oportunidad para potenciar tu liderazgo comercial en LATAM y tu capacidad de argumentación en el sector salud. Con un plan estructurado, en pocas semanas puedes avanzar significativamente.'
+  },
+  aceleracion: {
+    label: '🚀 En Aceleración',
+    color: '#ff8c00',
+    bg: 'rgba(255,140,0,.15)',
+    range: [50, 74],
+    title: 'Estás ganando velocidad con IA',
+    desc: 'Ya tienes experiencia real con IA y la integras en varias áreas de tu trabajo. El siguiente paso es sistematizar tu uso, crear artefactos propios para tu rol y desarrollar capacidades especializadas en IA para el sector salud y la dirección comercial LATAM.'
+  },
+  lider: {
+    label: '⚡ Líder IA',
+    color: '#00d4ff',
+    bg: 'rgba(0,212,255,.15)',
+    range: [75, 100],
+    title: 'Eres un referente en adopción de IA',
+    desc: '¡Felicitaciones! Tienes un nivel alto de madurez en IA aplicada a tu rol. Lideras con IA de manera estratégica, tienes sistemas propios y potencias a tu equipo. Ahora el reto es escalar tu influencia en el ecosistema salud LATAM y convertirte en referente regional.'
+  }
+};
 
-// Estado
-let currentQ=0, answers=new Array(25).fill(null), userName='';
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let state = {
+  nombre: '', email: '', empresa: '',
+  currentQ: 0,
+  answers: new Array(25).fill(null)
+};
 
-// Partículas
-(function(){
-  const canvas=document.getElementById('particles-canvas');
-  const ctx=canvas.getContext('2d');
-  let W,H,particles=[];
-  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
-  window.addEventListener('resize',resize); resize();
-  const COLORS=['rgba(0,212,255,','rgba(123,47,255,','rgba(255,140,0,'];
-  function mp(){return{x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.4,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,color:COLORS[Math.floor(Math.random()*3)],alpha:Math.random()*.5+.1};}
-  for(let i=0;i<90;i++) particles.push(mp());
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    particles.forEach(p=>{
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=p.color+p.alpha+')';ctx.fill();
-      p.x+=p.vx;p.y+=p.vy;
-      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById('view-' + id);
+  if (el) { el.classList.add('active'); window.scrollTo(0,0); }
+}
+
+// ═══════════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════════
+function startQuiz() {
+  const nombre = document.getElementById('inp-nombre').value.trim();
+  if (!nombre) { document.getElementById('inp-nombre').focus(); return; }
+  state.nombre = nombre;
+  state.email = document.getElementById('inp-email').value.trim();
+  state.empresa = document.getElementById('inp-empresa').value.trim();
+  state.currentQ = 0;
+  state.answers = new Array(25).fill(null);
+  showView('quiz');
+  renderQ();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER QUESTION
+// ═══════════════════════════════════════════════════════
+function renderQ() {
+  const idx = state.currentQ;
+  const q = QS[idx];
+  const dim = DIMS[q.dim - 1];
+  const total = QS.length;
+
+  // Progress
+  const pct = Math.round((idx / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = `Pregunta ${idx + 1} de ${total}`;
+  document.getElementById('q-pct').textContent = pct + '%';
+
+  // Dim header
+  document.getElementById('dim-dot').style.background = dim.color;
+  document.getElementById('dim-name').textContent = dim.name;
+  document.getElementById('dim-header').style.borderColor = dim.color + '40';
+  const dimQs = QS.filter(x => x.dim === q.dim);
+  const dimPos = dimQs.indexOf(q) + 1;
+  document.getElementById('dim-num').textContent = `${dimPos}/${dimQs.length}`;
+
+  // Question
+  document.getElementById('q-number').textContent = `PREGUNTA ${idx + 1}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  // Options
+  const letters = ['A', 'B', 'C', 'D'];
+  const container = document.getElementById('options-list');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn' + (state.answers[idx] === i ? ' selected' : '');
+    btn.style.setProperty('--dim-color', dim.color);
+    btn.onclick = () => selectAnswer(i);
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    if (state.answers[idx] === i) {
+      btn.style.borderColor = dim.color;
+      btn.style.background = dim.color + '20';
+    }
+    container.appendChild(btn);
+  });
+
+  // Nav
+  document.getElementById('btn-prev').style.display = idx > 0 ? 'block' : 'none';
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = idx === total - 1 ? 'Ver mis resultados →' : 'Siguiente →';
+  nextBtn.style.background = `linear-gradient(135deg, ${dim.color}, ${dim.color === '#00d4ff' ? '#7b2fff' : dim.color + 'aa'})`;
+
+  const answered = state.answers[idx] !== null;
+  nextBtn.classList.toggle('ready', answered);
+}
+
+function selectAnswer(i) {
+  state.answers[state.currentQ] = i;
+  // Re-render options
+  const dim = DIMS[QS[state.currentQ].dim - 1];
+  document.querySelectorAll('.opt-btn').forEach((btn, j) => {
+    const isSelected = j === i;
+    btn.classList.toggle('selected', isSelected);
+    btn.style.borderColor = isSelected ? dim.color : '';
+    btn.style.background = isSelected ? dim.color + '20' : '';
+    btn.querySelector('.opt-letter').style.background = isSelected ? dim.color : '';
+    btn.querySelector('.opt-letter').style.color = isSelected ? '#000' : '';
+  });
+  document.getElementById('btn-next').classList.add('ready');
+}
+
+function nextQ() {
+  if (state.answers[state.currentQ] === null) return;
+  if (state.currentQ < QS.length - 1) {
+    state.currentQ++;
+    renderQ();
+  } else {
+    finishQuiz();
+  }
+}
+
+function prevQ() {
+  if (state.currentQ > 0) {
+    state.currentQ--;
+    renderQ();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// FINISH & CALCULATE
+// ═══════════════════════════════════════════════════════
+async function finishQuiz() {
+  showView('saving');
+
+  // Calculate scores
+  let totalRaw = 0;
+  const dimScores = [0, 0, 0, 0, 0];
+
+  QS.forEach((q, i) => {
+    const val = state.answers[i] || 0;
+    totalRaw += val;
+    dimScores[q.dim - 1] += val;
+  });
+
+  const scoreNorm = Math.round(totalRaw * 100 / 75);
+  const dimNorm = dimScores.map(s => Math.round(s * 100 / 15));
+
+  let level;
+  if (scoreNorm < 50) level = LEVELS.explorador;
+  else if (scoreNorm < 75) level = LEVELS.aceleracion;
+  else level = LEVELS.lider;
+
+  // Save to Supabase
+  const row = {
+    nombre: state.nombre,
+    email: state.email || null,
+    empresa: state.empresa || null,
+    puntaje_total: scoreNorm,
+    puntaje_dim1: dimNorm[0],
+    puntaje_dim2: dimNorm[1],
+    puntaje_dim3: dimNorm[2],
+    puntaje_dim4: dimNorm[3],
+    puntaje_dim5: dimNorm[4],
+    nivel: level.label
+  };
+
+  try { await sbInsert(row); } catch(e) { console.warn('Save error:', e); }
+
+  // Show result
+  showResult(scoreNorm, totalRaw, dimNorm, level);
+}
+
+function showResult(score, raw, dimNorm, level) {
+  showView('result');
+
+  document.getElementById('res-name').textContent = state.nombre;
+  document.getElementById('res-score').textContent = score;
+  document.getElementById('res-pts').textContent = `${raw} de 75 puntos (${score}/100)`;
+
+  const badge = document.getElementById('res-badge');
+  badge.textContent = level.label;
+  badge.style.background = level.bg;
+  badge.style.color = level.color;
+  badge.style.border = `1px solid ${level.color}50`;
+
+  document.getElementById('res-title').innerHTML = `<span style="color:${level.color}">${level.title}</span>`;
+  document.getElementById('res-desc').textContent = level.desc;
+
+  // Dim chart
+  const chartEl = document.getElementById('dims-chart-rows');
+  chartEl.innerHTML = '';
+  DIMS.forEach((dim, i) => {
+    const row = document.createElement('div');
+    row.className = 'dim-row';
+    row.innerHTML = `
+      <span class="dim-label">${dim.short}</span>
+      <div class="dim-track"><div class="dim-fill" id="dimfill-${i}" style="width:0%;background:${dim.color}"></div></div>
+      <span class="dim-val" style="color:${dim.color}">${dimNorm[i]}%</span>
+    `;
+    chartEl.appendChild(row);
+    setTimeout(() => {
+      document.getElementById('dimfill-' + i).style.width = dimNorm[i] + '%';
+    }, 200 + i * 100);
+  });
+}
+
+function restart() {
+  state = { nombre: '', email: '', empresa: '', currentQ: 0, answers: new Array(25).fill(null) };
+  document.getElementById('inp-nombre').value = '';
+  document.getElementById('inp-email').value = '';
+  document.getElementById('inp-empresa').value = '';
+  showView('intro');
+}
+
+// ═══════════════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════════════
+function goAdmin() {
+  showView('admin-login');
+  setTimeout(() => document.getElementById('admin-pass-inp').focus(), 100);
+}
+
+function checkAdminPass() {
+  const val = document.getElementById('admin-pass-inp').value;
+  if (val === ADMIN_PASS) {
+    document.getElementById('admin-pass-err').style.display = 'none';
+    document.getElementById('admin-pass-inp').value = '';
+    loadAdmin();
+  } else {
+    document.getElementById('admin-pass-err').style.display = 'block';
+  }
+}
+
+async function loadAdmin() {
+  showView('admin');
+  const rows = await sbSelect();
+  if (!Array.isArray(rows)) { document.getElementById('admin-tbody').innerHTML = '<tr><td colspan="10" style="text-align:center;color:rgba(255,255,255,.4)">Sin datos aún</td></tr>'; return; }
+
+  // Stats
+  const avg = rows.length ? Math.round(rows.reduce((a,r) => a + r.puntaje_total, 0) / rows.length) : 0;
+  const lvls = rows.reduce((acc, r) => {
+    const lbl = r.nivel || '';
+    if (lbl.includes('Líder')) acc.lider++;
+    else if (lbl.includes('Aceleración')) acc.acel++;
+    else acc.expl++;
+    return acc;
+  }, { lider: 0, acel: 0, expl: 0 });
+
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${rows.length}</div><div class="stat-label">Total respuestas</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--cyan)">${avg}</div><div class="stat-label">Score promedio</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--cyan)">${lvls.lider}</div><div class="stat-label">Líderes IA</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--orange)">${lvls.acel}</div><div class="stat-label">En Aceleración</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--red)">${lvls.expl}</div><div class="stat-label">Exploradores</div></div>
+  `;
+
+  // Table
+  const tbody = document.getElementById('admin-tbody');
+  tbody.innerHTML = rows.map(r => {
+    const fecha = r.fecha_hora ? new Date(r.fecha_hora).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: '2-digit' }) : '-';
+    const lbl = r.nivel || '';
+    const badgeClass = lbl.includes('Líder') ? 'badge-lider' : lbl.includes('Aceleración') ? 'badge-aceleracion' : 'badge-explorador';
+    return `<tr>
+      <td><strong>${r.nombre || '-'}</strong><br><small style="color:rgba(255,255,255,.35)">${r.email || ''}</small></td>
+      <td style="color:rgba(255,255,255,.55)">${r.empresa || '-'}</td>
+      <td><strong style="color:var(--cyan)">${r.puntaje_total}/100</strong></td>
+      <td><span class="level-badge ${badgeClass}">${lbl.replace(/[🌱🚀⚡]/g,'').trim()}</span></td>
+      <td>${r.puntaje_dim1 || 0}%</td>
+      <td>${r.puntaje_dim2 || 0}%</td>
+      <td>${r.puntaje_dim3 || 0}%</td>
+      <td>${r.puntaje_dim4 || 0}%</td>
+      <td>${r.puntaje_dim5 || 0}%</td>
+      <td style="color:rgba(255,255,255,.4)">${fecha}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="10" style="text-align:center;color:rgba(255,255,255,.4)">Sin datos aún</td></tr>';
+}
+
+// ═══════════════════════════════════════════════════════
+// PARTICLES
+// ═══════════════════════════════════════════════════════
+(function() {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let W, H, pts = [];
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function init() {
+    pts = Array.from({length: 60}, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      vx: (Math.random() - .5) * .3, vy: (Math.random() - .5) * .3,
+      r: Math.random() * 1.5 + .5,
+      a: Math.random()
+    }));
+  }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,212,255,${p.a * .4})`;
+      ctx.fill();
     });
-    for(let i=0;i<particles.length;i++){
-      for(let j=i+1;j<particles.length;j++){
-        const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,d=Math.sqrt(dx*dx+dy*dy);
-        if(d<100){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle='rgba(0,212,255,'+(0.04*(1-d/100))+')';ctx.lineWidth=.5;ctx.stroke();}
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d < 100) {
+          ctx.beginPath();
+          ctx.moveTo(pts[i].x, pts[i].y);
+          ctx.lineTo(pts[j].x, pts[j].y);
+          ctx.strokeStyle = `rgba(0,212,255,${(1 - d/100) * .06})`;
+          ctx.stroke();
+        }
       }
     }
     requestAnimationFrame(draw);
   }
-  draw();
+  window.addEventListener('resize', () => { resize(); init(); });
+  resize(); init(); draw();
 })();
-
-function showSection(id){
-  ['hero-section','quiz-section','result-section','admin-login','admin-section'].forEach(s=>document.getElementById(s).style.display='none');
-  document.getElementById(id).style.display='block';
-  document.getElementById('admin-link-wrap').style.display=(id==='admin-section'||id==='admin-login')?'none':'block';
-  window.scrollTo(0,0);
-}
-
-function startQuiz(){
-  const n=document.getElementById('user-name').value.trim();
-  if(!n){document.getElementById('user-name').focus();document.getElementById('user-name').style.borderColor='#ff4757';setTimeout(()=>document.getElementById('user-name').style.borderColor='',1500);return;}
-  userName=n; answers=new Array(25).fill(null); currentQ=0;
-  showSection('quiz-section'); buildDimDots(); renderQuestion();
-}
-
-function buildDimDots(){
-  const wrap=document.getElementById('dim-progress'); wrap.innerHTML='';
-  DIMENSIONS.forEach((d,i)=>{const dot=document.createElement('div');dot.className='dim-dot';dot.id='dot-'+i;dot.title=d.name;wrap.appendChild(dot);});
-}
-
-function renderQuestion(){
-  const q=QUESTIONS[currentQ], dim=DIMENSIONS[q.dim];
-  document.getElementById('q-counter').textContent='Pregunta '+(currentQ+1)+' de 25';
-  document.getElementById('progress-bar').style.width=((currentQ+1)/25*100)+'%';
-  DIMENSIONS.forEach((_,i)=>{
-    const dot=document.getElementById('dot-'+i),start=i*5,end=start+5;
-    const allDone=answers.slice(start,end).every(a=>a!==null);
-    dot.className='dim-dot'+(allDone?' done':(i===q.dim?' active':''));
-  });
-  document.getElementById('dim-label-wrap').innerHTML='<div style="text-align:center;margin-bottom:20px"><span class="dim-label" style="color:'+dim.color+';border-color:'+dim.color+'40;background:'+dim.color+'10">'+dim.emoji+' '+dim.name+'</span></div>';
-  document.getElementById('question-text').textContent=q.text;
-  const ol=document.getElementById('options-list'); ol.innerHTML='';
-  ['a','b','c','d'].forEach((l,i)=>{
-    const li=document.createElement('li');
-    li.className='option-item'+(answers[currentQ]===i?' selected':'');
-    li.innerHTML='<div class="option-letter">'+l+'</div><div class="option-text">'+q.options[i]+'</div>';
-    li.onclick=()=>selectOption(i);
-    ol.appendChild(li);
-  });
-  document.getElementById('btn-prev').style.visibility=currentQ>0?'visible':'hidden';
-  const btn=document.getElementById('btn-next');
-  btn.disabled=(answers[currentQ]===null);
-  btn.textContent=currentQ===24?'Ver mi resultado →':'Siguiente →';
-}
-
-function selectOption(i){
-  answers[currentQ]=i;
-  document.querySelectorAll('.option-item').forEach((el,idx)=>el.classList.toggle('selected',idx===i));
-  document.getElementById('btn-next').disabled=false;
-}
-function nextQuestion(){if(answers[currentQ]===null)return;if(currentQ===24){showResults();return;}currentQ++;renderQuestion();}
-function prevQuestion(){if(currentQ>0){currentQ--;renderQuestion();}}
-
-function calcScore(){
-  const total=answers.reduce((s,a)=>s+(a||0),0);
-  const normalized=Math.round((total/75)*100);
-  const dimScores=DIMENSIONS.map((_,di)=>{const start=di*5,raw=answers.slice(start,start+5).reduce((s,a)=>s+(a||0),0);return Math.round((raw/15)*100);});
-  return{total,normalized,dimScores};
-}
-function getLevel(score){return LEVELS.find(l=>score>=l.min&&score<=l.max)||LEVELS[0];}
-
-function showResults(){
-  const{normalized,dimScores}=calcScore();
-  const level=getLevel(normalized);
-  showSection('result-section');
-  document.getElementById('level-emoji').textContent=level.emoji;
-  const lbl=document.getElementById('level-label-el');
-  lbl.textContent=level.label; lbl.style.background=level.labelBg; lbl.style.color=level.labelColor; lbl.style.border='1px solid '+level.labelColor+'40';
-  document.getElementById('result-title').textContent=level.title;
-  document.getElementById('result-desc').textContent=level.desc;
-  animateNumber('score-number',0,normalized,1200);
-  const grid=document.getElementById('dim-grid'); grid.innerHTML='';
-  DIMENSIONS.forEach((dim,i)=>{
-    const card=document.createElement('div'); card.className='dim-card';
-    card.innerHTML='<div class="dim-card-header"><div class="dim-card-title">'+dim.emoji+' '+dim.name+'</div><div class="dim-card-score" style="color:'+dim.color+'">'+dimScores[i]+'%</div></div><div class="dim-bar-wrap"><div class="dim-bar" id="dbar-'+i+'" style="width:0%;background:'+dim.color+'"></div></div>';
-    grid.appendChild(card);
-    setTimeout(()=>{document.getElementById('dbar-'+i).style.width=dimScores[i]+'%';},200+i*120);
-  });
-  const recsList=document.getElementById('recs-list'); recsList.innerHTML='';
-  level.recs.forEach(r=>{
-    const div=document.createElement('div'); div.className='rec-card';
-    div.innerHTML='<div class="rec-icon">'+r.icon+'</div><div class="rec-text"><strong style="display:block;margin-bottom:4px;color:#fff;font-size:15px">'+r.title+'</strong>'+r.text+'</div>';
-    recsList.appendChild(div);
-  });
-  saveResult(normalized,dimScores,level.label);
-}
-
-function animateNumber(id,from,to,dur){
-  const el=document.getElementById(id),start=performance.now();
-  function tick(now){const t=Math.min(1,(now-start)/dur),e=1-Math.pow(1-t,3);el.textContent=Math.round(from+(to-from)*e);if(t<1)requestAnimationFrame(tick);}
-  requestAnimationFrame(tick);
-}
-
-const STORAGE_KEY='diagnostico_salud_latam_v1';
-function saveResult(score,dimScores,levelLabel){
-  const results=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-  results.push({nombre:userName,score,dimScores,nivel:levelLabel,fecha:new Date().toLocaleString('es-CO',{dateStyle:'short',timeStyle:'short'})});
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(results));
-}
-function restart(){showSection('hero-section');document.getElementById('user-name').value='';}
-
-const ADMIN_PWD='Diagnosticos2026';
-function checkAdmin(){
-  const pwd=document.getElementById('admin-pwd').value;
-  if(pwd===ADMIN_PWD){document.getElementById('admin-pwd').value='';document.getElementById('login-error').textContent='';showSection('admin-section');renderAdmin();}
-  else{document.getElementById('login-error').textContent='Contraseña incorrecta. Inténtalo de nuevo.';document.getElementById('admin-pwd').select();}
-}
-
-function renderAdmin(){
-  const results=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-  const total=results.length,avg=total?Math.round(results.reduce((s,r)=>s+r.score,0)/total):0;
-  const lvls={'Nivel Explorador':0,'Nivel en Aceleración':0,'Nivel Líder IA':0};
-  results.forEach(r=>{if(lvls[r.nivel]!==undefined)lvls[r.nivel]++;});
-  document.getElementById('admin-stats').innerHTML='<div class="admin-stat"><div class="n">'+total+'</div><div class="l">Total</div></div><div class="admin-stat"><div class="n">'+avg+'</div><div class="l">Promedio</div></div><div class="admin-stat"><div class="n">'+lvls['Nivel Explorador']+'</div><div class="l">Exploradores</div></div><div class="admin-stat"><div class="n">'+lvls['Nivel en Aceleración']+'</div><div class="l">Aceleración</div></div><div class="admin-stat"><div class="n">'+lvls['Nivel Líder IA']+'</div><div class="l">Líder IA</div></div>';
-  const tbody=document.getElementById('admin-body'),empty=document.getElementById('admin-empty'),table=document.getElementById('admin-table');
-  if(!results.length){table.style.display='none';empty.style.display='block';return;}
-  table.style.display='table'; empty.style.display='none';
-  const lc={'Nivel Explorador':{bg:'rgba(0,212,255,0.12)',color:'#00d4ff'},'Nivel en Aceleración':{bg:'rgba(123,47,255,0.12)',color:'#7b2fff'},'Nivel Líder IA':{bg:'rgba(255,140,0,0.12)',color:'#ff8c00'}};
-  tbody.innerHTML=[...results].reverse().map((r,i)=>{
-    const c=lc[r.nivel]||{bg:'rgba(255,255,255,0.08)',color:'#fff'};
-    const dims=r.dimScores?r.dimScores.map(d=>'<td>'+d+'%</td>').join(''):'<td colspan="5">-</td>';
-    return'<tr><td style="color:var(--text-muted)">'+(results.length-i)+'</td><td><strong>'+r.nombre+'</strong></td><td><span class="admin-level-badge" style="background:'+c.bg+';color:'+c.color+'">'+r.nivel+'</span></td><td><strong style="color:var(--cyan)">'+r.score+'</strong></td>'+dims+'<td style="color:var(--text-muted);white-space:nowrap">'+r.fecha+'</td></tr>';
-  }).join('');
-}
-function clearData(){if(confirm('¿Estás seguro de que deseas eliminar todos los resultados guardados? Esta acción no se puede deshacer.')){localStorage.removeItem(STORAGE_KEY);renderAdmin();}}
-
-showSection('hero-section');
-document.getElementById('user-name').addEventListener('keydown',e=>{if(e.key==='Enter')startQuiz();});
 </script>
 </body>
 </html>
