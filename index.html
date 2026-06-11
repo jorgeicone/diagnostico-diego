@@ -8,716 +8,526 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    /* ═══════════════════ TOKENS ═══════════════════ */
     :root {
-      --bg:     #060c18;
-      --bg2:    #0a1422;
-      --bg3:    #0e1c30;
-      --glass:  rgba(6,12,24,0.82);
-      --border: rgba(255,255,255,0.07);
-      --border-hi: rgba(0,212,255,0.22);
-      --text:   #eef3ff;
-      --text2:  #7898b8;
-      --text3:  #3a5268;
-      --c1: #00d4ff;
-      --c2: #7b2fff;
-      --c3: #ff8c00;
-      --c4: #00d48a;
-      --c5: #ff4757;
-      --font: 'Plus Jakarta Sans', system-ui, sans-serif;
-      --ease: cubic-bezier(0.16,1,0.3,1);
+      --bg:#060c18;--bg2:#0a1422;--bg3:#0e1c30;
+      --glass:rgba(6,12,24,0.78);--glass2:rgba(6,12,24,0.88);
+      --border:rgba(255,255,255,0.07);--border-hi:rgba(0,212,255,0.22);
+      --text:#eef3ff;--text2:#8aa4c0;--text3:#3d5670;
+      --c1:#00d4ff;--c2:#7b2fff;--c3:#ff8c00;--c4:#00d48a;--c5:#ff4757;
+      --font:'Plus Jakarta Sans',system-ui,sans-serif;
+      --ease:cubic-bezier(0.16,1,0.3,1);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-    img{display:block}
+    @media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
-    /* ═══════════════════ VIEWS ═══════════════════ */
+    /* ── VIEWS ── */
     .view{display:none!important}
     .view.active{display:flex!important}
 
-    /* ═══════════════════ INTRO ═══════════════════ */
-    #view-intro{
-      flex-direction:column;
-      min-height:100vh;
-      position:relative;
-    }
-
-    /* Hero: full-bleed photo behind everything */
-    .hero-bg{
+    /* ══════════════════════════════
+       SHARED FULL-BLEED PHOTO BG
+    ══════════════════════════════ */
+    .scene-bg{
       position:fixed;inset:0;z-index:0;
-      background:#060c18;
+      background:var(--bg);
     }
-    .hero-bg img{
-      width:100%;height:100%;object-fit:cover;
-      opacity:0;transition:opacity 1.2s ease;
-      filter:brightness(0.35) saturate(0.7);
+    .scene-bg img{
+      position:absolute;inset:0;width:100%;height:100%;
+      object-fit:cover;opacity:0;
+      transition:opacity 1.4s ease,filter 1.4s ease;
+      filter:brightness(0.28) saturate(0.6);
+      will-change:opacity;
     }
-    .hero-bg img.loaded{opacity:1}
-    /* Gradient over photo */
-    .hero-bg::after{
-      content:'';position:absolute;inset:0;
+    .scene-bg img.visible{opacity:1}
+    .scene-bg::after{
+      content:'';position:absolute;inset:0;z-index:1;
       background:
-        linear-gradient(100deg, rgba(6,12,24,0.96) 0%, rgba(6,12,24,0.7) 55%, rgba(6,12,24,0.25) 100%),
-        linear-gradient(to top, rgba(6,12,24,0.9) 0%, transparent 45%);
+        linear-gradient(180deg,rgba(6,12,24,.55) 0%,rgba(6,12,24,.15) 40%,rgba(6,12,24,.7) 85%,var(--bg) 100%),
+        linear-gradient(90deg,rgba(6,12,24,.88) 0%,rgba(6,12,24,.4) 60%,transparent 100%);
     }
-    /* Dot grid */
-    .hero-bg::before{
-      content:'';position:absolute;inset:0;
-      background-image:radial-gradient(rgba(0,212,255,0.07) 1px,transparent 1px);
-      background-size:36px 36px;z-index:1;
+    /* Noise overlay */
+    .scene-bg::before{
+      content:'';position:absolute;inset:0;z-index:2;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity:.4;pointer-events:none;
     }
 
-    .intro-wrap{
-      position:relative;z-index:2;
+    /* ══════════════════════════════
+       INTRO
+    ══════════════════════════════ */
+    #view-intro{flex-direction:column;min-height:100vh;position:relative}
+
+    .intro-grid{
+      position:relative;z-index:3;
       min-height:100vh;
-      display:grid;
-      grid-template-columns:1fr;
+      display:grid;grid-template-columns:1fr;
+      align-items:center;
     }
-    @media(min-width:1060px){
-      .intro-wrap{grid-template-columns:55% 45%}
-    }
+    @media(min-width:1080px){.intro-grid{grid-template-columns:52% 48%}}
 
-    /* ── LEFT ── */
-    .intro-left{
-      display:flex;flex-direction:column;justify-content:center;
-      padding:64px 60px 64px 72px;
-    }
-    @media(max-width:1059px){.intro-left{padding:56px 28px}}
+    /* Left */
+    .il{display:flex;flex-direction:column;justify-content:center;padding:64px 52px 64px 72px}
+    @media(max-width:1079px){.il{padding:52px 24px 48px}}
 
-    .il-logo{
-      display:flex;align-items:center;gap:10px;
-      margin-bottom:48px;
-    }
-    .il-logomark{
-      width:34px;height:34px;border-radius:9px;
-      background:linear-gradient(135deg,var(--c1),var(--c2));
-      display:flex;align-items:center;justify-content:center;
-      font-size:0.6rem;font-weight:900;color:#fff;letter-spacing:0.3px;
-    }
-    .il-logoname{font-size:0.72rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3)}
-    .il-sep{width:1px;height:15px;background:var(--border)}
-    .il-tag{font-size:0.68rem;font-weight:700;color:var(--c1);letter-spacing:1.2px;text-transform:uppercase}
+    .il-logo{display:flex;align-items:center;gap:10px;margin-bottom:52px}
+    .il-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--c1),var(--c2));display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:900;color:#fff}
+    .il-name{font-size:.68rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3)}
+    .il-pipe{width:1px;height:14px;background:var(--border)}
+    .il-tag{font-size:.65rem;font-weight:700;color:var(--c1);letter-spacing:1px;text-transform:uppercase}
 
     .il-badge{
-      display:inline-flex;align-items:center;gap:8px;
-      background:rgba(0,212,255,0.08);
-      border:1px solid rgba(0,212,255,0.2);
-      border-radius:100px;padding:6px 16px 6px 10px;
-      font-size:0.7rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
-      color:var(--c1);margin-bottom:24px;width:fit-content;
+      display:inline-flex;align-items:center;gap:7px;
+      background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.18);
+      border-radius:100px;padding:5px 14px 5px 9px;
+      font-size:.68rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+      color:var(--c1);margin-bottom:22px;width:fit-content;
     }
-    .il-badge-dot{
-      width:7px;height:7px;border-radius:50%;background:var(--c1);
-      animation:pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.65)}}
+    .il-dot{width:7px;height:7px;border-radius:50%;background:var(--c1);animation:blink 2s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-    .il-h1{
-      font-size:clamp(3rem,5.5vw,5rem);
-      font-weight:900;line-height:0.98;
-      letter-spacing:-0.05em;
-      margin-bottom:24px;
-    }
-    .il-h1 em{
-      font-style:normal;
-      background:linear-gradient(135deg,var(--c1) 0%,#a259ff 100%);
-      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-    }
+    .il-h1{font-size:clamp(3.2rem,5.5vw,5.2rem);font-weight:900;line-height:.96;letter-spacing:-.055em;margin-bottom:22px}
+    .il-h1 em{font-style:normal;background:linear-gradient(135deg,var(--c1),#9b5fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 
-    .il-sub{
-      font-size:1.02rem;line-height:1.75;
-      color:var(--text2);max-width:500px;
-      margin-bottom:36px;font-weight:400;
-    }
+    .il-sub{font-size:.98rem;line-height:1.78;color:var(--text2);max-width:470px;margin-bottom:32px}
 
-    /* Stat chips */
-    .il-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px}
-    .chip{
-      display:inline-flex;align-items:center;gap:6px;
-      background:rgba(255,255,255,0.04);
-      border:1px solid rgba(255,255,255,0.09);
-      border-radius:100px;padding:7px 14px;
-    }
-    .chip-n{font-size:1.05rem;font-weight:900;line-height:1}
-    .chip-l{font-size:0.68rem;color:var(--text3);font-weight:600}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px}
+    .ch{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:100px;padding:6px 13px}
+    .ch-n{font-size:1rem;font-weight:900;line-height:1}
+    .ch-l{font-size:.66rem;color:var(--text3);font-weight:600}
 
-    /* Form */
-    .il-form{
-      background:var(--glass);
-      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-      border:1px solid rgba(0,212,255,0.14);
-      border-radius:22px;padding:30px 28px 24px;
-      max-width:480px;
+    /* Form card */
+    .form-card{
+      background:var(--glass2);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+      border:1px solid rgba(0,212,255,.12);border-radius:22px;
+      padding:28px 26px 22px;max-width:460px;
     }
-    .form-ttl{
-      font-size:0.82rem;font-weight:700;color:var(--text2);
-      margin-bottom:20px;
-      display:flex;align-items:center;gap:8px;
-    }
-    .form-ttl-line{flex:1;height:1px;background:var(--border)}
-    .fl{margin-bottom:13px}
-    .fl-label{display:block;font-size:0.65rem;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
-    .fl-input{
-      width:100%;background:rgba(14,28,48,0.8);
-      border:1.5px solid rgba(255,255,255,0.08);
-      border-radius:11px;padding:12px 15px;
-      color:var(--text);font-size:0.92rem;font-family:var(--font);
-      outline:none;transition:border-color .2s,box-shadow .2s;
-    }
-    .fl-input:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
-    .fl-input::placeholder{color:var(--text3)}
+    .fc-ttl{font-size:.75rem;font-weight:700;color:var(--text3);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+    .fc-line{flex:1;height:1px;background:var(--border)}
+    .fl{margin-bottom:12px}
+    .fl label{display:block;font-size:.62rem;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+    .fl input{width:100%;background:rgba(14,28,48,.8);border:1.5px solid rgba(255,255,255,.07);border-radius:11px;padding:11px 14px;color:var(--text);font-size:.9rem;font-family:var(--font);outline:none;transition:.2s}
+    .fl input:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(0,212,255,.09)}
+    .fl input::placeholder{color:var(--text3)}
 
-    .btn-go{
-      width:100%;padding:15px 24px;margin-top:4px;
+    .btn-start{
+      width:100%;padding:14px 24px;margin-top:6px;
       background:linear-gradient(135deg,var(--c1),var(--c2));
-      border:none;border-radius:12px;
-      color:#fff;font-size:0.95rem;font-weight:800;
-      font-family:var(--font);cursor:pointer;
-      letter-spacing:.3px;position:relative;overflow:hidden;
-      transition:filter .2s,transform .15s;
+      border:none;border-radius:12px;color:#fff;font-size:.93rem;font-weight:800;
+      font-family:var(--font);cursor:pointer;letter-spacing:.2px;
+      position:relative;overflow:hidden;transition:.2s;
     }
-    .btn-go:hover{filter:brightness(1.1)}
-    .btn-go:active{transform:scale(.98)}
-    .btn-go::after{
-      content:'';position:absolute;inset:0;
-      background:linear-gradient(135deg,rgba(255,255,255,.14),transparent);
-      opacity:0;transition:opacity .2s;
-    }
-    .btn-go:hover::after{opacity:1}
-    .form-note{text-align:center;font-size:0.68rem;color:var(--text3);margin-top:10px}
+    .btn-start:hover{filter:brightness(1.1)}
+    .btn-start:active{transform:scale(.98)}
+    .btn-start::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);opacity:0;transition:.2s}
+    .btn-start:hover::after{opacity:1}
+    .fc-note{text-align:center;font-size:.66rem;color:var(--text3);margin-top:9px}
 
-    /* ── RIGHT ── */
-    .intro-right{
-      display:none;position:relative;z-index:2;
-      flex-direction:column;justify-content:flex-end;
-      padding:0 44px 52px;
-    }
-    @media(min-width:1060px){.intro-right{display:flex}}
+    /* Right: dim showcase */
+    .ir{display:none;flex-direction:column;justify-content:center;padding:0 52px 0 24px}
+    @media(min-width:1080px){.ir{display:flex}}
 
-    /* Dimension cards floating */
-    .dim-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
-    .dim-card{
+    .ir-head{font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
+    .dim-list{display:flex;flex-direction:column;gap:9px}
+    .dim-row{
+      display:flex;align-items:center;gap:13px;
+      padding:14px 16px;
+      background:rgba(6,12,24,.65);backdrop-filter:blur(18px);
+      border:1px solid;border-radius:15px;
+      animation:slideInR .4s var(--ease) both;
+    }
+    @keyframes slideInR{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
+    .dr-bullet{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .dr-info{flex:1}
+    .dr-name{font-size:.8rem;font-weight:700}
+    .dr-sub{font-size:.63rem;color:rgba(255,255,255,.35);margin-top:2px}
+    .dr-n{font-size:.68rem;font-weight:800;opacity:.35}
+
+    .ir-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+    .st{background:rgba(6,12,24,.65);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.07);border-radius:13px;padding:14px 10px;text-align:center}
+    .st-n{font-size:1.45rem;font-weight:900;line-height:1}
+    .st-l{font-size:.6rem;color:rgba(255,255,255,.35);margin-top:3px}
+
+    /* ══════════════════════════════
+       QUIZ
+    ══════════════════════════════ */
+    #view-quiz{flex-direction:column;align-items:center;min-height:100vh;padding:0 16px 60px;position:relative}
+
+    /* Dim accent bar top */
+    .dtop{
+      position:sticky;top:0;z-index:50;width:100%;
+      padding:12px 28px;
       display:flex;align-items:center;gap:12px;
-      background:rgba(6,12,24,0.72);
-      backdrop-filter:blur(16px);
-      border:1px solid;
-      border-radius:14px;padding:12px 16px;
-      transition:transform .3s var(--ease);
-      animation:slideInCard .5s var(--ease) both;
+      background:rgba(6,12,24,.88);backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      margin-bottom:32px;
     }
-    @keyframes slideInCard{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
-    .dc-bullet{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-    .dc-info{flex:1}
-    .dc-name{font-size:0.78rem;font-weight:700;line-height:1.2}
-    .dc-sub{font-size:0.64rem;color:rgba(255,255,255,.4);margin-top:2px;font-weight:500}
-    .dc-count{font-size:0.7rem;font-weight:800;color:rgba(255,255,255,.3)}
+    .dtop-accent{position:absolute;bottom:0;left:0;height:2.5px;transition:width .6s var(--ease),background .5s}
+    .dtop-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .dtop-dim{font-size:.76rem;font-weight:700}
+    .dtop-sep{width:1px;height:13px;background:var(--border)}
+    .dtop-pos{font-size:.68rem;color:var(--text3)}
+    .dtop-brand{margin-left:auto;font-size:.62rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
 
-    /* Bottom stats strip */
-    .bottom-strip{
-      display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
-    }
-    .bs-item{
-      background:rgba(6,12,24,0.72);backdrop-filter:blur(16px);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:13px;padding:14px 12px;text-align:center;
-    }
-    .bs-num{font-size:1.5rem;font-weight:900;line-height:1}
-    .bs-lbl{font-size:0.62rem;color:rgba(255,255,255,.4);font-weight:500;margin-top:3px}
+    .q-wrap{max-width:660px;width:100%;position:relative;z-index:2}
 
-    /* ═══════════════════ QUIZ ═══════════════════ */
-    #view-quiz{
-      flex-direction:column;align-items:center;
-      min-height:100vh;padding:0 20px 52px;
-    }
+    /* Progress dots */
+    .dots-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:18px}
+    .dot-g{display:flex;gap:3px}
+    .dot-g-sep{width:8px;height:1px;background:var(--border);align-self:center}
+    .dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.07);transition:all .3s var(--ease)}
+    .dot.done{opacity:1}
+    .dot.curr{transform:scale(1.6)}
 
-    /* Dim color accent – top bar */
-    .dim-topbar{
-      position:sticky;top:0;z-index:50;
-      width:100%;padding:14px 28px;
-      display:flex;align-items:center;gap:14px;
-      background:rgba(6,12,24,0.9);backdrop-filter:blur(18px);
-      border-bottom:1px solid var(--border);
-      margin-bottom:28px;
-    }
-    .dtb-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-    .dtb-dim{font-size:0.78rem;font-weight:700;color:var(--text2)}
-    .dtb-sep{width:1px;height:14px;background:var(--border)}
-    .dtb-pos{font-size:0.7rem;color:var(--text3)}
-    .dtb-brand{margin-left:auto;font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
-    .dtb-prog{height:3px;position:absolute;bottom:0;left:0;transition:width .5s var(--ease)}
-
-    .q-inner{max-width:660px;width:100%}
-
-    /* Dot groups */
-    .dot-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:16px}
-    .dg{display:flex;gap:3.5px}
-    .dd{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.08);transition:all .3s var(--ease)}
-    .dd.done{opacity:1}
-    .dd.curr{transform:scale(1.5);box-shadow:0 0 7px currentColor}
-    .dg-sep{width:9px;height:1px;background:var(--border);align-self:center}
-
-    /* Q card */
-    .q-card{
-      background:var(--bg2);
-      border:1.5px solid var(--border);
-      border-radius:24px;padding:40px 40px 32px;
-      margin-bottom:14px;
-      transition:border-color .3s;
-    }
-    @media(max-width:580px){.q-card{padding:26px 22px 22px;border-radius:18px}}
-
-    .q-card-hdr{display:flex;align-items:center;gap:10px;margin-bottom:22px}
-    .q-num{
-      font-size:0.65rem;font-weight:900;letter-spacing:1.8px;text-transform:uppercase;
-      padding:4px 12px;border-radius:8px;color:#000;flex-shrink:0;
-    }
-    .q-counter{font-size:0.72rem;color:var(--text3);font-weight:600}
-
-    .q-text{
-      font-size:1.14rem;font-weight:700;line-height:1.58;
-      letter-spacing:-.015em;margin-bottom:28px;
-    }
-
-    /* Options */
-    .opts{display:flex;flex-direction:column;gap:10px}
-    .opt{
-      display:flex;align-items:flex-start;gap:14px;
-      padding:15px 17px;cursor:pointer;
-      background:rgba(255,255,255,.018);
+    /* Question card */
+    .qc{
+      background:var(--glass2);
+      backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);
       border:1.5px solid rgba(255,255,255,.07);
-      border-radius:14px;color:var(--text);
-      font-family:var(--font);font-size:0.89rem;line-height:1.52;
-      transition:all .18s var(--ease);text-align:left;
+      border-radius:24px;padding:38px 38px 30px;
+      transition:border-color .35s;
     }
-    .opt:hover{
-      border-color:rgba(255,255,255,.18);
-      background:rgba(255,255,255,.038);
-      transform:translateX(5px);
+    @media(max-width:580px){.qc{padding:24px 20px 20px;border-radius:18px}}
+    .qc-hdr{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+    .qc-num{font-size:.62rem;font-weight:900;letter-spacing:1.8px;text-transform:uppercase;padding:4px 11px;border-radius:7px;color:#000;flex-shrink:0}
+    .qc-cnt{font-size:.7rem;color:var(--text3);font-weight:600}
+    .qc-txt{font-size:1.1rem;font-weight:700;line-height:1.62;letter-spacing:-.015em;margin-bottom:26px}
+
+    .opts{display:flex;flex-direction:column;gap:9px}
+    .opt{
+      display:flex;align-items:flex-start;gap:13px;
+      padding:14px 16px;cursor:pointer;
+      background:rgba(255,255,255,.016);
+      border:1.5px solid rgba(255,255,255,.06);
+      border-radius:13px;color:var(--text);
+      font-family:var(--font);font-size:.87rem;line-height:1.55;
+      transition:all .17s var(--ease);text-align:left;
     }
-    .opt.sel{transform:translateX(5px)}
-    .opt-badge{
-      flex-shrink:0;width:30px;height:30px;border-radius:9px;
-      border:1.5px solid rgba(255,255,255,.12);
-      display:flex;align-items:center;justify-content:center;
-      font-size:0.7rem;font-weight:900;
-      color:var(--text3);transition:all .18s var(--ease);
-      font-variant-numeric:tabular-nums;
-    }
+    .opt:hover{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.036);transform:translateX(4px)}
+    .opt.sel{transform:translateX(4px)}
+    .opt-badge{flex-shrink:0;width:28px;height:28px;border-radius:8px;border:1.5px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900;color:var(--text3);transition:.17s}
     .opt.sel .opt-badge{color:#000;border-color:transparent}
 
-    .kb-row{
-      display:flex;align-items:center;gap:5px;
-      padding:10px 2px 0;opacity:.5;
-    }
-    .kb-row span{font-size:.67rem;color:var(--text3);margin-right:4px}
-    .kb{
-      background:var(--bg3);border:1px solid var(--border);
-      border-radius:5px;padding:2px 8px;font-size:.65rem;
-      font-weight:800;font-family:monospace;color:var(--text3);
-    }
+    .kb-hint{display:flex;align-items:center;gap:5px;padding:9px 2px 0;opacity:.45}
+    .kb-hint span{font-size:.64rem;color:var(--text3);margin-right:3px}
+    .kb{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:.62rem;font-weight:800;font-family:monospace;color:var(--text3)}
 
-    /* Nav */
-    .q-nav{display:flex;gap:10px}
-    .btn-back{
-      flex:0 0 auto;padding:13px 22px;
-      background:var(--bg2);border:1px solid var(--border);
-      border-radius:12px;color:var(--text2);
-      cursor:pointer;font-family:var(--font);
-      font-size:.88rem;font-weight:600;transition:.2s;
-    }
-    .btn-back:hover{background:var(--bg3)}
-    .btn-fwd{
-      flex:1;padding:13px 24px;border:none;border-radius:12px;
-      color:#fff;font-size:.93rem;font-weight:800;
-      font-family:var(--font);cursor:pointer;
-      opacity:.3;pointer-events:none;transition:all .2s;letter-spacing:.2px;
-    }
-    .btn-fwd.on{opacity:1;pointer-events:auto}
-    .btn-fwd.on:hover{filter:brightness(1.1)}
-    .btn-fwd:active{transform:scale(.98)}
+    .q-nav{display:flex;gap:10px;margin-top:12px}
+    .btn-bk{flex:0 0 auto;padding:12px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;color:var(--text2);cursor:pointer;font-family:var(--font);font-size:.86rem;font-weight:600;transition:.2s}
+    .btn-bk:hover{background:var(--bg3)}
+    .btn-nx{flex:1;padding:12px 22px;border:none;border-radius:12px;color:#fff;font-size:.9rem;font-weight:800;font-family:var(--font);cursor:pointer;opacity:.3;pointer-events:none;transition:all .2s;letter-spacing:.15px}
+    .btn-nx.on{opacity:1;pointer-events:auto}
+    .btn-nx.on:hover{filter:brightness(1.1)}
+    .btn-nx:active{transform:scale(.98)}
 
-    @keyframes slideR{from{opacity:0;transform:translateX(44px)}to{opacity:1;transform:translateX(0)}}
-    @keyframes slideL{from{opacity:0;transform:translateX(-44px)}to{opacity:1;transform:translateX(0)}}
-    .asr{animation:slideR .28s var(--ease) both}
-    .asl{animation:slideL .28s var(--ease) both}
+    @keyframes fromR{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes fromL{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
+    .aR{animation:fromR .26s var(--ease) both}
+    .aL{animation:fromL .26s var(--ease) both}
 
-    /* ═══════════════════ SAVING ═══════════════════ */
-    #view-saving{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:18px;text-align:center;padding:40px 20px}
-    .spinner{width:50px;height:50px;border:2.5px solid rgba(255,255,255,.07);border-top-color:var(--c1);border-radius:50%;animation:spin .7s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
+    /* ══════════════════════════════
+       SAVING
+    ══════════════════════════════ */
+    #view-saving{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px;text-align:center;padding:40px 20px;position:relative}
+    .spin{width:48px;height:48px;border:2.5px solid rgba(255,255,255,.06);border-top-color:var(--c1);border-radius:50%;animation:rot .7s linear infinite;position:relative;z-index:2}
+    @keyframes rot{to{transform:rotate(360deg)}}
+    #view-saving p{color:var(--text3);font-size:.86rem;position:relative;z-index:2}
 
-    /* ═══════════════════ RESULT ═══════════════════ */
-    #view-result{flex-direction:column;align-items:center;min-height:100vh}
+    /* ══════════════════════════════
+       RESULT
+    ══════════════════════════════ */
+    #view-result{flex-direction:column;align-items:center;min-height:100vh;position:relative}
 
-    /* Hero score section */
     .res-hero{
-      width:100%;padding:72px 24px 60px;
-      background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
-      border-bottom:1px solid var(--border);
-      text-align:center;position:relative;overflow:hidden;
+      width:100%;min-height:100vh;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:80px 24px 60px;text-align:center;position:relative;z-index:2;
     }
     .res-hero::before{
       content:'';position:absolute;inset:0;
-      background:
-        radial-gradient(ellipse 600px 350px at 50% 120%,rgba(0,212,255,.06) 0%,transparent 70%),
-        radial-gradient(ellipse 300px 200px at 70% 20%,rgba(123,47,255,.05) 0%,transparent 70%);
+      background:radial-gradient(ellipse 700px 400px at 50% 100%,rgba(0,212,255,.05) 0%,transparent 70%);
+      pointer-events:none;
     }
-    /* Grid texture */
-    .res-hero::after{
-      content:'';position:absolute;inset:0;
-      background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);
-      background-size:44px 44px;
-    }
-    .res-hero-inner{position:relative;z-index:1;max-width:600px;margin:0 auto}
 
-    .rh-eyebrow{font-size:.66rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:28px}
-    .rh-name{font-size:.95rem;color:var(--text2);font-weight:500;margin-bottom:18px}
+    .rh-chip{font-size:.62rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:20px}
+    .rh-name{font-size:.95rem;font-weight:500;color:var(--text2);margin-bottom:24px}
 
-    .rh-score{
-      display:flex;align-items:flex-end;justify-content:center;gap:4px;
-      margin-bottom:8px;
+    .score-ring{
+      position:relative;display:inline-flex;align-items:center;justify-content:center;
+      margin-bottom:12px;
     }
-    .rh-num{
-      font-size:clamp(6.5rem,18vw,10rem);
-      font-weight:900;line-height:.88;
-      letter-spacing:-.07em;
-      font-variant-numeric:tabular-nums;
+    .score-ring svg{transform:rotate(-90deg)}
+    .score-inner{
+      position:absolute;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
     }
-    .rh-denom{font-size:clamp(2rem,6vw,3.2rem);font-weight:800;color:var(--text3);padding-bottom:.45em}
-    .rh-pts{font-size:.78rem;color:var(--text3);margin-bottom:26px}
+    .rh-num{font-size:clamp(4.5rem,13vw,7.5rem);font-weight:900;line-height:.9;letter-spacing:-.07em;font-variant-numeric:tabular-nums}
+    .rh-denom{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800;color:var(--text3)}
+    .rh-pts{font-size:.76rem;color:var(--text3);margin-bottom:24px}
 
-    .rh-badge{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:9px 24px;border-radius:100px;
-      font-size:.88rem;font-weight:800;margin-bottom:24px;
-    }
-    .rh-title{font-size:clamp(1.5rem,4vw,2.3rem);font-weight:900;line-height:1.18;letter-spacing:-.025em;margin-bottom:16px}
-    .rh-desc{font-size:.95rem;color:var(--text2);line-height:1.78;max-width:520px;margin:0 auto 36px}
+    .rh-badge{display:inline-flex;align-items:center;gap:8px;padding:9px 22px;border-radius:100px;font-size:.86rem;font-weight:800;margin-bottom:20px}
+    .rh-title{font-size:clamp(1.5rem,4vw,2.4rem);font-weight:900;line-height:1.15;letter-spacing:-.025em;margin-bottom:14px}
+    .rh-desc{font-size:.94rem;color:var(--text2);line-height:1.8;max-width:520px;margin:0 auto 36px}
 
-    .rh-ctas{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
-    .btn-cta{
-      padding:14px 28px;
-      background:linear-gradient(135deg,var(--c1),var(--c2));
-      border:none;border-radius:12px;
-      color:#fff;font-size:.93rem;font-weight:800;
-      font-family:var(--font);cursor:pointer;
-      text-decoration:none;display:inline-block;
-      letter-spacing:.2px;transition:.2s;
-    }
-    .btn-cta:hover{filter:brightness(1.1)}
-    .btn-ol{
-      padding:14px 28px;background:var(--bg3);
-      border:1px solid var(--border);border-radius:12px;
-      color:var(--text2);font-size:.93rem;font-weight:600;
-      font-family:var(--font);cursor:pointer;transition:.2s;
-    }
-    .btn-ol:hover{background:var(--bg2)}
+    .rh-ctas{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:40px}
+    .btn-wa{padding:14px 28px;background:linear-gradient(135deg,var(--c1),var(--c2));border:none;border-radius:12px;color:#fff;font-size:.92rem;font-weight:800;font-family:var(--font);cursor:pointer;text-decoration:none;display:inline-block;letter-spacing:.15px;transition:.2s}
+    .btn-wa:hover{filter:brightness(1.12)}
+    .btn-outline{padding:14px 28px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;color:var(--text2);font-size:.9rem;font-weight:600;font-family:var(--font);cursor:pointer;transition:.2s}
+    .btn-outline:hover{background:var(--bg2)}
+
+    /* scroll indicator */
+    .scroll-hint{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text3);font-size:.66rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;animation:bob 2s ease-in-out infinite}
+    @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+    .scroll-arrow{width:24px;height:24px;border:1.5px solid rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem}
 
     /* Dim analysis */
-    .res-dims{max-width:660px;width:100%;padding:52px 20px 80px}
-    .rd-hdr{
-      display:flex;align-items:center;gap:12px;margin-bottom:36px;
+    .res-analysis{
+      width:100%;max-width:760px;padding:60px 20px 80px;
+      position:relative;z-index:2;
     }
-    .rd-line{flex:1;height:1px;background:var(--border)}
-    .rd-title{font-size:.66rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);white-space:nowrap}
+    .ra-hdr{display:flex;align-items:center;gap:14px;margin-bottom:40px}
+    .ra-line{flex:1;height:1px;background:var(--border)}
+    .ra-ttl{font-size:.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);white-space:nowrap}
 
-    .rd-split{
-      display:grid;grid-template-columns:1fr;gap:24px;
-    }
-    @media(min-width:540px){
-      .rd-split{grid-template-columns:auto 1fr;align-items:start}
-    }
+    .ra-grid{display:grid;grid-template-columns:1fr;gap:20px}
+    @media(min-width:620px){.ra-grid{grid-template-columns:260px 1fr;align-items:start}}
 
-    .radar-wrap{
-      background:var(--bg2);border:1px solid var(--border);
-      border-radius:20px;padding:24px 20px;text-align:center;
-    }
-    .radar-wrap-ttl{font-size:.64rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
+    .radar-box{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:20px;padding:22px;text-align:center}
+    .radar-ttl{font-size:.62rem;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);margin-bottom:14px}
 
-    .bars-wrap{display:flex;flex-direction:column;gap:10px}
-    .bar-card{
-      background:var(--bg2);border:1px solid var(--border);
-      border-radius:14px;padding:15px 17px;
-    }
-    .bc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
-    .bc-name{font-size:.8rem;font-weight:700}
-    .bc-val{font-size:1.05rem;font-weight:900}
-    .bc-track{background:rgba(255,255,255,.06);border-radius:100px;height:7px;overflow:hidden}
-    .bc-fill{height:100%;border-radius:100px;transition:width 1.4s var(--ease)}
+    .bars-col{display:flex;flex-direction:column;gap:10px}
+    .bc{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px 16px}
+    .bc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:10px}
+    .bc-name{font-size:.78rem;font-weight:700;flex:1;line-height:1.3}
+    .bc-val{font-size:1rem;font-weight:900;white-space:nowrap}
+    .bc-track{background:rgba(255,255,255,.05);border-radius:100px;height:6px;overflow:hidden}
+    .bc-fill{height:100%;border-radius:100px;transition:width 1.5s var(--ease)}
 
-    /* ═══════════════════ ADMIN ═══════════════════ */
-    #view-admin-login{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px}
-    .login-box{
-      background:var(--bg2);border:1px solid var(--border-hi);
-      border-radius:22px;padding:40px;max-width:360px;width:100%;text-align:center;
-    }
-    .login-box h3{font-size:1.2rem;font-weight:900;margin-bottom:8px}
-    .login-box p{font-size:.85rem;color:var(--text3);margin-bottom:24px}
+    /* ══════════════════════════════
+       ADMIN
+    ══════════════════════════════ */
+    #view-admin-login{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px;position:relative}
+    .abox{background:var(--bg2);border:1px solid var(--border-hi);border-radius:22px;padding:40px;max-width:360px;width:100%;text-align:center;position:relative;z-index:2}
+    .abox h3{font-size:1.2rem;font-weight:900;margin-bottom:8px}
+    .abox p{font-size:.84rem;color:var(--text3);margin-bottom:24px}
 
     #view-admin{flex-direction:column;align-items:center;padding:40px 20px;min-height:100vh}
-    .adm-hdr{max-width:900px;width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
-    .adm-hdr h2{font-size:1.5rem;font-weight:900}
-    .adm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;max-width:900px;width:100%;margin-bottom:28px}
-    .asc{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center}
-    .asc-n{font-size:2rem;font-weight:900;color:var(--c1)}
-    .asc-l{font-size:.72rem;color:var(--text3);margin-top:4px}
-    .adm-tbl{max-width:900px;width:100%;overflow-x:auto}
+    .adm-hd{max-width:920px;width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+    .adm-hd h2{font-size:1.5rem;font-weight:900}
+    .adm-sc{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;max-width:920px;width:100%;margin-bottom:26px}
+    .sc{background:var(--bg2);border:1px solid var(--border);border-radius:13px;padding:18px;text-align:center}
+    .sc-n{font-size:2rem;font-weight:900;color:var(--c1)}
+    .sc-l{font-size:.7rem;color:var(--text3);margin-top:4px}
+    .tbl{max-width:920px;width:100%;overflow-x:auto}
     table{width:100%;border-collapse:collapse}
-    thead th{background:rgba(0,212,255,.06);padding:11px 13px;text-align:left;font-size:.72rem;font-weight:700;color:var(--text3);border-bottom:1px solid var(--border)}
-    tbody tr{border-bottom:1px solid rgba(255,255,255,.04)}
+    thead th{background:rgba(0,212,255,.05);padding:10px 12px;text-align:left;font-size:.7rem;font-weight:700;color:var(--text3);border-bottom:1px solid var(--border)}
+    tbody tr{border-bottom:1px solid rgba(255,255,255,.03)}
     tbody tr:hover{background:var(--bg2)}
-    tbody td{padding:11px 13px;font-size:.83rem;color:var(--text2)}
-    .lv{padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:700}
-    .lv-e{background:rgba(255,71,87,.15);color:var(--c5)}
-    .lv-a{background:rgba(255,140,0,.15);color:var(--c3)}
-    .lv-l{background:rgba(0,212,255,.15);color:var(--c1)}
+    tbody td{padding:10px 12px;font-size:.82rem;color:var(--text2)}
+    .lv{padding:3px 9px;border-radius:100px;font-size:.68rem;font-weight:700}
+    .lv-e{background:rgba(255,71,87,.14);color:var(--c5)}
+    .lv-a{background:rgba(255,140,0,.14);color:var(--c3)}
+    .lv-l{background:rgba(0,212,255,.14);color:var(--c1)}
 
-    /* ═══════════════════ MISC ═══════════════════ */
-    .gt{background:linear-gradient(135deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .adm-link{position:fixed;bottom:14px;right:14px;z-index:99;font-size:.6rem;color:rgba(255,255,255,.1);cursor:pointer;font-family:var(--font)}
-    .adm-link:hover{color:rgba(255,255,255,.3)}
-
-    @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes scalePop{from{opacity:0;transform:scale(0.4) translateY(10px)}to{opacity:1;transform:scale(1)}}
-    .a-pop{animation:scalePop .8s var(--ease) both}
-    .a-u1{animation:fadeUp .5s var(--ease) .08s both}
-    .a-u2{animation:fadeUp .5s var(--ease) .22s both}
-    .a-u3{animation:fadeUp .5s var(--ease) .36s both}
-    .a-u4{animation:fadeUp .5s var(--ease) .5s both}
+    /* misc */
+    .adm-link{position:fixed;bottom:14px;right:14px;z-index:99;font-size:.58rem;color:rgba(255,255,255,.08);cursor:pointer;font-family:var(--font)}
+    .adm-link:hover{color:rgba(255,255,255,.25)}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes scaleIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+    .au1{animation:fadeUp .5s var(--ease) .05s both}
+    .au2{animation:fadeUp .5s var(--ease) .18s both}
+    .au3{animation:fadeUp .5s var(--ease) .3s both}
+    .au4{animation:fadeUp .5s var(--ease) .44s both}
+    .asc-pop{animation:scaleIn .7s var(--ease) .1s both}
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════
+<!-- ══ BACKGROUND (shared) ══ -->
+<div class="scene-bg" id="scene-bg">
+  <!-- images swapped by JS -->
+  <img id="bg-img" src="" alt="" onload="this.classList.add('visible')" onerror="this.remove()">
+</div>
+
+<!-- ══════════════════════════════
      INTRO
-═══════════════════════════════════════ -->
+══════════════════════════════ -->
 <div id="view-intro" class="view active">
-
-  <!-- Photo background -->
-  <div class="hero-bg">
-    <img
-      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1400&q=80"
-      alt=""
-      id="hero-img"
-      onload="this.classList.add('loaded')"
-      onerror="this.remove()"
-    >
-  </div>
-
-  <div class="intro-wrap">
-
-    <!-- LEFT: Branding + Form -->
-    <div class="intro-left">
+  <div class="intro-grid">
+    <div class="il">
       <div class="il-logo">
-        <div class="il-logomark">IC</div>
-        <div class="il-logoname">ICONE ialabs</div>
-        <div class="il-sep"></div>
+        <div class="il-mark">IC</div>
+        <div class="il-name">ICONE ialabs</div>
+        <div class="il-pipe"></div>
         <div class="il-tag">Diagnóstico IA</div>
       </div>
 
-      <div class="il-badge">
-        <div class="il-badge-dot"></div>
-        Directores comerciales · Salud LATAM
+      <div class="il-badge"><div class="il-dot"></div>Directores Comerciales · Salud LATAM</div>
+
+      <h1 class="il-h1">¿Cuál es<br>tu nivel<br>de <em>madurez</em><br>en IA?</h1>
+      <p class="il-sub">25 preguntas diseñadas para directores del sector salud y ciencia en LATAM. Resultado en minutos.</p>
+
+      <div class="chips">
+        <div class="ch"><span class="ch-n" style="color:var(--c1)">25</span><span class="ch-l">preguntas</span></div>
+        <div class="ch"><span class="ch-n" style="color:var(--c2)">5</span><span class="ch-l">dimensiones</span></div>
+        <div class="ch"><span class="ch-n" style="color:var(--c3)">3</span><span class="ch-l">niveles</span></div>
+        <div class="ch"><span class="ch-n" style="color:var(--c4)">~12'</span><span class="ch-l">duración</span></div>
       </div>
 
-      <h1 class="il-h1">
-        ¿Cuál es tu<br>
-        nivel de<br>
-        madurez<br>
-        en <em>IA</em>?
-      </h1>
-
-      <p class="il-sub">
-        25 preguntas diseñadas para directores del sector
-        salud y ciencia en LATAM. Resultado en 12 minutos.
-      </p>
-
-      <div class="il-chips">
-        <div class="chip"><span class="chip-n" style="color:var(--c1)">25</span><span class="chip-l">preguntas</span></div>
-        <div class="chip"><span class="chip-n" style="color:var(--c2)">5</span><span class="chip-l">dimensiones</span></div>
-        <div class="chip"><span class="chip-n" style="color:var(--c3)">3</span><span class="chip-l">niveles</span></div>
-        <div class="chip"><span class="chip-n" style="color:var(--c4)">~12'</span><span class="chip-l">tiempo</span></div>
-      </div>
-
-      <div class="il-form">
-        <div class="form-ttl">
-          <div class="form-ttl-line"></div>
-          &nbsp;¿Quién va a responder?&nbsp;
-          <div class="form-ttl-line"></div>
-        </div>
-        <div class="fl">
-          <label class="fl-label">Nombre completo *</label>
-          <input type="text" id="inp-n" class="fl-input" placeholder="Tu nombre completo" />
-        </div>
-        <div class="fl">
-          <label class="fl-label">Correo electrónico</label>
-          <input type="email" id="inp-e" class="fl-input" placeholder="tu@correo.com" />
-        </div>
-        <div class="fl">
-          <label class="fl-label">Empresa / Laboratorio</label>
-          <input type="text" id="inp-c" class="fl-input" placeholder="Merz Aesthetics, Boston Medical…" />
-        </div>
-        <button class="btn-go" onclick="startQuiz()">Iniciar diagnóstico →</button>
-        <div class="form-note">Confidencial · Sin registro · Resultado inmediato</div>
+      <div class="form-card">
+        <div class="fc-ttl"><div class="fc-line"></div>&nbsp;¿Quién responde?&nbsp;<div class="fc-line"></div></div>
+        <div class="fl"><label>Nombre completo *</label><input type="text" id="inp-n" placeholder="Tu nombre completo"></div>
+        <div class="fl"><label>Correo electrónico</label><input type="email" id="inp-e" placeholder="tu@correo.com"></div>
+        <div class="fl"><label>Empresa / Laboratorio</label><input type="text" id="inp-c" placeholder="Merz, Boston Medical…"></div>
+        <button class="btn-start" onclick="startQuiz()">Iniciar diagnóstico →</button>
+        <div class="fc-note">Confidencial · Sin registro · Resultado inmediato</div>
       </div>
     </div>
 
-    <!-- RIGHT: Dimension cards + stats -->
-    <div class="intro-right">
-
-      <div class="dim-cards" id="dim-cards-list"></div>
-
-      <div class="bottom-strip">
-        <div class="bs-item">
-          <div class="bs-num" style="color:var(--c1)">3×</div>
-          <div class="bs-lbl">velocidad con IA</div>
-        </div>
-        <div class="bs-item">
-          <div class="bs-num" style="color:var(--c2)">87%</div>
-          <div class="bs-lbl">sin sistema IA</div>
-        </div>
-        <div class="bs-item">
-          <div class="bs-num" style="color:var(--c3)">2026</div>
-          <div class="bs-lbl">año clave LATAM</div>
-        </div>
-        <div class="bs-item">
-          <div class="bs-num" style="color:var(--c4)">Hoy</div>
-          <div class="bs-lbl">es el momento</div>
-        </div>
+    <div class="ir">
+      <div class="ir-head">5 dimensiones evaluadas</div>
+      <div class="dim-list" id="dim-list-intro"></div>
+      <div class="ir-stats">
+        <div class="st"><div class="st-n" style="color:var(--c1)">3×</div><div class="st-l">más velocidad con IA</div></div>
+        <div class="st"><div class="st-n" style="color:var(--c2)">87%</div><div class="st-l">sin sistema IA aún</div></div>
+        <div class="st"><div class="st-n" style="color:var(--c3)">2026</div><div class="st-l">año clave en LATAM</div></div>
+        <div class="st"><div class="st-n" style="color:var(--c4)">Hoy</div><div class="st-l">es el momento</div></div>
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
+<!-- ══════════════════════════════
      QUIZ
-═══════════════════════════════════════ -->
+══════════════════════════════ -->
 <div id="view-quiz" class="view">
-
-  <div class="dim-topbar" id="dim-topbar">
-    <div class="dtb-dot" id="dtb-dot"></div>
-    <span class="dtb-dim" id="dtb-dim"></span>
-    <div class="dtb-sep"></div>
-    <span class="dtb-pos" id="dtb-pos"></span>
-    <span class="dtb-brand">ICONE ialabs</span>
-    <div class="dtb-prog" id="dtb-prog"></div>
+  <div class="dtop" id="dtop">
+    <div class="dtop-dot" id="dtop-dot"></div>
+    <span class="dtop-dim" id="dtop-dim"></span>
+    <div class="dtop-sep"></div>
+    <span class="dtop-pos" id="dtop-pos"></span>
+    <span class="dtop-brand">ICONE ialabs</span>
+    <div class="dtop-accent" id="dtop-acc"></div>
   </div>
 
-  <div class="q-inner">
+  <div class="q-wrap">
+    <div class="dots-row" id="dots-row"></div>
 
-    <div class="dot-row" id="dot-row"></div>
-
-    <div id="q-card-wrap">
-      <div class="q-card" id="q-card">
-        <div class="q-card-hdr">
-          <span class="q-num" id="q-num"></span>
-          <span class="q-counter" id="q-cnt"></span>
-        </div>
-        <div class="q-text" id="q-txt"></div>
-        <div class="opts" id="opts-list"></div>
-        <div class="kb-row">
-          <span>Teclas rápidas:</span>
-          <kbd class="kb">1</kbd><kbd class="kb">2</kbd><kbd class="kb">3</kbd><kbd class="kb">4</kbd>
-        </div>
+    <div class="qc" id="qc">
+      <div class="qc-hdr">
+        <span class="qc-num" id="qc-num"></span>
+        <span class="qc-cnt" id="qc-cnt"></span>
+      </div>
+      <div class="qc-txt" id="qc-txt"></div>
+      <div class="opts" id="opts"></div>
+      <div class="kb-hint">
+        <span>Teclas rápidas:</span>
+        <kbd class="kb">1</kbd><kbd class="kb">2</kbd><kbd class="kb">3</kbd><kbd class="kb">4</kbd>
       </div>
     </div>
 
-    <div class="q-nav" style="margin-top:12px">
-      <button class="btn-back" id="btn-back" onclick="prevQ()" style="display:none">← Atrás</button>
-      <button class="btn-fwd" id="btn-fwd" onclick="nextQ()">Siguiente →</button>
+    <div class="q-nav" style="margin-top:11px">
+      <button class="btn-bk" id="btn-bk" onclick="prevQ()" style="display:none">← Atrás</button>
+      <button class="btn-nx" id="btn-nx" onclick="nextQ()">Siguiente →</button>
     </div>
-
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
+<!-- ══════════════════════════════
      SAVING
-═══════════════════════════════════════ -->
+══════════════════════════════ -->
 <div id="view-saving" class="view">
-  <div class="spinner"></div>
-  <p style="color:var(--text3);font-size:.88rem;font-weight:500">Calculando tu perfil de madurez IA…</p>
+  <div class="spin"></div>
+  <p>Calculando tu perfil de madurez IA…</p>
 </div>
 
-<!-- ═══════════════════════════════════════
+<!-- ══════════════════════════════
      RESULT
-═══════════════════════════════════════ -->
+══════════════════════════════ -->
 <div id="view-result" class="view">
-
   <div class="res-hero">
-    <div class="res-hero-inner">
-      <div class="rh-eyebrow a-u1">ICONE ialabs · Diagnóstico completado</div>
-      <div class="rh-name a-u1" id="rh-name"></div>
+    <div class="rh-chip au1">ICONE ialabs · Diagnóstico completado</div>
+    <div class="rh-name au1" id="rh-name"></div>
 
-      <div class="rh-score a-pop">
+    <div class="score-ring asc-pop">
+      <svg width="240" height="240" viewBox="0 0 240 240">
+        <circle cx="120" cy="120" r="108" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="8"/>
+        <circle cx="120" cy="120" r="108" fill="none" stroke-width="8"
+          stroke-dasharray="678.6" stroke-dashoffset="678.6"
+          stroke-linecap="round" id="ring-path"
+          style="transition:stroke-dashoffset 1.8s cubic-bezier(0.16,1,0.3,1)"/>
+      </svg>
+      <div class="score-inner">
         <span class="rh-num" id="rh-num">0</span>
         <span class="rh-denom">/100</span>
       </div>
-      <div class="rh-pts a-u1" id="rh-pts"></div>
+    </div>
 
-      <div class="a-u2"><div class="rh-badge" id="rh-badge"></div></div>
-      <h2 class="rh-title a-u2" id="rh-title"></h2>
-      <p class="rh-desc a-u3" id="rh-desc"></p>
+    <div class="rh-pts au1" id="rh-pts"></div>
+    <div class="au2"><div class="rh-badge" id="rh-badge"></div></div>
+    <h2 class="rh-title au2" id="rh-title"></h2>
+    <p class="rh-desc au3" id="rh-desc"></p>
 
-      <div class="rh-ctas a-u4">
-        <a href="https://wa.me/573112525255?text=Hola%20Jorge%2C%20acab%C3%A9%20mi%20diagn%C3%B3stico%20de%20IA%20y%20quiero%20hablar%20de%20mi%20plan%20de%20acompa%C3%B1amiento" class="btn-cta" target="_blank">Quiero mi plan de acción →</a>
-        <button class="btn-ol" onclick="restart()">Reiniciar diagnóstico</button>
-      </div>
+    <div class="rh-ctas au4">
+      <a href="https://wa.me/573112525255?text=Hola%20Jorge%2C%20termin%C3%A9%20el%20diagn%C3%B3stico%20de%20madurez%20IA%20y%20quiero%20mi%20plan%20de%20acci%C3%B3n" class="btn-wa" target="_blank">Quiero mi plan de acción →</a>
+      <button class="btn-outline" onclick="restart()">Reiniciar</button>
+    </div>
+
+    <div class="scroll-hint">
+      <div class="scroll-arrow">↓</div>
+      Ver análisis por dimensión
     </div>
   </div>
 
-  <div class="res-dims">
-    <div class="rd-hdr">
-      <div class="rd-line"></div>
-      <div class="rd-title">Análisis · 5 dimensiones</div>
-      <div class="rd-line"></div>
+  <div class="res-analysis">
+    <div class="ra-hdr">
+      <div class="ra-line"></div>
+      <div class="ra-ttl">Análisis · 5 dimensiones</div>
+      <div class="ra-line"></div>
     </div>
-    <div class="rd-split">
-      <div class="radar-wrap">
-        <div class="radar-wrap-ttl">Perfil radar</div>
+    <div class="ra-grid">
+      <div class="radar-box">
+        <div class="radar-ttl">Perfil radar</div>
         <div id="radar-here"></div>
       </div>
-      <div class="bars-wrap" id="bars-here"></div>
+      <div class="bars-col" id="bars-here"></div>
     </div>
   </div>
-
 </div>
 
-<!-- ═══════════════════════════════════════
+<!-- ══════════════════════════════
      ADMIN LOGIN
-═══════════════════════════════════════ -->
+══════════════════════════════ -->
 <div id="view-admin-login" class="view">
-  <div class="login-box">
+  <div class="abox">
     <h3>🔐 Panel Admin</h3>
-    <p>Diagnóstico · Diego Artunduaga</p>
+    <p>Diagnóstico Diego Artunduaga</p>
     <div class="fl" style="text-align:left">
-      <label class="fl-label">Contraseña</label>
-      <input type="password" id="apass" class="fl-input" placeholder="••••••••••••"
-        onkeydown="if(event.key==='Enter')chkPass()" />
+      <label class="fl" style="font-size:.62rem;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:5px">Contraseña</label>
+      <input type="password" id="apass" class="fl" style="width:100%;background:rgba(14,28,48,.8);border:1.5px solid rgba(255,255,255,.07);border-radius:11px;padding:11px 14px;color:var(--text);font-size:.9rem;font-family:var(--font);outline:none" placeholder="••••••••"
+        onkeydown="if(event.key==='Enter')chkPass()">
     </div>
-    <button class="btn-go" onclick="chkPass()">Ingresar</button>
-    <div id="passerr" style="color:var(--c5);font-size:.8rem;margin-top:8px;display:none">Contraseña incorrecta</div>
-    <p style="margin-top:16px;font-size:.72rem;color:var(--text3);cursor:pointer" onclick="showV('intro')">← Volver al diagnóstico</p>
+    <button class="btn-start" onclick="chkPass()" style="margin-top:12px">Ingresar</button>
+    <div id="passerr" style="color:var(--c5);font-size:.78rem;margin-top:8px;display:none">Contraseña incorrecta</div>
+    <p style="margin-top:14px;font-size:.7rem;color:var(--text3);cursor:pointer" onclick="showV('intro')">← Volver</p>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════
+<!-- ══════════════════════════════
      ADMIN PANEL
-═══════════════════════════════════════ -->
+══════════════════════════════ -->
 <div id="view-admin" class="view">
-  <div class="adm-hdr">
-    <h2>📊 Panel · <span class="gt">Diego Diagnóstico</span></h2>
-    <button class="btn-ol" onclick="showV('intro')" style="font-size:.8rem;padding:8px 16px">Cerrar sesión</button>
+  <div class="adm-hd">
+    <h2>📊 Panel <span style="background:linear-gradient(135deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Diego Diagnóstico</span></h2>
+    <button class="btn-outline" onclick="showV('intro')" style="font-size:.78rem;padding:7px 14px">Cerrar sesión</button>
   </div>
-  <div class="adm-stats" id="adm-stats"></div>
-  <div class="adm-tbl">
+  <div class="adm-sc" id="adm-sc"></div>
+  <div class="tbl">
     <table>
       <thead><tr>
         <th>Nombre</th><th>Empresa</th><th>Score</th><th>Nivel</th>
-        <th>Ecosistema</th><th>Salud IA</th><th>Dirección</th>
-        <th>Productividad</th><th>Influencia</th><th>Fecha</th>
+        <th>Ecosistema</th><th>Salud IA</th><th>Dirección</th><th>Productividad</th><th>Influencia</th><th>Fecha</th>
       </tr></thead>
       <tbody id="adm-tbody"></tbody>
     </table>
@@ -727,66 +537,64 @@
 <span class="adm-link" onclick="goAdmin()">admin</span>
 
 <script>
-/* ════════════════════════════════
-   SUPABASE
-════════════════════════════════ */
-const SB_URL = 'https://nvgkhdrrxqdgxktfkioa.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52Z2toZHJyeHFkZ3hrdGZraW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzY4MjYsImV4cCI6MjA5MzQxMjgyNn0.mikJZpOf6pIupH1w_hFlMIzCoOMB-wJCMJHyP46YLeg';
-const TABLE  = 'diagnostico_diego';
-const APWD   = 'Diagnosticos2026';
+/* ════ CONFIG ════ */
+const SB_URL='https://nvgkhdrrxqdgxktfkioa.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52Z2toZHJyeHFkZ3hrdGZraW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzY4MjYsImV4cCI6MjA5MzQxMjgyNn0.mikJZpOf6pIupH1w_hFlMIzCoOMB-wJCMJHyP46YLeg';
+const TABLE='diagnostico_diego';
+const APWD='Diagnosticos2026';
 
-async function sbPost(row) {
-  const r = await fetch(`${SB_URL}/rest/v1/${TABLE}`,{
-    method:'POST',
-    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
-    body:JSON.stringify(row)
-  });
-  return r.ok;
-}
-async function sbGet() {
-  const r = await fetch(`${SB_URL}/rest/v1/${TABLE}?select=*&order=fecha_hora.desc`,{
-    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}
-  });
-  return r.ok ? r.json() : [];
+/* ════ PHOTOS ════
+   All neutral spaces: meeting rooms, boardrooms, labs, auditoriums
+   No people visible
+*/
+const PHOTOS={
+  intro: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=75',
+  dim1:  'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1600&q=75', // server/data center
+  dim2:  'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1600&q=75', // science/lab instruments
+  dim3:  'https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=75', // executive boardroom empty
+  dim4:  'https://images.unsplash.com/photo-1497366754035-f200968a7afa?auto=format&fit=crop&w=1600&q=75', // modern office empty
+  dim5:  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1600&q=75', // conference auditorium empty
+  result:'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1600&q=75'  // modern architecture/glass building
+};
+
+function setBg(key){
+  const img=document.getElementById('bg-img');
+  const src=PHOTOS[key]||PHOTOS.intro;
+  if(img.src===src)return;
+  img.classList.remove('visible');
+  setTimeout(()=>{img.src=src;},150);
 }
 
-/* ════════════════════════════════
-   DATA
-════════════════════════════════ */
-const DIMS = [
-  {id:1,name:'Conocimiento del Ecosistema IA',color:'#00d4ff',short:'Ecosistema',sub:'Herramientas, prompts y criterio'},
-  {id:2,name:'IA Especializada en Salud y Ciencia',color:'#7b2fff',short:'Salud IA',sub:'Evidencia, propuestas y argumentación'},
-  {id:3,name:'Dirección Comercial LATAM con IA',color:'#ff8c00',short:'Dirección',sub:'Gestión, análisis y prospección'},
-  {id:4,name:'Productividad Directiva y Liderazgo',color:'#00d48a',short:'Productividad',sub:'Reuniones, reportes y artefactos'},
-  {id:5,name:'Influencia y Posicionamiento en Salud LATAM',color:'#ff4757',short:'Influencia',sub:'Contenido, marca y liderazgo'}
+/* ════ DATA ════ */
+const DIMS=[
+  {id:1,name:'Conocimiento del Ecosistema IA',color:'#00d4ff',short:'Ecosistema',sub:'Herramientas, prompts y criterio',photo:'dim1'},
+  {id:2,name:'IA Especializada en Salud y Ciencia',color:'#7b2fff',short:'Salud IA',sub:'Evidencia, propuestas y argumentación',photo:'dim2'},
+  {id:3,name:'Dirección Comercial LATAM con IA',color:'#ff8c00',short:'Dirección',sub:'Gestión, análisis y prospección',photo:'dim3'},
+  {id:4,name:'Productividad Directiva y Liderazgo',color:'#00d48a',short:'Productividad',sub:'Reuniones, reportes y artefactos',photo:'dim4'},
+  {id:5,name:'Influencia y Posicionamiento en Salud LATAM',color:'#ff4757',short:'Influencia',sub:'Contenido, marca y liderazgo',photo:'dim5'}
 ];
 
-const QS = [
-  // D1
+const QS=[
   {dim:1,q:'¿Qué tan bien conoces las principales herramientas de IA disponibles hoy (Claude, ChatGPT, Gemini, Copilot, etc.)?',opts:['No las conozco bien, me resultan confusas.','He escuchado de ellas pero las uso poco o de manera esporádica.','Uso 1-2 herramientas regularmente en mi trabajo como director/a.','Evalúo y combino varias IAs según la tarea específica que necesito resolver.']},
   {dim:1,q:'¿Con qué frecuencia usas herramientas de IA en tu trabajo diario como director/a comercial?',opts:['Casi no las uso; no están integradas a mi rutina laboral.','Las uso ocasionalmente, menos de una vez por semana.','Las uso varias veces por semana para tareas concretas.','La IA es parte integral de mi flujo de trabajo diario como director/a.']},
   {dim:1,q:'¿Conoces y usas herramientas especializadas como Perplexity, Gemini, Midjourney o Microsoft Copilot?',opts:['No conozco estas herramientas específicas.','He oído de algunas pero no las he probado realmente.','He probado 2-3 de estas herramientas con cierta regularidad.','Uso activamente varias según sus fortalezas para distintas tareas.']},
   {dim:1,q:'¿Cómo evalúas la confiabilidad de la información que produce una herramienta de IA?',opts:['Acepto la información sin cuestionarla demasiado.','Tengo dudas pero no siempre sé cómo validar lo que genera.','Contrasto los resultados con fuentes adicionales en los temas importantes.','Aplico criterios estructurados para verificar y validar todo output de IA antes de usarlo.']},
   {dim:1,q:'¿Cómo escribes instrucciones (prompts) para obtener resultados profesionales con IA?',opts:['Escribo preguntas simples sin estructura específica.','Estoy aprendiendo a dar más contexto en mis instrucciones a la IA.','Uso instrucciones detalladas con rol, contexto y objetivo definidos.','Diseño prompts especializados con cadenas de razonamiento y refinamiento iterativo.']},
-  // D2
   {dim:2,q:'¿Conoces herramientas de IA especializadas para el sector salud y ciencia, como Consensus, Semantic Scholar o PubMed AI?',opts:['No conozco herramientas de IA especializadas en salud.','He escuchado de alguna, pero no las he explorado en detalle.','Conozco y he usado alguna de estas plataformas en búsquedas.','Las uso regularmente para fundamentar mis propuestas y argumentos comerciales en salud.']},
   {dim:2,q:'¿Cómo construyes actualmente propuestas comerciales para clientes del sector salud?',opts:['Las construyo manualmente sin apoyo de ninguna herramienta de IA.','Uso IA para editar o mejorar borradores que ya tengo escritos.','Uso IA para estructurar, redactar y adaptar propuestas por tipo de cliente.','Tengo templates potenciados por IA adaptables a cada perfil de cliente en salud.']},
   {dim:2,q:'¿Usas IA para acceder, resumir o analizar papers científicos y estudios clínicos relevantes para tu sector?',opts:['No busco ni analizo literatura científica en mi rol comercial.','Uso Google o PubMed básico sin apoyo de IA para buscar información.','Uso IA para resumir y extraer los insights más relevantes de estudios científicos.','Integro evidencia científica actualizada en mis argumentos comerciales con apoyo de IA.']},
   {dim:2,q:'¿Cómo preparas tu argumentación científica cuando presentas ante médicos o directivos del sector salud?',opts:['Me apoyo en materiales corporativos estándar sin mucha personalización.','Adapto los argumentos manualmente con información que busco por mi cuenta.','Uso IA para preparar argumentos basados en evidencia según el perfil del interlocutor.','Tengo flujos con IA que incluyen evidencia, objeciones y adaptación por especialidad médica.']},
   {dim:2,q:'¿Cómo te mantienes actualizado/a sobre las tendencias de IA en el sector salud de LATAM?',opts:['Prácticamente no me actualizo sobre IA en salud de manera sistemática.','Leo ocasionalmente artículos generales cuando me los comparten.','Sigo fuentes específicas de IA en salud y me actualizo con regularidad.','Tengo un sistema de vigilancia con alertas y síntesis periódicas sobre IA en salud LATAM.']},
-  // D3
   {dim:3,q:'¿Cómo analizas el desempeño comercial de tu equipo en los distintos países de LATAM?',opts:['El análisis lo hago manualmente con reportes básicos.','Uso hojas de cálculo o dashboards estándar, sin herramientas de IA.','Uso IA para interpretar datos y generar insights del equipo por país.','Tengo sistemas con IA para análisis predictivo del desempeño por mercado en LATAM.']},
   {dim:3,q:'¿Cómo adaptas tus estrategias comerciales a las diferencias de cada mercado en LATAM?',opts:['Aplico estrategias uniformes para todos los mercados de la región.','Adapto manualmente según mi experiencia y conocimiento de cada país.','Uso IA para identificar diferencias culturales, regulatorias y de comportamiento por mercado.','Diseño estrategias diferenciadas por país con apoyo de IA para análisis y personalización.']},
   {dim:3,q:'¿Cómo gestionas a tu equipo de ventas disperso en distintos países de LATAM?',opts:['La gestión es principalmente por llamadas y reportes básicos.','Uso herramientas digitales básicas como email y CRM, sin integración de IA.','Uso IA para preparar reuniones, dar feedback estructurado y planes de desarrollo.','Tengo protocolos de gestión con IA: onboarding, coaching, evaluación y seguimiento por país.']},
   {dim:3,q:'¿Cómo elaboras proyecciones y forecasting comercial para la región LATAM?',opts:['Las proyecciones las hago con intuición y experiencia sin metodología formal.','Uso métodos básicos de cálculo con datos históricos, sin apoyo de IA.','Consulto IA para analizar tendencias y construir escenarios comerciales.','Tengo modelos de forecasting asistidos por IA con variables específicas de cada mercado LATAM.']},
   {dim:3,q:'¿Cómo identificas y prospectas nuevos clientes en el sector salud a lo largo de LATAM?',opts:['La prospección es manual, por referidos o contacto directo.','Uso LinkedIn u otras redes sin un sistema estructurado de IA.','Uso IA para identificar prospectos, investigar cuentas y preparar acercamientos personalizados.','Tengo un sistema de prospección inteligente con IA: segmentación, señales de compra y mensajes.']},
-  // D4
   {dim:4,q:'¿Cómo te preparas para reuniones directivas y la elaboración de presentaciones ejecutivas?',opts:['Me preparo de manera intuitiva con poca estructura formal.','Preparo agendas y presentaciones manualmente, sin IA.','Uso IA para estructurar, enriquecer y revisar mis materiales ejecutivos.','Tengo plantillas y flujos con IA para preparación directiva: resúmenes, datos, narrativas y anticipación de preguntas.']},
   {dim:4,q:'¿Cómo usas la IA para la formación y el desarrollo de tu equipo comercial?',opts:['La formación es esporádica y principalmente presencial.','Comparto recursos y hago sesiones de equipo sin apoyo de IA.','Uso IA para diseñar contenidos de capacitación y planes de desarrollo del equipo.','Tengo programas de desarrollo co-diseñados con IA: ruta formativa, feedback y métricas de progreso.']},
   {dim:4,q:'¿Cómo gestionas la comunicación con stakeholders clave (directivos, socios, clientes) con apoyo de IA?',opts:['La comunicación es reactiva y sin sistematización clara.','Tengo plantillas básicas de email y mensajes sin IA.','Uso IA para redactar, adaptar y dar seguimiento a comunicaciones clave.','Tengo estrategias de comunicación diferenciadas por stakeholder, asistidas por IA con seguimiento.']},
   {dim:4,q:'¿Cómo generas reportes e informes para la alta dirección de tu organización?',opts:['Los reportes me toman mucho tiempo y son completamente manuales.','Uso formatos estándar con datos que compilo manualmente.','Uso IA para estructurar, redactar y visualizar reportes con datos del negocio.','Tengo flujos semi-automatizados con IA para generar reportes ejecutivos con insights y narrativa.']},
   {dim:4,q:'¿Has creado artefactos propios con IA adaptados a tu rol (prompts especializados, plantillas, flujos de trabajo)?',opts:['No he creado ningún artefacto propio con IA.','He guardado algunos prompts básicos para reutilizar ocasionalmente.','Tengo una biblioteca personal de prompts y plantillas para mi cargo.','Tengo un sistema documentado de artefactos con IA: prompts, plantillas, flujos y procesos para mi trabajo.']},
-  // D5
   {dim:5,q:'¿Cómo es tu presencia digital actual como líder comercial en el sector salud de LATAM?',opts:['Tengo poca o ninguna presencia digital profesional activa.','Tengo perfil en LinkedIn pero no lo actualizo con regularidad.','Publico contenido ocasionalmente sobre temas de salud y ventas.','Tengo una estrategia de posicionamiento activa con contenido regular sobre salud LATAM.']},
   {dim:5,q:'¿Usas IA para crear contenido de posicionamiento como líder en el sector salud?',opts:['No creo contenido de posicionamiento profesional con IA.','He experimentado puntualmente con IA para crear algún texto.','Uso IA regularmente para crear posts, artículos y material de valor para mi red.','Tengo un flujo editorial asistido por IA: temas, formatos, calendario y publicación en salud LATAM.']},
   {dim:5,q:'¿Qué tan claro y diferenciado es tu mensaje de propuesta de valor como director/a comercial en salud?',opts:['Me cuesta articular claramente mi propuesta de valor única.','Tengo un mensaje básico pero no diferenciado por audiencia o contexto.','Tengo un pitch refinado con apoyo de IA para diferentes interlocutores.','Tengo una propuesta de valor sofisticada por audiencia, potenciada y validada continuamente con IA.']},
@@ -794,244 +602,193 @@ const QS = [
   {dim:5,q:'¿Contribuyes activamente al ecosistema de conocimiento sobre IA en ventas y salud en LATAM?',opts:['No contribuyo aún al conocimiento colectivo sobre IA en salud.','Comparto esporádicamente artículos o reflexiones en mis redes.','Soy referente interno en mi organización sobre IA aplicada a ventas en salud.','Soy una voz activa en LATAM sobre IA comercial en salud: charlas, publicaciones, comunidades.']}
 ];
 
-const LEVELS = {
-  e:{label:'🌱 Explorador IA',color:'#ff4757',bg:'rgba(255,71,87,.12)',
-     title:'Inicio del camino estratégico',
-     desc:'Tienes una base sólida para construir. La IA representa una enorme oportunidad para potenciar tu liderazgo en LATAM y tu argumentación en salud. Con un plan estructurado, en pocas semanas puedes avanzar de manera significativa.'},
-  a:{label:'🚀 En Aceleración',color:'#ff8c00',bg:'rgba(255,140,0,.12)',
-     title:'Ganando velocidad con IA',
-     desc:'Ya integras IA en varias áreas de tu trabajo. El siguiente paso es sistematizar ese uso, crear artefactos propios para tu rol y desarrollar capacidades especializadas para la dirección comercial en salud LATAM.'},
-  l:{label:'⚡ Líder IA',color:'#00d4ff',bg:'rgba(0,212,255,.12)',
-     title:'Referente en adopción de IA',
-     desc:'Alto nivel de madurez en IA aplicada a tu rol. Lideras con IA de forma estratégica, tienes sistemas propios y potencias a tu equipo. El reto ahora es escalar tu influencia en el ecosistema salud LATAM.'}
+const LEVELS={
+  e:{label:'🌱 Explorador IA',color:'#ff4757',bg:'rgba(255,71,87,.12)',title:'Inicio del camino estratégico',desc:'Tienes una base sólida para construir. La IA representa una enorme oportunidad para potenciar tu liderazgo en LATAM. Con un plan estructurado, en pocas semanas puedes avanzar de manera significativa.'},
+  a:{label:'🚀 En Aceleración',color:'#ff8c00',bg:'rgba(255,140,0,.12)',title:'Ganando velocidad con IA',desc:'Ya integras IA en varias áreas de tu trabajo. El siguiente paso es sistematizar ese uso, crear artefactos propios y desarrollar capacidades especializadas para la dirección comercial en salud LATAM.'},
+  l:{label:'⚡ Líder IA',color:'#00d4ff',bg:'rgba(0,212,255,.12)',title:'Referente en adopción de IA',desc:'Alto nivel de madurez. Lideras con IA de forma estratégica, tienes sistemas propios y potencias a tu equipo. El reto ahora es escalar tu influencia en el ecosistema salud LATAM.'}
 };
 
-let S = {nombre:'',email:'',empresa:'',q:0,ans:new Array(25).fill(null)};
+let S={nombre:'',email:'',empresa:'',q:0,ans:new Array(25).fill(null)};
 
-/* ════════════════════════════════
-   INIT
-════════════════════════════════ */
-(function(){
-  // Dim cards in right panel
-  const cl = document.getElementById('dim-cards-list');
-  if(cl) {
-    DIMS.forEach((d,i)=>{
-      const el = document.createElement('div');
-      el.className = 'dim-card';
-      el.style.borderColor = d.color+'35';
-      el.style.animationDelay = (i*0.08)+'s';
-      el.innerHTML=`
-        <div class="dc-bullet" style="background:${d.color}"></div>
-        <div class="dc-info">
-          <div class="dc-name" style="color:${d.color}">${d.name}</div>
-          <div class="dc-sub">${d.sub}</div>
-        </div>
-        <div class="dc-count" style="color:${d.color}">5</div>`;
-      cl.appendChild(el);
-    });
-  }
+/* ════ INIT ════ */
+(()=>{
+  setBg('intro');
+  const dl=document.getElementById('dim-list-intro');
+  if(dl) DIMS.forEach((d,i)=>{
+    const el=document.createElement('div');
+    el.className='dim-row';
+    el.style.cssText=`border-color:${d.color}30;animation-delay:${i*.07}s`;
+    el.innerHTML=`<div class="dr-bullet" style="background:${d.color}"></div><div class="dr-info"><div class="dr-name" style="color:${d.color}">${d.name}</div><div class="dr-sub">${d.sub}</div></div><div class="dr-n" style="color:${d.color}">5</div>`;
+    dl.appendChild(el);
+  });
 })();
 
-/* ════════════════════════════════
-   VIEW
-════════════════════════════════ */
+/* ════ VIEW ════ */
 function showV(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const el = document.getElementById('view-'+id);
+  const el=document.getElementById('view-'+id);
   if(el){el.classList.add('active');window.scrollTo(0,0);}
 }
 
-/* ════════════════════════════════
-   START
-════════════════════════════════ */
+/* ════ START ════ */
 function startQuiz(){
-  const n = document.getElementById('inp-n').value.trim();
+  const n=document.getElementById('inp-n').value.trim();
   if(!n){document.getElementById('inp-n').focus();return;}
-  S.nombre  = n;
-  S.email   = document.getElementById('inp-e').value.trim();
-  S.empresa = document.getElementById('inp-c').value.trim();
-  S.q = 0;
-  S.ans = new Array(25).fill(null);
-  buildDotRow();
-  showV('quiz');
-  renderQ('f');
-  document.addEventListener('keydown', kbHandler);
+  S.nombre=n;S.email=document.getElementById('inp-e').value.trim();
+  S.empresa=document.getElementById('inp-c').value.trim();
+  S.q=0;S.ans=new Array(25).fill(null);
+  buildDots();showV('quiz');renderQ('f');
+  document.addEventListener('keydown',kbH);
 }
 
-/* ════════════════════════════════
-   KEYBOARD
-════════════════════════════════ */
-function kbHandler(e){
-  const n = parseInt(e.key);
-  if(n>=1&&n<=4&&n<=QS[S.q].opts.length) selectAns(n-1);
+/* ════ KEYBOARD ════ */
+function kbH(e){
+  const n=parseInt(e.key);
+  if(n>=1&&n<=4&&n<=QS[S.q].opts.length)pick(n-1);
 }
 
-/* ════════════════════════════════
-   DOTS
-════════════════════════════════ */
-function buildDotRow(){
-  const row = document.getElementById('dot-row');
-  if(!row)return;
-  row.innerHTML='';
+/* ════ DOTS ════ */
+function buildDots(){
+  const r=document.getElementById('dots-row');if(!r)return;
+  r.innerHTML='';
   DIMS.forEach((dim,gi)=>{
-    const g=document.createElement('div'); g.className='dg';
+    const g=document.createElement('div');g.className='dot-g';
     for(let i=0;i<5;i++){
       const d=document.createElement('div');
-      d.className='dd'; d.id=`d-${gi*5+i}`;
-      d.style.background='rgba(255,255,255,0.08)';
+      d.className='dot';d.id=`dot-${gi*5+i}`;
       g.appendChild(d);
     }
-    row.appendChild(g);
-    if(gi<DIMS.length-1){const s=document.createElement('div');s.className='dg-sep';row.appendChild(s);}
+    r.appendChild(g);
+    if(gi<4){const s=document.createElement('div');s.className='dot-g-sep';r.appendChild(s);}
   });
 }
 function updDots(idx){
   QS.forEach((_,i)=>{
-    const d=document.getElementById('d-'+i); if(!d)return;
-    const dim=DIMS[QS[i].dim-1];
+    const d=document.getElementById('dot-'+i);if(!d)return;
+    const c=DIMS[QS[i].dim-1].color;
     d.classList.remove('done','curr');
-    if(i<idx){d.classList.add('done');d.style.background=dim.color;d.style.color=dim.color;}
-    else if(i===idx){d.classList.add('curr');d.style.background=dim.color;d.style.color=dim.color;}
-    else{d.style.background='rgba(255,255,255,0.08)';}
+    if(i<idx){d.classList.add('done');d.style.background=c;}
+    else if(i===idx){d.classList.add('curr');d.style.background=c;d.style.color=c;}
+    else{d.style.background='rgba(255,255,255,.07)';}
   });
 }
 
-/* ════════════════════════════════
-   RENDER Q
-════════════════════════════════ */
+/* ════ RENDER Q ════ */
+let lastDim=-1;
 function renderQ(dir){
-  const idx = S.q;
-  const q   = QS[idx];
-  const dim = DIMS[q.dim-1];
+  const idx=S.q,q=QS[idx],dim=DIMS[q.dim-1];
+
+  // Change background when dimension changes
+  if(q.dim!==lastDim){setBg(dim.photo);lastDim=q.dim;}
 
   // Top bar
-  document.getElementById('dtb-dot').style.background = dim.color;
-  document.getElementById('dtb-dim').textContent = dim.name;
-  document.getElementById('dtb-dim').style.color = dim.color;
-  const dqs = QS.filter(x=>x.dim===q.dim);
-  document.getElementById('dtb-pos').textContent = `Pregunta ${dqs.indexOf(q)+1} de ${dqs.length}`;
-  const pct = Math.round(idx/QS.length*100);
-  const pb = document.getElementById('dtb-prog');
-  pb.style.width = pct+'%';
-  pb.style.background = `linear-gradient(90deg,${dim.color},${dim.color}88)`;
+  document.getElementById('dtop-dot').style.background=dim.color;
+  document.getElementById('dtop-dim').textContent=dim.name;
+  document.getElementById('dtop-dim').style.color=dim.color;
+  const dqs=QS.filter(x=>x.dim===q.dim);
+  document.getElementById('dtop-pos').textContent=`Pregunta ${dqs.indexOf(q)+1} de ${dqs.length}`;
+  const acc=document.getElementById('dtop-acc');
+  acc.style.width=Math.round((idx+1)/QS.length*100)+'%';
+  acc.style.background=`linear-gradient(90deg,${dim.color},${dim.color}88)`;
 
-  // Card anim
-  const card = document.getElementById('q-card');
-  card.classList.remove('asr','asl'); void card.offsetWidth;
-  card.classList.add(dir==='f'?'asr':'asl');
-  card.style.borderColor = dim.color+'25';
+  // Card
+  const card=document.getElementById('qc');
+  card.classList.remove('aR','aL');void card.offsetWidth;
+  card.classList.add(dir==='f'?'aR':'aL');
+  card.style.borderColor=dim.color+'20';
 
-  // Badge
-  const b = document.getElementById('q-num');
-  b.textContent = String(idx+1).padStart(2,'0');
-  b.style.background = dim.color;
+  const nb=document.getElementById('qc-num');
+  nb.textContent=String(idx+1).padStart(2,'0');
+  nb.style.background=dim.color;
 
-  document.getElementById('q-cnt').textContent = `Pregunta ${idx+1} de ${QS.length}`;
-  document.getElementById('q-txt').textContent = q.q;
+  document.getElementById('qc-cnt').textContent=`Pregunta ${idx+1} de ${QS.length}`;
+  document.getElementById('qc-txt').textContent=q.q;
 
   // Options
-  const keys=['1','2','3','4'];
-  const c = document.getElementById('opts-list');
-  c.innerHTML='';
+  const oc=document.getElementById('opts');oc.innerHTML='';
   q.opts.forEach((opt,i)=>{
-    const btn=document.createElement('button');
-    btn.className='opt'+(S.ans[idx]===i?' sel':'');
-    btn.onclick=()=>selectAns(i);
-    btn.innerHTML=`<span class="opt-badge">${keys[i]}</span><span>${opt}</span>`;
-    if(S.ans[idx]===i){
-      btn.style.borderColor=dim.color;
-      btn.style.background=hxa(dim.color,.08);
-      btn.querySelector('.opt-badge').style.background=dim.color;
-      btn.querySelector('.opt-badge').style.color='#000';
-    }
-    c.appendChild(btn);
+    const b=document.createElement('button');
+    b.className='opt'+(S.ans[idx]===i?' sel':'');
+    b.onclick=()=>pick(i);
+    b.innerHTML=`<span class="opt-badge">${i+1}</span><span>${opt}</span>`;
+    if(S.ans[idx]===i)styleSelOpt(b,dim.color);
+    oc.appendChild(b);
   });
 
-  const fwd = document.getElementById('btn-fwd');
-  fwd.textContent = idx===QS.length-1 ? 'Ver resultados →' : 'Siguiente →';
-  fwd.style.background=`linear-gradient(135deg,${dim.color},${dim.color==='#00d4ff'?'#7b2fff':dim.color+'bb'})`;
-  fwd.classList.toggle('on', S.ans[idx]!==null);
-
-  document.getElementById('btn-back').style.display = idx>0 ? 'block':'none';
+  const nx=document.getElementById('btn-nx');
+  nx.textContent=idx===QS.length-1?'Ver resultados →':'Siguiente →';
+  nx.style.background=`linear-gradient(135deg,${dim.color},${dim.color}bb)`;
+  nx.classList.toggle('on',S.ans[idx]!==null);
+  document.getElementById('btn-bk').style.display=idx>0?'block':'none';
   updDots(idx);
 }
 
-function hxa(hex,a){
-  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return `rgba(${r},${g},${b},${a})`;
+function styleSelOpt(btn,color){
+  btn.style.borderColor=color;
+  btn.style.background=hex2rgba(color,.09);
+  const b=btn.querySelector('.opt-badge');
+  b.style.background=color;b.style.color='#000';b.style.borderColor='transparent';
 }
+function hex2rgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
 
-/* ════════════════════════════════
-   SELECT
-════════════════════════════════ */
-function selectAns(i){
+/* ════ PICK / NAV ════ */
+function pick(i){
   S.ans[S.q]=i;
   const dim=DIMS[QS[S.q].dim-1];
-  document.querySelectorAll('.opt').forEach((btn,j)=>{
+  document.querySelectorAll('.opt').forEach((b,j)=>{
     const sel=j===i;
-    btn.classList.toggle('sel',sel);
-    btn.style.borderColor=sel?dim.color:'';
-    btn.style.background=sel?hxa(dim.color,.08):'';
-    const b=btn.querySelector('.opt-badge');
-    b.style.background=sel?dim.color:'';
-    b.style.color=sel?'#000':'';
+    b.classList.toggle('sel',sel);
+    if(sel){styleSelOpt(b,dim.color);}else{b.style.borderColor='';b.style.background='';const bd=b.querySelector('.opt-badge');bd.style.background='';bd.style.color='';bd.style.borderColor='';}
   });
-  document.getElementById('btn-fwd').classList.add('on');
-  setTimeout(nextQ,360);
+  document.getElementById('btn-nx').classList.add('on');
+  setTimeout(nextQ,370);
 }
-
-/* ════════════════════════════════
-   NAV
-════════════════════════════════ */
-function nextQ(){
-  if(S.ans[S.q]===null)return;
-  if(S.q<QS.length-1){S.q++;renderQ('f');}
-  else finish();
-}
+function nextQ(){if(S.ans[S.q]===null)return;if(S.q<QS.length-1){S.q++;renderQ('f');}else finish();}
 function prevQ(){if(S.q>0){S.q--;renderQ('b');}}
 
-/* ════════════════════════════════
-   FINISH
-════════════════════════════════ */
+/* ════ FINISH ════ */
 async function finish(){
-  document.removeEventListener('keydown',kbHandler);
-  showV('saving');
-  let tot=0; const ds=[0,0,0,0,0];
+  document.removeEventListener('keydown',kbH);
+  showV('saving');setBg('result');
+  let tot=0;const ds=[0,0,0,0,0];
   QS.forEach((q,i)=>{const v=S.ans[i]||0;tot+=v;ds[q.dim-1]+=v;});
   const score=Math.round(tot*100/75);
   const dn=ds.map(s=>Math.round(s*100/15));
   const lv=score<50?LEVELS.e:score<75?LEVELS.a:LEVELS.l;
   try{
-    await sbPost({
-      nombre:S.nombre,email:S.email||null,empresa:S.empresa||null,
-      puntaje_total:score,
-      puntaje_dim1:dn[0],puntaje_dim2:dn[1],puntaje_dim3:dn[2],
-      puntaje_dim4:dn[3],puntaje_dim5:dn[4],nivel:lv.label
+    await fetch(`${SB_URL}/rest/v1/${TABLE}`,{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({nombre:S.nombre,email:S.email||null,empresa:S.empresa||null,puntaje_total:score,puntaje_dim1:dn[0],puntaje_dim2:dn[1],puntaje_dim3:dn[2],puntaje_dim4:dn[3],puntaje_dim5:dn[4],nivel:lv.label})
     });
   }catch(e){console.warn(e);}
   showResult(score,tot,dn,lv);
 }
 
-/* ════════════════════════════════
-   SHOW RESULT
-════════════════════════════════ */
+/* ════ SHOW RESULT ════ */
 function showResult(score,raw,dn,lv){
   showV('result');
-  document.getElementById('rh-name').textContent = S.nombre;
-  document.getElementById('rh-pts').textContent  = `${raw} de 75 pts · ${score}/100`;
+  document.getElementById('rh-name').textContent=S.nombre;
+  document.getElementById('rh-pts').textContent=`${raw} de 75 pts · ${score}/100`;
 
   // Animated counter
-  const el = document.getElementById('rh-num');
-  el.style.color = lv.color;
-  let c=0; const step=score/65;
-  const t=setInterval(()=>{c=Math.min(c+step,score);el.textContent=Math.round(c);if(c>=score)clearInterval(t);},14);
+  const numEl=document.getElementById('rh-num');
+  numEl.style.color=lv.color;
+  let c=0;const step=score/70;
+  const t=setInterval(()=>{c=Math.min(c+step,score);numEl.textContent=Math.round(c);if(c>=score)clearInterval(t);},14);
+
+  // Ring
+  const ring=document.getElementById('ring-path');
+  ring.style.stroke=lv.color;
+  const circumference=2*Math.PI*108;
+  ring.style.strokeDasharray=circumference;
+  ring.style.strokeDashoffset=circumference;
+  setTimeout(()=>{ring.style.strokeDashoffset=circumference*(1-score/100);},100);
 
   // Badge
   const b=document.getElementById('rh-badge');
-  b.textContent=lv.label;
-  b.style.background=lv.bg;
-  b.style.color=lv.color;
-  b.style.border=`1px solid ${lv.color}55`;
+  b.textContent=lv.label;b.style.background=lv.bg;
+  b.style.color=lv.color;b.style.border=`1px solid ${lv.color}44`;
 
   document.getElementById('rh-title').innerHTML=`<span style="color:${lv.color}">${lv.title}</span>`;
   document.getElementById('rh-desc').textContent=lv.desc;
@@ -1040,57 +797,41 @@ function showResult(score,raw,dn,lv){
   document.getElementById('radar-here').innerHTML=buildRadar(dn);
 
   // Bars
-  const bc=document.getElementById('bars-here');
-  bc.innerHTML='';
+  const bc=document.getElementById('bars-here');bc.innerHTML='';
   DIMS.forEach((dim,i)=>{
-    const el2=document.createElement('div');
-    el2.className='bar-card';
-    el2.innerHTML=`
-      <div class="bc-hdr">
-        <span class="bc-name" style="color:${dim.color}">${dim.name}</span>
-        <span class="bc-val" style="color:${dim.color}">${dn[i]}%</span>
-      </div>
-      <div class="bc-track"><div id="bfi${i}" class="bc-fill" style="width:0%;background:${dim.color}"></div></div>`;
-    bc.appendChild(el2);
-    setTimeout(()=>{document.getElementById('bfi'+i).style.width=dn[i]+'%';},400+i*130);
+    const el=document.createElement('div');el.className='bc';
+    el.innerHTML=`<div class="bc-hdr"><span class="bc-name" style="color:${dim.color}">${dim.name}</span><span class="bc-val" style="color:${dim.color}">${dn[i]}%</span></div><div class="bc-track"><div id="bf${i}" class="bc-fill" style="width:0%;background:${dim.color}"></div></div>`;
+    bc.appendChild(el);
+    setTimeout(()=>{document.getElementById('bf'+i).style.width=dn[i]+'%';},450+i*130);
   });
 }
 
-/* ════════════════════════════════
-   RADAR
-════════════════════════════════ */
+/* ════ RADAR ════ */
 function buildRadar(dn){
-  const cx=150,cy=155,maxR=95;
+  const cx=130,cy=130,mR=90;
   const ang=DIMS.map((_,i)=>(i*72-90)*Math.PI/180);
   const pt=(r,i)=>[cx+r*Math.cos(ang[i]),cy+r*Math.sin(ang[i])];
   const poly=r=>DIMS.map((_,i)=>pt(r,i).map(v=>v.toFixed(1)).join(',')).join(' ');
-  const grids=[25,50,75,100].map(p=>`<polygon points="${poly(maxR*p/100)}" fill="none" stroke="rgba(255,255,255,${p===100?.1:.05})" stroke-width="1"/>`).join('');
-  const axes=DIMS.map((_,i)=>{const[x,y]=pt(maxR,i);return`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>`;}).join('');
-  const dpts=DIMS.map((_,i)=>pt(maxR*(dn[i]/100),i).map(v=>v.toFixed(1)).join(',')).join(' ');
-  const lbls=DIMS.map((d,i)=>{const[x,y]=pt(122,i);const a=x<cx-8?'end':x>cx+8?'start':'middle';return`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${a}" dominant-baseline="middle" fill="${d.color}" font-size="9.5" font-weight="700" font-family="Plus Jakarta Sans,sans-serif">${d.short}</text>`;}).join('');
-  const dots=DIMS.map((d,i)=>{const[x,y]=pt(maxR*(dn[i]/100),i);return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${d.color}" stroke="#060c18" stroke-width="2"/>`;}).join('');
-  return`<svg viewBox="0 0 300 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:260px;display:block;margin:0 auto">
-    <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00d4ff" stop-opacity=".22"/>
-      <stop offset="100%" stop-color="#7b2fff" stop-opacity=".22"/>
-    </linearGradient></defs>
+  const grids=[25,50,75,100].map(p=>`<polygon points="${poly(mR*p/100)}" fill="none" stroke="rgba(255,255,255,${p===100?.08:.04})" stroke-width="1"/>`).join('');
+  const axes=DIMS.map((_,i)=>{const[x,y]=pt(mR,i);return`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;}).join('');
+  const dpts=DIMS.map((_,i)=>pt(mR*(dn[i]/100),i).map(v=>v.toFixed(1)).join(',')).join(' ');
+  const lbls=DIMS.map((d,i)=>{const[x,y]=pt(112,i);const a=x<cx-8?'end':x>cx+8?'start':'middle';return`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${a}" dominant-baseline="middle" fill="${d.color}" font-size="9" font-weight="700" font-family="Plus Jakarta Sans,sans-serif">${d.short}</text>`;}).join('');
+  const dots=DIMS.map((d,i)=>{const[x,y]=pt(mR*(dn[i]/100),i);return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${d.color}" stroke="#060c18" stroke-width="2"/>`;}).join('');
+  return`<svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:230px;display:block;margin:0 auto">
+    <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#00d4ff" stop-opacity=".2"/><stop offset="100%" stop-color="#7b2fff" stop-opacity=".2"/></linearGradient></defs>
     ${grids}${axes}
-    <polygon points="${dpts}" fill="url(#rg)" stroke="#00d4ff" stroke-width="1.5" stroke-opacity=".65"/>
+    <polygon points="${dpts}" fill="url(#rg)" stroke="#00d4ff" stroke-width="1.5" stroke-opacity=".55"/>
     ${dots}${lbls}</svg>`;
 }
 
-/* ════════════════════════════════
-   RESTART
-════════════════════════════════ */
+/* ════ RESTART ════ */
 function restart(){
   S={nombre:'',email:'',empresa:'',q:0,ans:new Array(25).fill(null)};
   ['inp-n','inp-e','inp-c'].forEach(id=>document.getElementById(id).value='');
-  showV('intro');
+  lastDim=-1;setBg('intro');showV('intro');
 }
 
-/* ════════════════════════════════
-   ADMIN
-════════════════════════════════ */
+/* ════ ADMIN ════ */
 function goAdmin(){showV('admin-login');setTimeout(()=>document.getElementById('apass').focus(),80);}
 function chkPass(){
   if(document.getElementById('apass').value===APWD){
@@ -1101,19 +842,16 @@ function chkPass(){
 }
 async function loadAdmin(){
   showV('admin');
-  const rows=await sbGet();
-  if(!Array.isArray(rows)||!rows.length){
-    document.getElementById('adm-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--text3)">Sin datos aún</td></tr>';
-    return;
-  }
+  const rows=await fetch(`${SB_URL}/rest/v1/${TABLE}?select=*&order=fecha_hora.desc`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}}).then(r=>r.json()).catch(()=>[]);
+  if(!Array.isArray(rows)||!rows.length){document.getElementById('adm-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--text3)">Sin datos aún</td></tr>';return;}
   const avg=Math.round(rows.reduce((a,r)=>a+r.puntaje_total,0)/rows.length);
   const lc=rows.reduce((acc,r)=>{const l=r.nivel||'';if(l.includes('Líder'))acc.l++;else if(l.includes('Aceleración'))acc.a++;else acc.e++;return acc;},{l:0,a:0,e:0});
-  document.getElementById('adm-stats').innerHTML=`
-    <div class="asc"><div class="asc-n">${rows.length}</div><div class="asc-l">Respuestas</div></div>
-    <div class="asc"><div class="asc-n">${avg}</div><div class="asc-l">Score promedio</div></div>
-    <div class="asc"><div class="asc-n" style="color:var(--c1)">${lc.l}</div><div class="asc-l">Líderes IA</div></div>
-    <div class="asc"><div class="asc-n" style="color:var(--c3)">${lc.a}</div><div class="asc-l">En Aceleración</div></div>
-    <div class="asc"><div class="asc-n" style="color:var(--c5)">${lc.e}</div><div class="asc-l">Exploradores</div></div>`;
+  document.getElementById('adm-sc').innerHTML=`
+    <div class="sc"><div class="sc-n">${rows.length}</div><div class="sc-l">Respuestas</div></div>
+    <div class="sc"><div class="sc-n">${avg}</div><div class="sc-l">Score promedio</div></div>
+    <div class="sc"><div class="sc-n" style="color:var(--c1)">${lc.l}</div><div class="sc-l">Líderes IA</div></div>
+    <div class="sc"><div class="sc-n" style="color:var(--c3)">${lc.a}</div><div class="sc-l">En Aceleración</div></div>
+    <div class="sc"><div class="sc-n" style="color:var(--c5)">${lc.e}</div><div class="sc-l">Exploradores</div></div>`;
   document.getElementById('adm-tbody').innerHTML=rows.map(r=>{
     const f=r.fecha_hora?new Date(r.fecha_hora).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'2-digit'}):'-';
     const l=r.nivel||'';const bc=l.includes('Líder')?'lv-l':l.includes('Aceleración')?'lv-a':'lv-e';
