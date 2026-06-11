@@ -3,1531 +3,1123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Diagnóstico IA | Diego Andrés Artunduaga | ICONE ialabs</title>
+  <title>Diagnóstico Madurez IA · Diego A. Artunduaga · ICONE ialabs</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    /* ═══════════════════════════
-       DESIGN TOKENS
-    ═══════════════════════════ */
+    /* ═══════════════════ TOKENS ═══════════════════ */
     :root {
-      --bg:     #07111f;
-      --bg2:    #0c1a2e;
-      --bg3:    #112034;
+      --bg:     #060c18;
+      --bg2:    #0a1422;
+      --bg3:    #0e1c30;
+      --glass:  rgba(6,12,24,0.82);
       --border: rgba(255,255,255,0.07);
-      --border-hi: rgba(0,212,255,0.18);
-      --text:   #f0f4ff;
-      --text2:  #8ea4c0;
-      --text3:  #4d6478;
-
-      --cyan:   #00d4ff;
-      --purple: #7b2fff;
-      --orange: #ff8c00;
-      --green:  #00d48a;
-      --red:    #ff4757;
-
-      --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --border-hi: rgba(0,212,255,0.22);
+      --text:   #eef3ff;
+      --text2:  #7898b8;
+      --text3:  #3a5268;
+      --c1: #00d4ff;
+      --c2: #7b2fff;
+      --c3: #ff8c00;
+      --c4: #00d48a;
+      --c5: #ff4757;
+      --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --ease: cubic-bezier(0.16,1,0.3,1);
     }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+    img{display:block}
 
-    /* ═══════════════════════════
-       RESET
-    ═══════════════════════════ */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font);
-      min-height: 100vh;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
+    /* ═══════════════════ VIEWS ═══════════════════ */
+    .view{display:none!important}
+    .view.active{display:flex!important}
+
+    /* ═══════════════════ INTRO ═══════════════════ */
+    #view-intro{
+      flex-direction:column;
+      min-height:100vh;
+      position:relative;
     }
 
-    canvas#bg-canvas {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none; z-index: 0;
-      opacity: 0.3;
+    /* Hero: full-bleed photo behind everything */
+    .hero-bg{
+      position:fixed;inset:0;z-index:0;
+      background:#060c18;
     }
-
-    /* ═══════════════════════════
-       VIEW SYSTEM
-    ═══════════════════════════ */
-    .view { display: none !important; position: relative; z-index: 1; }
-    .view.active { display: flex !important; }
-
-    /* ═══════════════════════════
-       INTRO — SPLIT LAYOUT
-    ═══════════════════════════ */
-    #view-intro {
-      min-height: 100vh;
-      flex-direction: column;
-      align-items: stretch;
+    .hero-bg img{
+      width:100%;height:100%;object-fit:cover;
+      opacity:0;transition:opacity 1.2s ease;
+      filter:brightness(0.35) saturate(0.7);
     }
-
-    .intro-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      min-height: 100vh;
-    }
-    @media (min-width: 1024px) {
-      .intro-grid { grid-template-columns: 1fr 1fr; }
-    }
-
-    /* LEFT */
-    .intro-left {
-      display: flex; flex-direction: column;
-      justify-content: center;
-      padding: 56px 52px 56px 56px;
-    }
-    @media (max-width: 1023px) {
-      .intro-left { padding: 48px 24px; }
-    }
-
-    .intro-topbar {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 40px;
-    }
-    .intro-topbar-logo {
-      font-size: 0.72rem; font-weight: 800;
-      letter-spacing: 3px; text-transform: uppercase;
-      color: var(--text3);
-    }
-    .intro-topbar-sep { width: 1px; height: 14px; background: var(--border); }
-    .intro-topbar-tag {
-      font-size: 0.7rem; font-weight: 700;
-      color: var(--cyan); letter-spacing: 1px; text-transform: uppercase;
-    }
-
-    .intro-eyebrow {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(0,212,255,0.08);
-      border: 1px solid rgba(0,212,255,0.2);
-      border-radius: 50px; padding: 5px 14px;
-      font-size: 0.7rem; font-weight: 700;
-      letter-spacing: 1.5px; text-transform: uppercase;
-      color: var(--cyan); margin-bottom: 20px; width: fit-content;
-    }
-    .intro-eyebrow::before {
-      content: ''; display: inline-block;
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--cyan);
-      animation: pulse-dot 2s ease-in-out infinite;
-    }
-    @keyframes pulse-dot {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: 0.4; transform: scale(0.7); }
-    }
-
-    .intro-h1 {
-      font-size: clamp(2.1rem, 3.5vw, 2.9rem);
-      font-weight: 900; line-height: 1.08;
-      letter-spacing: -0.035em; margin-bottom: 18px;
-    }
-    .intro-h1 .hl {
-      color: var(--cyan);
-    }
-
-    .intro-sub {
-      font-size: 0.98rem; line-height: 1.72;
-      color: var(--text2); max-width: 460px;
-      margin-bottom: 30px; font-weight: 400;
-    }
-
-    /* Stats row */
-    .intro-stats {
-      display: flex; gap: 0; margin-bottom: 32px;
-      border: 1px solid var(--border);
-      border-radius: 14px; overflow: hidden;
-      width: fit-content;
-    }
-    .intro-stat {
-      padding: 14px 20px; text-align: center;
-      border-right: 1px solid var(--border);
-    }
-    .intro-stat:last-child { border-right: none; }
-    .intro-stat-num {
-      font-size: 1.4rem; font-weight: 900; line-height: 1;
-      margin-bottom: 3px;
-    }
-    .intro-stat-label {
-      font-size: 0.66rem; color: var(--text3); font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.8px;
-    }
-
-    /* Dimension chips */
-    .intro-dims {
-      display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 32px;
-    }
-    .dim-chip {
-      padding: 5px 12px; border-radius: 7px;
-      font-size: 0.7rem; font-weight: 700;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid;
-      letter-spacing: 0.3px;
-    }
-
-    /* Form card */
-    .intro-form {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 20px; padding: 28px 28px 22px;
-      max-width: 460px;
-    }
-    .intro-form-title {
-      font-size: 0.85rem; font-weight: 700;
-      margin-bottom: 18px; color: var(--text2);
-    }
-
-    .field { margin-bottom: 12px; }
-    .field-label {
-      display: block; font-size: 0.68rem; font-weight: 700;
-      letter-spacing: 1px; text-transform: uppercase;
-      color: var(--text3); margin-bottom: 6px;
-    }
-    .field-input {
-      width: 100%;
-      background: var(--bg3);
-      border: 1.5px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      padding: 12px 15px; color: var(--text);
-      font-size: 0.92rem; font-family: var(--font);
-      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .field-input:focus {
-      border-color: var(--cyan);
-      box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
-    }
-    .field-input::placeholder { color: var(--text3); }
-
-    .btn-start {
-      width: 100%; padding: 14px 24px;
-      background: linear-gradient(135deg, var(--cyan), var(--purple));
-      border: none; border-radius: 12px;
-      color: #fff; font-size: 0.93rem; font-weight: 800;
-      font-family: var(--font); cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
-      letter-spacing: 0.2px; margin-top: 6px;
-    }
-    .btn-start:hover { opacity: 0.9; }
-    .btn-start:active { transform: scale(0.98); opacity: 0.85; }
-    .btn-start-sub {
-      text-align: center; font-size: 0.7rem;
-      color: var(--text3); margin-top: 10px;
-    }
-
-    /* RIGHT */
-    .intro-right {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 56px 48px;
-      background: linear-gradient(160deg, var(--bg2) 0%, var(--bg) 100%);
-      border-left: 1px solid var(--border);
-      position: relative; overflow: hidden;
-    }
-    @media (max-width: 1023px) {
-      .intro-right { display: none; }
-    }
-
-    /* Decorative glow behind SVG */
-    .intro-right::before {
-      content: '';
-      position: absolute; inset: 0;
+    .hero-bg img.loaded{opacity:1}
+    /* Gradient over photo */
+    .hero-bg::after{
+      content:'';position:absolute;inset:0;
       background:
-        radial-gradient(ellipse 300px 300px at 50% 45%, rgba(0,212,255,0.06) 0%, transparent 70%),
-        radial-gradient(ellipse 200px 200px at 70% 30%, rgba(123,47,255,0.05) 0%, transparent 70%);
+        linear-gradient(100deg, rgba(6,12,24,0.96) 0%, rgba(6,12,24,0.7) 55%, rgba(6,12,24,0.25) 100%),
+        linear-gradient(to top, rgba(6,12,24,0.9) 0%, transparent 45%);
+    }
+    /* Dot grid */
+    .hero-bg::before{
+      content:'';position:absolute;inset:0;
+      background-image:radial-gradient(rgba(0,212,255,0.07) 1px,transparent 1px);
+      background-size:36px 36px;z-index:1;
     }
 
-    .hero-viz-wrap {
-      position: relative; z-index: 1;
-      width: 100%; max-width: 420px;
+    .intro-wrap{
+      position:relative;z-index:2;
+      min-height:100vh;
+      display:grid;
+      grid-template-columns:1fr;
+    }
+    @media(min-width:1060px){
+      .intro-wrap{grid-template-columns:55% 45%}
     }
 
-    .hero-stats-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 10px; margin-top: 24px;
+    /* ── LEFT ── */
+    .intro-left{
+      display:flex;flex-direction:column;justify-content:center;
+      padding:64px 60px 64px 72px;
     }
-    .hero-stat-card {
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 14px; padding: 14px 16px;
+    @media(max-width:1059px){.intro-left{padding:56px 28px}}
+
+    .il-logo{
+      display:flex;align-items:center;gap:10px;
+      margin-bottom:48px;
     }
-    .hero-stat-card-num {
-      font-size: 1.6rem; font-weight: 900; line-height: 1;
-      margin-bottom: 3px;
+    .il-logomark{
+      width:34px;height:34px;border-radius:9px;
+      background:linear-gradient(135deg,var(--c1),var(--c2));
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.6rem;font-weight:900;color:#fff;letter-spacing:0.3px;
     }
-    .hero-stat-card-label {
-      font-size: 0.68rem; color: var(--text3);
-      font-weight: 500; line-height: 1.4;
+    .il-logoname{font-size:0.72rem;font-weight:800;letter-spacing:2.5px;text-transform:uppercase;color:var(--text3)}
+    .il-sep{width:1px;height:15px;background:var(--border)}
+    .il-tag{font-size:0.68rem;font-weight:700;color:var(--c1);letter-spacing:1.2px;text-transform:uppercase}
+
+    .il-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      background:rgba(0,212,255,0.08);
+      border:1px solid rgba(0,212,255,0.2);
+      border-radius:100px;padding:6px 16px 6px 10px;
+      font-size:0.7rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;
+      color:var(--c1);margin-bottom:24px;width:fit-content;
+    }
+    .il-badge-dot{
+      width:7px;height:7px;border-radius:50%;background:var(--c1);
+      animation:pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.65)}}
+
+    .il-h1{
+      font-size:clamp(3rem,5.5vw,5rem);
+      font-weight:900;line-height:0.98;
+      letter-spacing:-0.05em;
+      margin-bottom:24px;
+    }
+    .il-h1 em{
+      font-style:normal;
+      background:linear-gradient(135deg,var(--c1) 0%,#a259ff 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
     }
 
-    /* ═══════════════════════════
-       QUIZ
-    ═══════════════════════════ */
-    #view-quiz {
-      min-height: 100vh;
-      padding: 24px 20px 36px;
-      flex-direction: column; align-items: center;
+    .il-sub{
+      font-size:1.02rem;line-height:1.75;
+      color:var(--text2);max-width:500px;
+      margin-bottom:36px;font-weight:400;
     }
 
-    .quiz-header {
-      max-width: 680px; width: 100%;
-      padding-top: 8px; margin-bottom: 4px;
+    /* Stat chips */
+    .il-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:36px}
+    .chip{
+      display:inline-flex;align-items:center;gap:6px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.09);
+      border-radius:100px;padding:7px 14px;
+    }
+    .chip-n{font-size:1.05rem;font-weight:900;line-height:1}
+    .chip-l{font-size:0.68rem;color:var(--text3);font-weight:600}
+
+    /* Form */
+    .il-form{
+      background:var(--glass);
+      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      border:1px solid rgba(0,212,255,0.14);
+      border-radius:22px;padding:30px 28px 24px;
+      max-width:480px;
+    }
+    .form-ttl{
+      font-size:0.82rem;font-weight:700;color:var(--text2);
+      margin-bottom:20px;
+      display:flex;align-items:center;gap:8px;
+    }
+    .form-ttl-line{flex:1;height:1px;background:var(--border)}
+    .fl{margin-bottom:13px}
+    .fl-label{display:block;font-size:0.65rem;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+    .fl-input{
+      width:100%;background:rgba(14,28,48,0.8);
+      border:1.5px solid rgba(255,255,255,0.08);
+      border-radius:11px;padding:12px 15px;
+      color:var(--text);font-size:0.92rem;font-family:var(--font);
+      outline:none;transition:border-color .2s,box-shadow .2s;
+    }
+    .fl-input:focus{border-color:var(--c1);box-shadow:0 0 0 3px rgba(0,212,255,.1)}
+    .fl-input::placeholder{color:var(--text3)}
+
+    .btn-go{
+      width:100%;padding:15px 24px;margin-top:4px;
+      background:linear-gradient(135deg,var(--c1),var(--c2));
+      border:none;border-radius:12px;
+      color:#fff;font-size:0.95rem;font-weight:800;
+      font-family:var(--font);cursor:pointer;
+      letter-spacing:.3px;position:relative;overflow:hidden;
+      transition:filter .2s,transform .15s;
+    }
+    .btn-go:hover{filter:brightness(1.1)}
+    .btn-go:active{transform:scale(.98)}
+    .btn-go::after{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(135deg,rgba(255,255,255,.14),transparent);
+      opacity:0;transition:opacity .2s;
+    }
+    .btn-go:hover::after{opacity:1}
+    .form-note{text-align:center;font-size:0.68rem;color:var(--text3);margin-top:10px}
+
+    /* ── RIGHT ── */
+    .intro-right{
+      display:none;position:relative;z-index:2;
+      flex-direction:column;justify-content:flex-end;
+      padding:0 44px 52px;
+    }
+    @media(min-width:1060px){.intro-right{display:flex}}
+
+    /* Dimension cards floating */
+    .dim-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+    .dim-card{
+      display:flex;align-items:center;gap:12px;
+      background:rgba(6,12,24,0.72);
+      backdrop-filter:blur(16px);
+      border:1px solid;
+      border-radius:14px;padding:12px 16px;
+      transition:transform .3s var(--ease);
+      animation:slideInCard .5s var(--ease) both;
+    }
+    @keyframes slideInCard{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
+    .dc-bullet{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+    .dc-info{flex:1}
+    .dc-name{font-size:0.78rem;font-weight:700;line-height:1.2}
+    .dc-sub{font-size:0.64rem;color:rgba(255,255,255,.4);margin-top:2px;font-weight:500}
+    .dc-count{font-size:0.7rem;font-weight:800;color:rgba(255,255,255,.3)}
+
+    /* Bottom stats strip */
+    .bottom-strip{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+    }
+    .bs-item{
+      background:rgba(6,12,24,0.72);backdrop-filter:blur(16px);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:13px;padding:14px 12px;text-align:center;
+    }
+    .bs-num{font-size:1.5rem;font-weight:900;line-height:1}
+    .bs-lbl{font-size:0.62rem;color:rgba(255,255,255,.4);font-weight:500;margin-top:3px}
+
+    /* ═══════════════════ QUIZ ═══════════════════ */
+    #view-quiz{
+      flex-direction:column;align-items:center;
+      min-height:100vh;padding:0 20px 52px;
     }
 
-    /* Dimension dot groups */
-    .dim-dots-row {
-      display: flex; align-items: center; gap: 6px;
-      margin-bottom: 16px; flex-wrap: wrap;
+    /* Dim color accent – top bar */
+    .dim-topbar{
+      position:sticky;top:0;z-index:50;
+      width:100%;padding:14px 28px;
+      display:flex;align-items:center;gap:14px;
+      background:rgba(6,12,24,0.9);backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+      margin-bottom:28px;
     }
-    .dim-dot-group { display: flex; gap: 3px; }
-    .ddot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: rgba(255,255,255,0.1);
-      transition: all 0.3s var(--ease-expo);
+    .dtb-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+    .dtb-dim{font-size:0.78rem;font-weight:700;color:var(--text2)}
+    .dtb-sep{width:1px;height:14px;background:var(--border)}
+    .dtb-pos{font-size:0.7rem;color:var(--text3)}
+    .dtb-brand{margin-left:auto;font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
+    .dtb-prog{height:3px;position:absolute;bottom:0;left:0;transition:width .5s var(--ease)}
+
+    .q-inner{max-width:660px;width:100%}
+
+    /* Dot groups */
+    .dot-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:16px}
+    .dg{display:flex;gap:3.5px}
+    .dd{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.08);transition:all .3s var(--ease)}
+    .dd.done{opacity:1}
+    .dd.curr{transform:scale(1.5);box-shadow:0 0 7px currentColor}
+    .dg-sep{width:9px;height:1px;background:var(--border);align-self:center}
+
+    /* Q card */
+    .q-card{
+      background:var(--bg2);
+      border:1.5px solid var(--border);
+      border-radius:24px;padding:40px 40px 32px;
+      margin-bottom:14px;
+      transition:border-color .3s;
     }
-    .ddot.answered { opacity: 1; transform: scale(1.15); }
-    .ddot.current  { transform: scale(1.45); box-shadow: 0 0 6px currentColor; }
-    .dim-dots-line {
-      width: 10px; height: 1px;
-      background: rgba(255,255,255,0.08);
+    @media(max-width:580px){.q-card{padding:26px 22px 22px;border-radius:18px}}
+
+    .q-card-hdr{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+    .q-num{
+      font-size:0.65rem;font-weight:900;letter-spacing:1.8px;text-transform:uppercase;
+      padding:4px 12px;border-radius:8px;color:#000;flex-shrink:0;
+    }
+    .q-counter{font-size:0.72rem;color:var(--text3);font-weight:600}
+
+    .q-text{
+      font-size:1.14rem;font-weight:700;line-height:1.58;
+      letter-spacing:-.015em;margin-bottom:28px;
     }
 
-    /* Progress */
-    .prog-row {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+    /* Options */
+    .opts{display:flex;flex-direction:column;gap:10px}
+    .opt{
+      display:flex;align-items:flex-start;gap:14px;
+      padding:15px 17px;cursor:pointer;
+      background:rgba(255,255,255,.018);
+      border:1.5px solid rgba(255,255,255,.07);
+      border-radius:14px;color:var(--text);
+      font-family:var(--font);font-size:0.89rem;line-height:1.52;
+      transition:all .18s var(--ease);text-align:left;
     }
-    .prog-track {
-      flex: 1; height: 3px;
-      background: rgba(255,255,255,0.07); border-radius: 50px; overflow: hidden;
+    .opt:hover{
+      border-color:rgba(255,255,255,.18);
+      background:rgba(255,255,255,.038);
+      transform:translateX(5px);
     }
-    .prog-fill {
-      height: 100%; border-radius: 50px;
-      background: linear-gradient(90deg, var(--cyan), var(--purple));
-      transition: width 0.5s var(--ease-expo);
+    .opt.sel{transform:translateX(5px)}
+    .opt-badge{
+      flex-shrink:0;width:30px;height:30px;border-radius:9px;
+      border:1.5px solid rgba(255,255,255,.12);
+      display:flex;align-items:center;justify-content:center;
+      font-size:0.7rem;font-weight:900;
+      color:var(--text3);transition:all .18s var(--ease);
+      font-variant-numeric:tabular-nums;
     }
-    .prog-pct {
-      font-size: 0.72rem; font-weight: 700;
-      color: var(--text3); white-space: nowrap;
-    }
+    .opt.sel .opt-badge{color:#000;border-color:transparent}
 
-    /* Dimension pill */
-    .dim-pill {
-      display: inline-flex; align-items: center; gap: 9px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 50px; padding: 9px 18px;
-      margin-bottom: 18px; transition: border-color 0.3s;
+    .kb-row{
+      display:flex;align-items:center;gap:5px;
+      padding:10px 2px 0;opacity:.5;
     }
-    .dim-pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .dim-pill-name { font-size: 0.78rem; font-weight: 700; color: var(--text2); }
-    .dim-pill-pos { margin-left: 4px; font-size: 0.68rem; color: var(--text3); padding-left: 8px; border-left: 1px solid var(--border); }
-
-    /* Question card */
-    .q-wrap {
-      max-width: 680px; width: 100%;
-    }
-    .question-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 22px; padding: 36px 36px 28px;
-      margin-bottom: 14px;
-    }
-    @media (max-width: 600px) {
-      .question-card { padding: 24px 20px 20px; }
-    }
-
-    .q-meta {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
-    }
-    .q-num {
-      font-size: 0.68rem; font-weight: 800;
-      letter-spacing: 1.5px; text-transform: uppercase;
-      color: #000; padding: 3px 10px; border-radius: 6px;
-    }
-    .q-counter {
-      font-size: 0.7rem; color: var(--text3); font-weight: 600;
-    }
-
-    .q-text {
-      font-size: 1.08rem; font-weight: 700;
-      line-height: 1.55; letter-spacing: -0.01em;
-      margin-bottom: 26px;
-    }
-
-    .options-list {
-      display: flex; flex-direction: column; gap: 9px;
-    }
-
-    .opt-btn {
-      background: rgba(255,255,255,0.02);
-      border: 1.5px solid rgba(255,255,255,0.08);
-      border-radius: 12px; padding: 13px 16px;
-      cursor: pointer; color: var(--text);
-      transition: all 0.2s var(--ease-expo);
-      text-align: left; font-family: var(--font);
-      font-size: 0.88rem; line-height: 1.45;
-      display: flex; align-items: flex-start; gap: 12px;
-    }
-    .opt-btn:hover {
-      border-color: rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.04);
-      transform: translateX(3px);
-    }
-    .opt-btn:active { transform: scale(0.99); }
-    .opt-btn.selected {
-      transform: translateX(3px) !important;
-    }
-
-    .opt-badge {
-      flex-shrink: 0; width: 28px; height: 28px;
-      border-radius: 8px;
-      border: 1.5px solid rgba(255,255,255,0.15);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.68rem; font-weight: 800; text-transform: uppercase;
-      transition: all 0.2s var(--ease-expo); color: var(--text3);
-    }
-    .opt-btn.selected .opt-badge {
-      color: #000; border-color: transparent;
+    .kb-row span{font-size:.67rem;color:var(--text3);margin-right:4px}
+    .kb{
+      background:var(--bg3);border:1px solid var(--border);
+      border-radius:5px;padding:2px 8px;font-size:.65rem;
+      font-weight:800;font-family:monospace;color:var(--text3);
     }
 
     /* Nav */
-    .quiz-nav {
-      max-width: 680px; width: 100%;
-      display: flex; gap: 10px; margin-top: 2px;
+    .q-nav{display:flex;gap:10px}
+    .btn-back{
+      flex:0 0 auto;padding:13px 22px;
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:12px;color:var(--text2);
+      cursor:pointer;font-family:var(--font);
+      font-size:.88rem;font-weight:600;transition:.2s;
     }
-    .btn-prev {
-      flex: 0 0 auto; padding: 13px 22px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 12px; color: var(--text2);
-      cursor: pointer; font-family: var(--font);
-      font-size: 0.88rem; font-weight: 600;
-      transition: background 0.2s;
+    .btn-back:hover{background:var(--bg3)}
+    .btn-fwd{
+      flex:1;padding:13px 24px;border:none;border-radius:12px;
+      color:#fff;font-size:.93rem;font-weight:800;
+      font-family:var(--font);cursor:pointer;
+      opacity:.3;pointer-events:none;transition:all .2s;letter-spacing:.2px;
     }
-    .btn-prev:hover { background: var(--bg3); }
-    .btn-next {
-      flex: 1; padding: 13px 24px;
-      border: none; border-radius: 12px;
-      color: #fff; font-size: 0.93rem; font-weight: 800;
-      font-family: var(--font);
-      cursor: pointer; transition: all 0.2s;
-      opacity: 0.35; pointer-events: none;
-      letter-spacing: 0.2px;
-    }
-    .btn-next.ready { opacity: 1; pointer-events: auto; }
-    .btn-next.ready:hover { filter: brightness(1.12); }
-    .btn-next:active { transform: scale(0.98); }
+    .btn-fwd.on{opacity:1;pointer-events:auto}
+    .btn-fwd.on:hover{filter:brightness(1.1)}
+    .btn-fwd:active{transform:scale(.98)}
 
-    /* Slide animations */
-    @keyframes slideRight {
-      from { opacity: 0; transform: translateX(36px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes slideLeft {
-      from { opacity: 0; transform: translateX(-36px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    .slide-right { animation: slideRight 0.28s var(--ease-expo) forwards; }
-    .slide-left  { animation: slideLeft 0.28s var(--ease-expo) forwards; }
+    @keyframes slideR{from{opacity:0;transform:translateX(44px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes slideL{from{opacity:0;transform:translateX(-44px)}to{opacity:1;transform:translateX(0)}}
+    .asr{animation:slideR .28s var(--ease) both}
+    .asl{animation:slideL .28s var(--ease) both}
 
-    /* ═══════════════════════════
-       SAVING
-    ═══════════════════════════ */
-    #view-saving {
-      min-height: 100vh;
-      flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 40px 20px; gap: 18px;
-    }
-    .saving-ring {
-      width: 56px; height: 56px;
-      border: 2.5px solid rgba(255,255,255,0.07);
-      border-top-color: var(--cyan);
-      border-radius: 50%; animation: spin 0.75s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* ═══════════════════ SAVING ═══════════════════ */
+    #view-saving{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:18px;text-align:center;padding:40px 20px}
+    .spinner{width:50px;height:50px;border:2.5px solid rgba(255,255,255,.07);border-top-color:var(--c1);border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ═══════════════════════════
-       RESULT
-    ═══════════════════════════ */
-    #view-result {
-      min-height: 100vh;
-      flex-direction: column; align-items: center;
-      padding: 48px 20px 72px;
-    }
+    /* ═══════════════════ RESULT ═══════════════════ */
+    #view-result{flex-direction:column;align-items:center;min-height:100vh}
 
-    .result-topbar {
-      font-size: 0.68rem; font-weight: 800; letter-spacing: 3px;
-      text-transform: uppercase; color: var(--text3); margin-bottom: 36px;
+    /* Hero score section */
+    .res-hero{
+      width:100%;padding:72px 24px 60px;
+      background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%);
+      border-bottom:1px solid var(--border);
+      text-align:center;position:relative;overflow:hidden;
     }
+    .res-hero::before{
+      content:'';position:absolute;inset:0;
+      background:
+        radial-gradient(ellipse 600px 350px at 50% 120%,rgba(0,212,255,.06) 0%,transparent 70%),
+        radial-gradient(ellipse 300px 200px at 70% 20%,rgba(123,47,255,.05) 0%,transparent 70%);
+    }
+    /* Grid texture */
+    .res-hero::after{
+      content:'';position:absolute;inset:0;
+      background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);
+      background-size:44px 44px;
+    }
+    .res-hero-inner{position:relative;z-index:1;max-width:600px;margin:0 auto}
 
-    .result-main-card {
-      background: var(--bg2);
-      border: 1px solid var(--border-hi);
-      border-radius: 24px;
-      padding: 44px 40px;
-      max-width: 620px; width: 100%;
-      text-align: center; margin-bottom: 24px;
-    }
-    @media (max-width: 520px) {
-      .result-main-card { padding: 30px 22px; }
-    }
+    .rh-eyebrow{font-size:.66rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:28px}
+    .rh-name{font-size:.95rem;color:var(--text2);font-weight:500;margin-bottom:18px}
 
-    .res-name {
-      font-size: 0.9rem; color: var(--text2); font-weight: 500;
-      margin-bottom: 12px; letter-spacing: 0.2px;
+    .rh-score{
+      display:flex;align-items:flex-end;justify-content:center;gap:4px;
+      margin-bottom:8px;
     }
+    .rh-num{
+      font-size:clamp(6.5rem,18vw,10rem);
+      font-weight:900;line-height:.88;
+      letter-spacing:-.07em;
+      font-variant-numeric:tabular-nums;
+    }
+    .rh-denom{font-size:clamp(2rem,6vw,3.2rem);font-weight:800;color:var(--text3);padding-bottom:.45em}
+    .rh-pts{font-size:.78rem;color:var(--text3);margin-bottom:26px}
 
-    .res-score-row {
-      display: flex; align-items: flex-end; justify-content: center;
-      gap: 4px; margin-bottom: 4px;
+    .rh-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:9px 24px;border-radius:100px;
+      font-size:.88rem;font-weight:800;margin-bottom:24px;
     }
-    .res-score-num {
-      font-size: clamp(5rem, 13vw, 7.5rem);
-      font-weight: 900; line-height: 1;
-      letter-spacing: -0.05em;
-      font-variant-numeric: tabular-nums;
-    }
-    .res-score-denom {
-      font-size: clamp(1.4rem, 4vw, 2.2rem);
-      font-weight: 800; color: var(--text3);
-      padding-bottom: 0.4em;
-    }
+    .rh-title{font-size:clamp(1.5rem,4vw,2.3rem);font-weight:900;line-height:1.18;letter-spacing:-.025em;margin-bottom:16px}
+    .rh-desc{font-size:.95rem;color:var(--text2);line-height:1.78;max-width:520px;margin:0 auto 36px}
 
-    .res-pts { font-size: 0.78rem; color: var(--text3); margin-bottom: 20px; }
-
-    .res-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 22px; border-radius: 50px;
-      font-size: 0.85rem; font-weight: 800; letter-spacing: 0.3px;
-      margin-bottom: 20px;
+    .rh-ctas{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    .btn-cta{
+      padding:14px 28px;
+      background:linear-gradient(135deg,var(--c1),var(--c2));
+      border:none;border-radius:12px;
+      color:#fff;font-size:.93rem;font-weight:800;
+      font-family:var(--font);cursor:pointer;
+      text-decoration:none;display:inline-block;
+      letter-spacing:.2px;transition:.2s;
     }
-
-    .res-title {
-      font-size: clamp(1.4rem, 3vw, 2rem);
-      font-weight: 900; line-height: 1.2;
-      letter-spacing: -0.02em; margin-bottom: 14px;
+    .btn-cta:hover{filter:brightness(1.1)}
+    .btn-ol{
+      padding:14px 28px;background:var(--bg3);
+      border:1px solid var(--border);border-radius:12px;
+      color:var(--text2);font-size:.93rem;font-weight:600;
+      font-family:var(--font);cursor:pointer;transition:.2s;
     }
-    .res-desc {
-      font-size: 0.93rem; color: var(--text2); line-height: 1.78;
-      margin-bottom: 28px; max-width: 480px; margin-left: auto; margin-right: auto;
+    .btn-ol:hover{background:var(--bg2)}
+
+    /* Dim analysis */
+    .res-dims{max-width:660px;width:100%;padding:52px 20px 80px}
+    .rd-hdr{
+      display:flex;align-items:center;gap:12px;margin-bottom:36px;
+    }
+    .rd-line{flex:1;height:1px;background:var(--border)}
+    .rd-title{font-size:.66rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text3);white-space:nowrap}
+
+    .rd-split{
+      display:grid;grid-template-columns:1fr;gap:24px;
+    }
+    @media(min-width:540px){
+      .rd-split{grid-template-columns:auto 1fr;align-items:start}
     }
 
-    .result-actions {
-      display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+    .radar-wrap{
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:20px;padding:24px 20px;text-align:center;
     }
-    .btn-cta {
-      padding: 14px 28px;
-      background: linear-gradient(135deg, var(--cyan), var(--purple));
-      border: none; border-radius: 12px;
-      color: #fff; font-size: 0.93rem; font-weight: 800;
-      font-family: var(--font); cursor: pointer; transition: 0.2s;
-      text-decoration: none; display: inline-block; letter-spacing: 0.2px;
-    }
-    .btn-cta:hover { filter: brightness(1.1); }
-    .btn-cta:active { transform: scale(0.98); }
-    .btn-outline {
-      padding: 14px 28px;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 12px; color: var(--text2);
-      font-size: 0.93rem; font-weight: 600;
-      font-family: var(--font); cursor: pointer; transition: 0.2s;
-    }
-    .btn-outline:hover { background: var(--bg2); }
+    .radar-wrap-ttl{font-size:.64rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
 
-    /* Dims analysis */
-    .dims-analysis {
-      max-width: 620px; width: 100%; margin-bottom: 24px;
+    .bars-wrap{display:flex;flex-direction:column;gap:10px}
+    .bar-card{
+      background:var(--bg2);border:1px solid var(--border);
+      border-radius:14px;padding:15px 17px;
     }
-    .dims-title {
-      font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px;
-      text-transform: uppercase; color: var(--text3);
-      margin-bottom: 22px; text-align: center;
-    }
-    .dims-split {
-      display: grid; grid-template-columns: 1fr;
-      gap: 28px;
-    }
-    @media (min-width: 560px) {
-      .dims-split { grid-template-columns: 1fr 1fr; align-items: center; }
-    }
-    .radar-wrap { text-align: center; }
+    .bc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+    .bc-name{font-size:.8rem;font-weight:700}
+    .bc-val{font-size:1.05rem;font-weight:900}
+    .bc-track{background:rgba(255,255,255,.06);border-radius:100px;height:7px;overflow:hidden}
+    .bc-fill{height:100%;border-radius:100px;transition:width 1.4s var(--ease)}
 
-    .bars-list { display: flex; flex-direction: column; gap: 10px; }
-    .bar-row {
-      display: grid; grid-template-columns: 120px 1fr 44px;
-      align-items: center; gap: 10px;
+    /* ═══════════════════ ADMIN ═══════════════════ */
+    #view-admin-login{flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 20px}
+    .login-box{
+      background:var(--bg2);border:1px solid var(--border-hi);
+      border-radius:22px;padding:40px;max-width:360px;width:100%;text-align:center;
     }
-    @media (max-width: 380px) {
-      .bar-row { grid-template-columns: 80px 1fr 38px; }
-    }
-    .bar-label { font-size: 0.74rem; color: var(--text2); font-weight: 600; text-align: right; }
-    .bar-track {
-      background: rgba(255,255,255,0.06);
-      border-radius: 50px; height: 7px; overflow: hidden;
-    }
-    .bar-fill {
-      height: 100%; border-radius: 50px;
-      transition: width 1.2s var(--ease-expo);
-    }
-    .bar-val { font-size: 0.78rem; font-weight: 800; }
+    .login-box h3{font-size:1.2rem;font-weight:900;margin-bottom:8px}
+    .login-box p{font-size:.85rem;color:var(--text3);margin-bottom:24px}
 
-    /* ═══════════════════════════
-       ADMIN
-    ═══════════════════════════ */
-    #view-admin {
-      min-height: 100vh; padding: 40px 20px;
-      flex-direction: column; align-items: center;
-    }
-    .admin-header {
-      max-width: 900px; width: 100%;
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 28px;
-    }
-    .admin-header h2 { font-size: 1.5rem; font-weight: 900; }
-    .admin-stats {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-      gap: 14px; max-width: 900px; width: 100%; margin-bottom: 28px;
-    }
-    .stat-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: 14px; padding: 20px; text-align: center;
-    }
-    .stat-num { font-size: 2rem; font-weight: 900; color: var(--cyan); }
-    .stat-label { font-size: 0.72rem; color: var(--text3); margin-top: 4px; }
-    .admin-table-wrap { max-width: 900px; width: 100%; overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; }
-    thead th {
-      background: rgba(0,212,255,0.06);
-      padding: 11px 13px; text-align: left;
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px;
-      color: var(--text3); border-bottom: 1px solid var(--border);
-    }
-    tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); }
-    tbody tr:hover { background: var(--bg2); }
-    tbody td { padding: 11px 13px; font-size: 0.83rem; color: var(--text2); }
-    .lv-badge { padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
-    .lv-exp  { background: rgba(255,71,87,.15); color: var(--red); }
-    .lv-acel { background: rgba(255,140,0,.15);  color: var(--orange); }
-    .lv-lid  { background: rgba(0,212,255,.15);  color: var(--cyan); }
+    #view-admin{flex-direction:column;align-items:center;padding:40px 20px;min-height:100vh}
+    .adm-hdr{max-width:900px;width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+    .adm-hdr h2{font-size:1.5rem;font-weight:900}
+    .adm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;max-width:900px;width:100%;margin-bottom:28px}
+    .asc{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center}
+    .asc-n{font-size:2rem;font-weight:900;color:var(--c1)}
+    .asc-l{font-size:.72rem;color:var(--text3);margin-top:4px}
+    .adm-tbl{max-width:900px;width:100%;overflow-x:auto}
+    table{width:100%;border-collapse:collapse}
+    thead th{background:rgba(0,212,255,.06);padding:11px 13px;text-align:left;font-size:.72rem;font-weight:700;color:var(--text3);border-bottom:1px solid var(--border)}
+    tbody tr{border-bottom:1px solid rgba(255,255,255,.04)}
+    tbody tr:hover{background:var(--bg2)}
+    tbody td{padding:11px 13px;font-size:.83rem;color:var(--text2)}
+    .lv{padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:700}
+    .lv-e{background:rgba(255,71,87,.15);color:var(--c5)}
+    .lv-a{background:rgba(255,140,0,.15);color:var(--c3)}
+    .lv-l{background:rgba(0,212,255,.15);color:var(--c1)}
 
-    #view-admin-login {
-      min-height: 100vh;
-      flex-direction: column; align-items: center;
-    }
-    .admin-login-card {
-      background: var(--bg2);
-      border: 1px solid var(--border-hi);
-      border-radius: 22px; padding: 40px;
-      max-width: 360px; width: 100%;
-      text-align: center; margin-top: 80px;
-    }
-    .admin-login-card h3 { font-size: 1.2rem; font-weight: 900; margin-bottom: 8px; }
-    .admin-login-card p { font-size: 0.85rem; color: var(--text3); margin-bottom: 24px; }
+    /* ═══════════════════ MISC ═══════════════════ */
+    .gt{background:linear-gradient(135deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .adm-link{position:fixed;bottom:14px;right:14px;z-index:99;font-size:.6rem;color:rgba(255,255,255,.1);cursor:pointer;font-family:var(--font)}
+    .adm-link:hover{color:rgba(255,255,255,.3)}
 
-    /* ═══════════════════════════
-       MISC
-    ═══════════════════════════ */
-    .grad-text {
-      background: linear-gradient(135deg, var(--cyan), var(--purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .admin-link {
-      position: fixed; bottom: 14px; right: 14px; z-index: 99;
-      font-size: 0.62rem; color: rgba(255,255,255,0.12);
-      cursor: pointer; text-decoration: none; font-family: var(--font);
-    }
-    .admin-link:hover { color: rgba(255,255,255,0.35); }
-
-    /* Result animations */
-    @keyframes scoreCount {
-      from { opacity: 0; transform: scale(0.5) translateY(10px); }
-      to   { opacity: 1; transform: scale(1) translateY(0); }
-    }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(22px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .anim-score { animation: scoreCount 0.7s var(--ease-expo) both; }
-    .anim-up-1  { animation: fadeUp 0.5s var(--ease-expo) 0.15s both; }
-    .anim-up-2  { animation: fadeUp 0.5s var(--ease-expo) 0.3s  both; }
-    .anim-up-3  { animation: fadeUp 0.5s var(--ease-expo) 0.45s both; }
-    .anim-up-4  { animation: fadeUp 0.5s var(--ease-expo) 0.6s  both; }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes scalePop{from{opacity:0;transform:scale(0.4) translateY(10px)}to{opacity:1;transform:scale(1)}}
+    .a-pop{animation:scalePop .8s var(--ease) both}
+    .a-u1{animation:fadeUp .5s var(--ease) .08s both}
+    .a-u2{animation:fadeUp .5s var(--ease) .22s both}
+    .a-u3{animation:fadeUp .5s var(--ease) .36s both}
+    .a-u4{animation:fadeUp .5s var(--ease) .5s both}
   </style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
-
-<!-- ══════════════════════════════════════
+<!-- ═══════════════════════════════════════
      INTRO
-══════════════════════════════════════ -->
+═══════════════════════════════════════ -->
 <div id="view-intro" class="view active">
-  <div class="intro-grid">
 
-    <!-- LEFT -->
+  <!-- Photo background -->
+  <div class="hero-bg">
+    <img
+      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1400&q=80"
+      alt=""
+      id="hero-img"
+      onload="this.classList.add('loaded')"
+      onerror="this.remove()"
+    >
+  </div>
+
+  <div class="intro-wrap">
+
+    <!-- LEFT: Branding + Form -->
     <div class="intro-left">
-      <div class="intro-topbar">
-        <div class="intro-topbar-logo">ICONE ialabs</div>
-        <div class="intro-topbar-sep"></div>
-        <div class="intro-topbar-tag">Diagnóstico personalizado</div>
+      <div class="il-logo">
+        <div class="il-logomark">IC</div>
+        <div class="il-logoname">ICONE ialabs</div>
+        <div class="il-sep"></div>
+        <div class="il-tag">Diagnóstico IA</div>
       </div>
 
-      <div class="intro-eyebrow">Exclusivo para directores LATAM en salud</div>
+      <div class="il-badge">
+        <div class="il-badge-dot"></div>
+        Directores comerciales · Salud LATAM
+      </div>
 
-      <h1 class="intro-h1">
-        ¿Cuál es tu nivel real<br>de madurez en <span class="hl">IA</span>?
+      <h1 class="il-h1">
+        ¿Cuál es tu<br>
+        nivel de<br>
+        madurez<br>
+        en <em>IA</em>?
       </h1>
 
-      <p class="intro-sub">
-        25 preguntas diseñadas para directores comerciales del sector salud y ciencia.
-        Descubre tu posición actual y el camino estratégico para liderar con IA en LATAM.
+      <p class="il-sub">
+        25 preguntas diseñadas para directores del sector
+        salud y ciencia en LATAM. Resultado en 12 minutos.
       </p>
 
-      <div class="intro-stats">
-        <div class="intro-stat">
-          <div class="intro-stat-num" style="color:var(--cyan)">25</div>
-          <div class="intro-stat-label">preguntas</div>
-        </div>
-        <div class="intro-stat">
-          <div class="intro-stat-num" style="color:var(--purple)">5</div>
-          <div class="intro-stat-label">dimensiones</div>
-        </div>
-        <div class="intro-stat">
-          <div class="intro-stat-num" style="color:var(--orange)">3</div>
-          <div class="intro-stat-label">niveles</div>
-        </div>
-        <div class="intro-stat">
-          <div class="intro-stat-num" style="color:var(--green)">12'</div>
-          <div class="intro-stat-label">resultado</div>
-        </div>
+      <div class="il-chips">
+        <div class="chip"><span class="chip-n" style="color:var(--c1)">25</span><span class="chip-l">preguntas</span></div>
+        <div class="chip"><span class="chip-n" style="color:var(--c2)">5</span><span class="chip-l">dimensiones</span></div>
+        <div class="chip"><span class="chip-n" style="color:var(--c3)">3</span><span class="chip-l">niveles</span></div>
+        <div class="chip"><span class="chip-n" style="color:var(--c4)">~12'</span><span class="chip-l">tiempo</span></div>
       </div>
 
-      <div class="intro-dims" id="dims-chips"></div>
-
-      <div class="intro-form">
-        <div class="intro-form-title">¿Quién va a responder?</div>
-        <div class="field">
-          <label class="field-label">Nombre completo *</label>
-          <input type="text" class="field-input" id="inp-nombre" placeholder="Tu nombre completo" />
+      <div class="il-form">
+        <div class="form-ttl">
+          <div class="form-ttl-line"></div>
+          &nbsp;¿Quién va a responder?&nbsp;
+          <div class="form-ttl-line"></div>
         </div>
-        <div class="field">
-          <label class="field-label">Correo electrónico</label>
-          <input type="email" class="field-input" id="inp-email" placeholder="tu@correo.com" />
+        <div class="fl">
+          <label class="fl-label">Nombre completo *</label>
+          <input type="text" id="inp-n" class="fl-input" placeholder="Tu nombre completo" />
         </div>
-        <div class="field">
-          <label class="field-label">Empresa / Organización</label>
-          <input type="text" class="field-input" id="inp-empresa" placeholder="Merz Aesthetics, Boston Medical…" />
+        <div class="fl">
+          <label class="fl-label">Correo electrónico</label>
+          <input type="email" id="inp-e" class="fl-input" placeholder="tu@correo.com" />
         </div>
-        <button class="btn-start" onclick="startQuiz()">Comenzar diagnóstico →</button>
-        <div class="btn-start-sub">Confidencial · Resultado inmediato</div>
+        <div class="fl">
+          <label class="fl-label">Empresa / Laboratorio</label>
+          <input type="text" id="inp-c" class="fl-input" placeholder="Merz Aesthetics, Boston Medical…" />
+        </div>
+        <button class="btn-go" onclick="startQuiz()">Iniciar diagnóstico →</button>
+        <div class="form-note">Confidencial · Sin registro · Resultado inmediato</div>
       </div>
     </div>
 
-    <!-- RIGHT: Hero visualization -->
+    <!-- RIGHT: Dimension cards + stats -->
     <div class="intro-right">
-      <div class="hero-viz-wrap">
-        <svg id="hero-svg" viewBox="0 0 420 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%"></svg>
 
-        <div class="hero-stats-grid">
-          <div class="hero-stat-card">
-            <div class="hero-stat-card-num" style="color:var(--cyan)">3×</div>
-            <div class="hero-stat-card-label">más rápido con IA en tu rol</div>
-          </div>
-          <div class="hero-stat-card">
-            <div class="hero-stat-card-num" style="color:var(--purple)">87%</div>
-            <div class="hero-stat-card-label">directores sin sistema IA formal</div>
-          </div>
-          <div class="hero-stat-card">
-            <div class="hero-stat-card-num" style="color:var(--orange)">LATAM</div>
-            <div class="hero-stat-card-label">sector salud en transformación</div>
-          </div>
-          <div class="hero-stat-card">
-            <div class="hero-stat-card-num" style="color:var(--green)">Hoy</div>
-            <div class="hero-stat-card-label">es el momento de diferenciarte</div>
-          </div>
+      <div class="dim-cards" id="dim-cards-list"></div>
+
+      <div class="bottom-strip">
+        <div class="bs-item">
+          <div class="bs-num" style="color:var(--c1)">3×</div>
+          <div class="bs-lbl">velocidad con IA</div>
+        </div>
+        <div class="bs-item">
+          <div class="bs-num" style="color:var(--c2)">87%</div>
+          <div class="bs-lbl">sin sistema IA</div>
+        </div>
+        <div class="bs-item">
+          <div class="bs-num" style="color:var(--c3)">2026</div>
+          <div class="bs-lbl">año clave LATAM</div>
+        </div>
+        <div class="bs-item">
+          <div class="bs-num" style="color:var(--c4)">Hoy</div>
+          <div class="bs-lbl">es el momento</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     QUIZ
+═══════════════════════════════════════ -->
+<div id="view-quiz" class="view">
+
+  <div class="dim-topbar" id="dim-topbar">
+    <div class="dtb-dot" id="dtb-dot"></div>
+    <span class="dtb-dim" id="dtb-dim"></span>
+    <div class="dtb-sep"></div>
+    <span class="dtb-pos" id="dtb-pos"></span>
+    <span class="dtb-brand">ICONE ialabs</span>
+    <div class="dtb-prog" id="dtb-prog"></div>
+  </div>
+
+  <div class="q-inner">
+
+    <div class="dot-row" id="dot-row"></div>
+
+    <div id="q-card-wrap">
+      <div class="q-card" id="q-card">
+        <div class="q-card-hdr">
+          <span class="q-num" id="q-num"></span>
+          <span class="q-counter" id="q-cnt"></span>
+        </div>
+        <div class="q-text" id="q-txt"></div>
+        <div class="opts" id="opts-list"></div>
+        <div class="kb-row">
+          <span>Teclas rápidas:</span>
+          <kbd class="kb">1</kbd><kbd class="kb">2</kbd><kbd class="kb">3</kbd><kbd class="kb">4</kbd>
         </div>
       </div>
     </div>
 
+    <div class="q-nav" style="margin-top:12px">
+      <button class="btn-back" id="btn-back" onclick="prevQ()" style="display:none">← Atrás</button>
+      <button class="btn-fwd" id="btn-fwd" onclick="nextQ()">Siguiente →</button>
+    </div>
+
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     QUIZ
-══════════════════════════════════════ -->
-<div id="view-quiz" class="view">
-  <div class="quiz-header">
-    <div class="dim-dots-row" id="dim-dots-row"></div>
-    <div class="prog-row">
-      <div class="prog-track">
-        <div class="prog-fill" id="prog-fill" style="width:0%"></div>
-      </div>
-      <div class="prog-pct" id="prog-pct">0%</div>
-    </div>
-    <div class="dim-pill" id="dim-pill">
-      <div class="dim-pill-dot" id="dim-pill-dot"></div>
-      <span class="dim-pill-name" id="dim-pill-name"></span>
-      <span class="dim-pill-pos" id="dim-pill-pos"></span>
-    </div>
-  </div>
-
-  <div class="q-wrap" id="q-wrap">
-    <div class="question-card" id="question-card">
-      <div class="q-meta">
-        <span class="q-num" id="q-num-badge">01</span>
-        <span class="q-counter" id="q-counter">Pregunta 1 de 25</span>
-      </div>
-      <div class="q-text" id="q-text"></div>
-      <div class="options-list" id="options-list"></div>
-    </div>
-  </div>
-
-  <div class="quiz-nav">
-    <button class="btn-prev" id="btn-prev" onclick="prevQ()" style="display:none">← Anterior</button>
-    <button class="btn-next" id="btn-next" onclick="nextQ()">Siguiente →</button>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
+<!-- ═══════════════════════════════════════
      SAVING
-══════════════════════════════════════ -->
+═══════════════════════════════════════ -->
 <div id="view-saving" class="view">
-  <div class="saving-ring"></div>
-  <p style="color:var(--text3);font-size:.88rem;font-weight:500">Calculando tu perfil de madurez IA...</p>
+  <div class="spinner"></div>
+  <p style="color:var(--text3);font-size:.88rem;font-weight:500">Calculando tu perfil de madurez IA…</p>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- ═══════════════════════════════════════
      RESULT
-══════════════════════════════════════ -->
+═══════════════════════════════════════ -->
 <div id="view-result" class="view">
-  <div class="result-topbar">ICONE ialabs · Resultados</div>
 
-  <div class="result-main-card">
-    <p class="res-name anim-up-1" id="res-name"></p>
-    <div class="res-score-row anim-score">
-      <span class="res-score-num" id="res-score">0</span>
-      <span class="res-score-denom">/100</span>
-    </div>
-    <div class="res-pts anim-up-1" id="res-pts"></div>
-    <div class="anim-up-2">
-      <div class="res-badge" id="res-badge"></div>
-    </div>
-    <h2 class="res-title anim-up-2" id="res-title"></h2>
-    <p class="res-desc anim-up-3" id="res-desc"></p>
-    <div class="result-actions anim-up-4">
-      <a href="https://wa.me/573112525255?text=Hola%20Jorge%2C%20acabo%20de%20completar%20mi%20diagn%C3%B3stico%20de%20IA%20y%20quiero%20hablar%20sobre%20mi%20plan%20de%20acompa%C3%B1amiento" class="btn-cta" target="_blank">Quiero mi plan de acción →</a>
-      <button class="btn-outline" onclick="restart()">Reiniciar</button>
+  <div class="res-hero">
+    <div class="res-hero-inner">
+      <div class="rh-eyebrow a-u1">ICONE ialabs · Diagnóstico completado</div>
+      <div class="rh-name a-u1" id="rh-name"></div>
+
+      <div class="rh-score a-pop">
+        <span class="rh-num" id="rh-num">0</span>
+        <span class="rh-denom">/100</span>
+      </div>
+      <div class="rh-pts a-u1" id="rh-pts"></div>
+
+      <div class="a-u2"><div class="rh-badge" id="rh-badge"></div></div>
+      <h2 class="rh-title a-u2" id="rh-title"></h2>
+      <p class="rh-desc a-u3" id="rh-desc"></p>
+
+      <div class="rh-ctas a-u4">
+        <a href="https://wa.me/573112525255?text=Hola%20Jorge%2C%20acab%C3%A9%20mi%20diagn%C3%B3stico%20de%20IA%20y%20quiero%20hablar%20de%20mi%20plan%20de%20acompa%C3%B1amiento" class="btn-cta" target="_blank">Quiero mi plan de acción →</a>
+        <button class="btn-ol" onclick="restart()">Reiniciar diagnóstico</button>
+      </div>
     </div>
   </div>
 
-  <div class="dims-analysis">
-    <div class="dims-title">Análisis detallado · 5 dimensiones</div>
-    <div class="dims-split">
-      <div class="radar-wrap" id="radar-container"></div>
-      <div class="bars-list" id="dims-chart-rows"></div>
+  <div class="res-dims">
+    <div class="rd-hdr">
+      <div class="rd-line"></div>
+      <div class="rd-title">Análisis · 5 dimensiones</div>
+      <div class="rd-line"></div>
+    </div>
+    <div class="rd-split">
+      <div class="radar-wrap">
+        <div class="radar-wrap-ttl">Perfil radar</div>
+        <div id="radar-here"></div>
+      </div>
+      <div class="bars-wrap" id="bars-here"></div>
     </div>
   </div>
+
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- ═══════════════════════════════════════
      ADMIN LOGIN
-══════════════════════════════════════ -->
+═══════════════════════════════════════ -->
 <div id="view-admin-login" class="view">
-  <div class="admin-login-card">
+  <div class="login-box">
     <h3>🔐 Panel Admin</h3>
-    <p>Diagnóstico · Diego Andrés Artunduaga</p>
-    <div class="field" style="text-align:left">
-      <label class="field-label">Contraseña</label>
-      <input type="password" id="admin-pass-inp" class="field-input" placeholder="••••••••••••"
-        onkeydown="if(event.key==='Enter')checkAdminPass()" />
+    <p>Diagnóstico · Diego Artunduaga</p>
+    <div class="fl" style="text-align:left">
+      <label class="fl-label">Contraseña</label>
+      <input type="password" id="apass" class="fl-input" placeholder="••••••••••••"
+        onkeydown="if(event.key==='Enter')chkPass()" />
     </div>
-    <button class="btn-start" onclick="checkAdminPass()">Ingresar</button>
-    <div id="admin-pass-err" style="color:var(--red);font-size:.8rem;margin-top:8px;display:none">Contraseña incorrecta</div>
-    <p style="margin-top:16px;font-size:.72rem;color:var(--text3);cursor:pointer" onclick="showView('intro')">← Volver al diagnóstico</p>
+    <button class="btn-go" onclick="chkPass()">Ingresar</button>
+    <div id="passerr" style="color:var(--c5);font-size:.8rem;margin-top:8px;display:none">Contraseña incorrecta</div>
+    <p style="margin-top:16px;font-size:.72rem;color:var(--text3);cursor:pointer" onclick="showV('intro')">← Volver al diagnóstico</p>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- ═══════════════════════════════════════
      ADMIN PANEL
-══════════════════════════════════════ -->
+═══════════════════════════════════════ -->
 <div id="view-admin" class="view">
-  <div class="admin-header">
-    <h2>📊 Panel · <span class="grad-text">Diego Diagnóstico</span></h2>
-    <button class="btn-outline" onclick="showView('intro')" style="font-size:.8rem;padding:8px 16px">Cerrar sesión</button>
+  <div class="adm-hdr">
+    <h2>📊 Panel · <span class="gt">Diego Diagnóstico</span></h2>
+    <button class="btn-ol" onclick="showV('intro')" style="font-size:.8rem;padding:8px 16px">Cerrar sesión</button>
   </div>
-  <div class="admin-stats" id="admin-stats"></div>
-  <div class="admin-table-wrap">
+  <div class="adm-stats" id="adm-stats"></div>
+  <div class="adm-tbl">
     <table>
-      <thead>
-        <tr>
-          <th>Nombre</th><th>Empresa</th><th>Score</th><th>Nivel</th>
-          <th>Ecosistema</th><th>Salud IA</th><th>Dirección</th>
-          <th>Productividad</th><th>Influencia</th><th>Fecha</th>
-        </tr>
-      </thead>
-      <tbody id="admin-tbody"></tbody>
+      <thead><tr>
+        <th>Nombre</th><th>Empresa</th><th>Score</th><th>Nivel</th>
+        <th>Ecosistema</th><th>Salud IA</th><th>Dirección</th>
+        <th>Productividad</th><th>Influencia</th><th>Fecha</th>
+      </tr></thead>
+      <tbody id="adm-tbody"></tbody>
     </table>
   </div>
 </div>
 
-<a class="admin-link" onclick="goAdmin()">admin</a>
+<span class="adm-link" onclick="goAdmin()">admin</span>
 
 <script>
-/* ═══════════════════════════════════════════════════════
+/* ════════════════════════════════
    SUPABASE
-═══════════════════════════════════════════════════════ */
-const SUPABASE_URL  = 'https://nvgkhdrrxqdgxktfkioa.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52Z2toZHJyeHFkZ3hrdGZraW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzY4MjYsImV4cCI6MjA5MzQxMjgyNn0.mikJZpOf6pIupH1w_hFlMIzCoOMB-wJCMJHyP46YLeg';
-const TABLE         = 'diagnostico_diego';
-const ADMIN_PASS    = 'Diagnosticos2026';
+════════════════════════════════ */
+const SB_URL = 'https://nvgkhdrrxqdgxktfkioa.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im52Z2toZHJyeHFkZ3hrdGZraW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc4MzY4MjYsImV4cCI6MjA5MzQxMjgyNn0.mikJZpOf6pIupH1w_hFlMIzCoOMB-wJCMJHyP46YLeg';
+const TABLE  = 'diagnostico_diego';
+const APWD   = 'Diagnosticos2026';
 
-async function sbInsert(row) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}`, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}`,
-      'Content-Type': 'application/json', 'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify(row)
+async function sbPost(row) {
+  const r = await fetch(`${SB_URL}/rest/v1/${TABLE}`,{
+    method:'POST',
+    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify(row)
   });
-  return res.ok;
+  return r.ok;
 }
-async function sbSelect() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${TABLE}?select=*&order=fecha_hora.desc`, {
-    headers: { 'apikey': SUPABASE_ANON, 'Authorization': `Bearer ${SUPABASE_ANON}` }
+async function sbGet() {
+  const r = await fetch(`${SB_URL}/rest/v1/${TABLE}?select=*&order=fecha_hora.desc`,{
+    headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}
   });
-  return res.ok ? res.json() : [];
+  return r.ok ? r.json() : [];
 }
 
-/* ═══════════════════════════════════════════════════════
-   DIMENSIONS
-═══════════════════════════════════════════════════════ */
+/* ════════════════════════════════
+   DATA
+════════════════════════════════ */
 const DIMS = [
-  { id:1, name:'Conocimiento del Ecosistema IA',             color:'#00d4ff', short:'Ecosistema'   },
-  { id:2, name:'IA Especializada en Salud y Ciencia',        color:'#7b2fff', short:'Salud IA'     },
-  { id:3, name:'Dirección Comercial LATAM con IA',           color:'#ff8c00', short:'Dirección'    },
-  { id:4, name:'Productividad Directiva y Liderazgo',        color:'#00d48a', short:'Productividad'},
-  { id:5, name:'Influencia y Posicionamiento en Salud LATAM',color:'#ff4757', short:'Influencia'   }
+  {id:1,name:'Conocimiento del Ecosistema IA',color:'#00d4ff',short:'Ecosistema',sub:'Herramientas, prompts y criterio'},
+  {id:2,name:'IA Especializada en Salud y Ciencia',color:'#7b2fff',short:'Salud IA',sub:'Evidencia, propuestas y argumentación'},
+  {id:3,name:'Dirección Comercial LATAM con IA',color:'#ff8c00',short:'Dirección',sub:'Gestión, análisis y prospección'},
+  {id:4,name:'Productividad Directiva y Liderazgo',color:'#00d48a',short:'Productividad',sub:'Reuniones, reportes y artefactos'},
+  {id:5,name:'Influencia y Posicionamiento en Salud LATAM',color:'#ff4757',short:'Influencia',sub:'Contenido, marca y liderazgo'}
 ];
 
-/* ═══════════════════════════════════════════════════════
-   QUESTIONS
-═══════════════════════════════════════════════════════ */
 const QS = [
-  // DIM 1 — Ecosistema IA
-  { dim:1, q:'¿Qué tan bien conoces las principales herramientas de IA disponibles hoy (Claude, ChatGPT, Gemini, Copilot, etc.)?',
-    opts:['No las conozco bien, me resultan confusas.','He escuchado de ellas pero las uso poco o de manera esporádica.','Uso 1-2 herramientas regularmente en mi trabajo como director/a.','Evalúo y combino varias IAs según la tarea específica que necesito resolver.'] },
-  { dim:1, q:'¿Con qué frecuencia usas herramientas de IA en tu trabajo diario como director/a comercial?',
-    opts:['Casi no las uso; no están integradas a mi rutina laboral.','Las uso ocasionalmente, menos de una vez por semana.','Las uso varias veces por semana para tareas concretas.','La IA es parte integral de mi flujo de trabajo diario como director/a.'] },
-  { dim:1, q:'¿Conoces y usas herramientas especializadas como Perplexity, Gemini, Midjourney o Microsoft Copilot?',
-    opts:['No conozco estas herramientas específicas.','He oído de algunas pero no las he probado realmente.','He probado 2-3 de estas herramientas con cierta regularidad.','Uso activamente varias según sus fortalezas para distintas tareas.'] },
-  { dim:1, q:'¿Cómo evalúas la confiabilidad de la información que produce una herramienta de IA?',
-    opts:['Acepto la información sin cuestionarla demasiado.','Tengo dudas pero no siempre sé cómo validar lo que genera.','Contrasto los resultados con fuentes adicionales en los temas importantes.','Aplico criterios estructurados para verificar y validar todo output de IA antes de usarlo.'] },
-  { dim:1, q:'¿Cómo escribes instrucciones (prompts) para obtener resultados profesionales con IA?',
-    opts:['Escribo preguntas simples sin estructura específica.','Estoy aprendiendo a dar más contexto en mis instrucciones a la IA.','Uso instrucciones detalladas con rol, contexto y objetivo definidos.','Diseño prompts especializados con cadenas de razonamiento y refinamiento iterativo.'] },
-
-  // DIM 2 — Salud IA
-  { dim:2, q:'¿Conoces herramientas de IA especializadas para el sector salud y ciencia, como Consensus, Semantic Scholar o PubMed AI?',
-    opts:['No conozco herramientas de IA especializadas en salud.','He escuchado de alguna, pero no las he explorado en detalle.','Conozco y he usado alguna de estas plataformas en búsquedas.','Las uso regularmente para fundamentar mis propuestas y argumentos comerciales en salud.'] },
-  { dim:2, q:'¿Cómo construyes actualmente propuestas comerciales para clientes del sector salud?',
-    opts:['Las construyo manualmente sin apoyo de ninguna herramienta de IA.','Uso IA para editar o mejorar borradores que ya tengo escritos.','Uso IA para estructurar, redactar y adaptar propuestas por tipo de cliente.','Tengo templates potenciados por IA adaptables a cada perfil de cliente en salud.'] },
-  { dim:2, q:'¿Usas IA para acceder, resumir o analizar papers científicos y estudios clínicos relevantes para tu sector?',
-    opts:['No busco ni analizo literatura científica en mi rol comercial.','Uso Google o PubMed básico sin apoyo de IA para buscar información.','Uso IA para resumir y extraer los insights más relevantes de estudios científicos.','Integro evidencia científica actualizada en mis argumentos comerciales con apoyo de IA.'] },
-  { dim:2, q:'¿Cómo preparas tu argumentación científica cuando presentas ante médicos o directivos del sector salud?',
-    opts:['Me apoyo en materiales corporativos estándar sin mucha personalización.','Adapto los argumentos manualmente con información que busco por mi cuenta.','Uso IA para preparar argumentos basados en evidencia según el perfil del interlocutor.','Tengo flujos con IA que incluyen evidencia, objeciones y adaptación por especialidad médica.'] },
-  { dim:2, q:'¿Cómo te mantienes actualizado/a sobre las tendencias de IA en el sector salud de LATAM?',
-    opts:['Prácticamente no me actualizo sobre IA en salud de manera sistemática.','Leo ocasionalmente artículos generales cuando me los comparten.','Sigo fuentes específicas de IA en salud y me actualizo con regularidad.','Tengo un sistema de vigilancia con alertas y síntesis periódicas sobre IA en salud LATAM.'] },
-
-  // DIM 3 — Dirección
-  { dim:3, q:'¿Cómo analizas el desempeño comercial de tu equipo en los distintos países de LATAM?',
-    opts:['El análisis lo hago manualmente con reportes básicos.','Uso hojas de cálculo o dashboards estándar, sin herramientas de IA.','Uso IA para interpretar datos y generar insights del equipo por país.','Tengo sistemas con IA para análisis predictivo del desempeño por mercado en LATAM.'] },
-  { dim:3, q:'¿Cómo adaptas tus estrategias comerciales a las diferencias de cada mercado en LATAM?',
-    opts:['Aplico estrategias uniformes para todos los mercados de la región.','Adapto manualmente según mi experiencia y conocimiento de cada país.','Uso IA para identificar diferencias culturales, regulatorias y de comportamiento por mercado.','Diseño estrategias diferenciadas por país con apoyo de IA para análisis y personalización.'] },
-  { dim:3, q:'¿Cómo gestionas a tu equipo de ventas disperso en distintos países de LATAM?',
-    opts:['La gestión es principalmente por llamadas y reportes básicos.','Uso herramientas digitales básicas como email y CRM, sin integración de IA.','Uso IA para preparar reuniones, dar feedback estructurado y planes de desarrollo.','Tengo protocolos de gestión con IA: onboarding, coaching, evaluación y seguimiento por país.'] },
-  { dim:3, q:'¿Cómo elaboras proyecciones y forecasting comercial para la región LATAM?',
-    opts:['Las proyecciones las hago con intuición y experiencia sin metodología formal.','Uso métodos básicos de cálculo con datos históricos, sin apoyo de IA.','Consulto IA para analizar tendencias y construir escenarios comerciales.','Tengo modelos de forecasting asistidos por IA con variables específicas de cada mercado LATAM.'] },
-  { dim:3, q:'¿Cómo identificas y prospectas nuevos clientes en el sector salud a lo largo de LATAM?',
-    opts:['La prospección es manual, por referidos o contacto directo.','Uso LinkedIn u otras redes sin un sistema estructurado de IA.','Uso IA para identificar prospectos, investigar cuentas y preparar acercamientos personalizados.','Tengo un sistema de prospección inteligente con IA: segmentación, señales de compra y mensajes.'] },
-
-  // DIM 4 — Productividad
-  { dim:4, q:'¿Cómo te preparas para reuniones directivas y la elaboración de presentaciones ejecutivas?',
-    opts:['Me preparo de manera intuitiva con poca estructura formal.','Preparo agendas y presentaciones manualmente, sin IA.','Uso IA para estructurar, enriquecer y revisar mis materiales ejecutivos.','Tengo plantillas y flujos con IA para preparación directiva: resúmenes, datos, narrativas y anticipación de preguntas.'] },
-  { dim:4, q:'¿Cómo usas la IA para la formación y el desarrollo de tu equipo comercial?',
-    opts:['La formación es esporádica y principalmente presencial.','Comparto recursos y hago sesiones de equipo sin apoyo de IA.','Uso IA para diseñar contenidos de capacitación y planes de desarrollo del equipo.','Tengo programas de desarrollo co-diseñados con IA: ruta formativa, feedback y métricas de progreso.'] },
-  { dim:4, q:'¿Cómo gestionas la comunicación con stakeholders clave (directivos, socios, clientes) con apoyo de IA?',
-    opts:['La comunicación es reactiva y sin sistematización clara.','Tengo plantillas básicas de email y mensajes sin IA.','Uso IA para redactar, adaptar y dar seguimiento a comunicaciones clave.','Tengo estrategias de comunicación diferenciadas por stakeholder, asistidas por IA con seguimiento.'] },
-  { dim:4, q:'¿Cómo generas reportes e informes para la alta dirección de tu organización?',
-    opts:['Los reportes me toman mucho tiempo y son completamente manuales.','Uso formatos estándar con datos que compilo manualmente.','Uso IA para estructurar, redactar y visualizar reportes con datos del negocio.','Tengo flujos semi-automatizados con IA para generar reportes ejecutivos con insights y narrativa.'] },
-  { dim:4, q:'¿Has creado artefactos propios con IA adaptados a tu rol (prompts especializados, plantillas, flujos de trabajo)?',
-    opts:['No he creado ningún artefacto propio con IA.','He guardado algunos prompts básicos para reutilizar ocasionalmente.','Tengo una biblioteca personal de prompts y plantillas para mi cargo.','Tengo un sistema documentado de artefactos con IA: prompts, plantillas, flujos y procesos para mi trabajo.'] },
-
-  // DIM 5 — Influencia
-  { dim:5, q:'¿Cómo es tu presencia digital actual como líder comercial en el sector salud de LATAM?',
-    opts:['Tengo poca o ninguna presencia digital profesional activa.','Tengo perfil en LinkedIn pero no lo actualizo con regularidad.','Publico contenido ocasionalmente sobre temas de salud y ventas.','Tengo una estrategia de posicionamiento activa con contenido regular sobre salud LATAM.'] },
-  { dim:5, q:'¿Usas IA para crear contenido de posicionamiento como líder en el sector salud?',
-    opts:['No creo contenido de posicionamiento profesional con IA.','He experimentado puntualmente con IA para crear algún texto.','Uso IA regularmente para crear posts, artículos y material de valor para mi red.','Tengo un flujo editorial asistido por IA: temas, formatos, calendario y publicación en salud LATAM.'] },
-  { dim:5, q:'¿Qué tan claro y diferenciado es tu mensaje de propuesta de valor como director/a comercial en salud?',
-    opts:['Me cuesta articular claramente mi propuesta de valor única.','Tengo un mensaje básico pero no diferenciado por audiencia o contexto.','Tengo un pitch refinado con apoyo de IA para diferentes interlocutores.','Tengo una propuesta de valor sofisticada por audiencia, potenciada y validada continuamente con IA.'] },
-  { dim:5, q:'¿Has liderado la formación o adopción de IA en tu equipo comercial para el sector salud?',
-    opts:['No he capacitado a mi equipo en el uso de IA.','He compartido algún recurso o herramienta de IA de manera puntual.','He facilitado sesiones de entrenamiento básico en IA para el equipo.','Tengo un programa formal de adopción de IA en el equipo con rutas, métricas y seguimiento.'] },
-  { dim:5, q:'¿Contribuyes activamente al ecosistema de conocimiento sobre IA en ventas y salud en LATAM?',
-    opts:['No contribuyo aún al conocimiento colectivo sobre IA en salud.','Comparto esporádicamente artículos o reflexiones en mis redes.','Soy referente interno en mi organización sobre IA aplicada a ventas en salud.','Soy una voz activa en LATAM sobre IA comercial en salud: charlas, publicaciones, comunidades.'] }
+  // D1
+  {dim:1,q:'¿Qué tan bien conoces las principales herramientas de IA disponibles hoy (Claude, ChatGPT, Gemini, Copilot, etc.)?',opts:['No las conozco bien, me resultan confusas.','He escuchado de ellas pero las uso poco o de manera esporádica.','Uso 1-2 herramientas regularmente en mi trabajo como director/a.','Evalúo y combino varias IAs según la tarea específica que necesito resolver.']},
+  {dim:1,q:'¿Con qué frecuencia usas herramientas de IA en tu trabajo diario como director/a comercial?',opts:['Casi no las uso; no están integradas a mi rutina laboral.','Las uso ocasionalmente, menos de una vez por semana.','Las uso varias veces por semana para tareas concretas.','La IA es parte integral de mi flujo de trabajo diario como director/a.']},
+  {dim:1,q:'¿Conoces y usas herramientas especializadas como Perplexity, Gemini, Midjourney o Microsoft Copilot?',opts:['No conozco estas herramientas específicas.','He oído de algunas pero no las he probado realmente.','He probado 2-3 de estas herramientas con cierta regularidad.','Uso activamente varias según sus fortalezas para distintas tareas.']},
+  {dim:1,q:'¿Cómo evalúas la confiabilidad de la información que produce una herramienta de IA?',opts:['Acepto la información sin cuestionarla demasiado.','Tengo dudas pero no siempre sé cómo validar lo que genera.','Contrasto los resultados con fuentes adicionales en los temas importantes.','Aplico criterios estructurados para verificar y validar todo output de IA antes de usarlo.']},
+  {dim:1,q:'¿Cómo escribes instrucciones (prompts) para obtener resultados profesionales con IA?',opts:['Escribo preguntas simples sin estructura específica.','Estoy aprendiendo a dar más contexto en mis instrucciones a la IA.','Uso instrucciones detalladas con rol, contexto y objetivo definidos.','Diseño prompts especializados con cadenas de razonamiento y refinamiento iterativo.']},
+  // D2
+  {dim:2,q:'¿Conoces herramientas de IA especializadas para el sector salud y ciencia, como Consensus, Semantic Scholar o PubMed AI?',opts:['No conozco herramientas de IA especializadas en salud.','He escuchado de alguna, pero no las he explorado en detalle.','Conozco y he usado alguna de estas plataformas en búsquedas.','Las uso regularmente para fundamentar mis propuestas y argumentos comerciales en salud.']},
+  {dim:2,q:'¿Cómo construyes actualmente propuestas comerciales para clientes del sector salud?',opts:['Las construyo manualmente sin apoyo de ninguna herramienta de IA.','Uso IA para editar o mejorar borradores que ya tengo escritos.','Uso IA para estructurar, redactar y adaptar propuestas por tipo de cliente.','Tengo templates potenciados por IA adaptables a cada perfil de cliente en salud.']},
+  {dim:2,q:'¿Usas IA para acceder, resumir o analizar papers científicos y estudios clínicos relevantes para tu sector?',opts:['No busco ni analizo literatura científica en mi rol comercial.','Uso Google o PubMed básico sin apoyo de IA para buscar información.','Uso IA para resumir y extraer los insights más relevantes de estudios científicos.','Integro evidencia científica actualizada en mis argumentos comerciales con apoyo de IA.']},
+  {dim:2,q:'¿Cómo preparas tu argumentación científica cuando presentas ante médicos o directivos del sector salud?',opts:['Me apoyo en materiales corporativos estándar sin mucha personalización.','Adapto los argumentos manualmente con información que busco por mi cuenta.','Uso IA para preparar argumentos basados en evidencia según el perfil del interlocutor.','Tengo flujos con IA que incluyen evidencia, objeciones y adaptación por especialidad médica.']},
+  {dim:2,q:'¿Cómo te mantienes actualizado/a sobre las tendencias de IA en el sector salud de LATAM?',opts:['Prácticamente no me actualizo sobre IA en salud de manera sistemática.','Leo ocasionalmente artículos generales cuando me los comparten.','Sigo fuentes específicas de IA en salud y me actualizo con regularidad.','Tengo un sistema de vigilancia con alertas y síntesis periódicas sobre IA en salud LATAM.']},
+  // D3
+  {dim:3,q:'¿Cómo analizas el desempeño comercial de tu equipo en los distintos países de LATAM?',opts:['El análisis lo hago manualmente con reportes básicos.','Uso hojas de cálculo o dashboards estándar, sin herramientas de IA.','Uso IA para interpretar datos y generar insights del equipo por país.','Tengo sistemas con IA para análisis predictivo del desempeño por mercado en LATAM.']},
+  {dim:3,q:'¿Cómo adaptas tus estrategias comerciales a las diferencias de cada mercado en LATAM?',opts:['Aplico estrategias uniformes para todos los mercados de la región.','Adapto manualmente según mi experiencia y conocimiento de cada país.','Uso IA para identificar diferencias culturales, regulatorias y de comportamiento por mercado.','Diseño estrategias diferenciadas por país con apoyo de IA para análisis y personalización.']},
+  {dim:3,q:'¿Cómo gestionas a tu equipo de ventas disperso en distintos países de LATAM?',opts:['La gestión es principalmente por llamadas y reportes básicos.','Uso herramientas digitales básicas como email y CRM, sin integración de IA.','Uso IA para preparar reuniones, dar feedback estructurado y planes de desarrollo.','Tengo protocolos de gestión con IA: onboarding, coaching, evaluación y seguimiento por país.']},
+  {dim:3,q:'¿Cómo elaboras proyecciones y forecasting comercial para la región LATAM?',opts:['Las proyecciones las hago con intuición y experiencia sin metodología formal.','Uso métodos básicos de cálculo con datos históricos, sin apoyo de IA.','Consulto IA para analizar tendencias y construir escenarios comerciales.','Tengo modelos de forecasting asistidos por IA con variables específicas de cada mercado LATAM.']},
+  {dim:3,q:'¿Cómo identificas y prospectas nuevos clientes en el sector salud a lo largo de LATAM?',opts:['La prospección es manual, por referidos o contacto directo.','Uso LinkedIn u otras redes sin un sistema estructurado de IA.','Uso IA para identificar prospectos, investigar cuentas y preparar acercamientos personalizados.','Tengo un sistema de prospección inteligente con IA: segmentación, señales de compra y mensajes.']},
+  // D4
+  {dim:4,q:'¿Cómo te preparas para reuniones directivas y la elaboración de presentaciones ejecutivas?',opts:['Me preparo de manera intuitiva con poca estructura formal.','Preparo agendas y presentaciones manualmente, sin IA.','Uso IA para estructurar, enriquecer y revisar mis materiales ejecutivos.','Tengo plantillas y flujos con IA para preparación directiva: resúmenes, datos, narrativas y anticipación de preguntas.']},
+  {dim:4,q:'¿Cómo usas la IA para la formación y el desarrollo de tu equipo comercial?',opts:['La formación es esporádica y principalmente presencial.','Comparto recursos y hago sesiones de equipo sin apoyo de IA.','Uso IA para diseñar contenidos de capacitación y planes de desarrollo del equipo.','Tengo programas de desarrollo co-diseñados con IA: ruta formativa, feedback y métricas de progreso.']},
+  {dim:4,q:'¿Cómo gestionas la comunicación con stakeholders clave (directivos, socios, clientes) con apoyo de IA?',opts:['La comunicación es reactiva y sin sistematización clara.','Tengo plantillas básicas de email y mensajes sin IA.','Uso IA para redactar, adaptar y dar seguimiento a comunicaciones clave.','Tengo estrategias de comunicación diferenciadas por stakeholder, asistidas por IA con seguimiento.']},
+  {dim:4,q:'¿Cómo generas reportes e informes para la alta dirección de tu organización?',opts:['Los reportes me toman mucho tiempo y son completamente manuales.','Uso formatos estándar con datos que compilo manualmente.','Uso IA para estructurar, redactar y visualizar reportes con datos del negocio.','Tengo flujos semi-automatizados con IA para generar reportes ejecutivos con insights y narrativa.']},
+  {dim:4,q:'¿Has creado artefactos propios con IA adaptados a tu rol (prompts especializados, plantillas, flujos de trabajo)?',opts:['No he creado ningún artefacto propio con IA.','He guardado algunos prompts básicos para reutilizar ocasionalmente.','Tengo una biblioteca personal de prompts y plantillas para mi cargo.','Tengo un sistema documentado de artefactos con IA: prompts, plantillas, flujos y procesos para mi trabajo.']},
+  // D5
+  {dim:5,q:'¿Cómo es tu presencia digital actual como líder comercial en el sector salud de LATAM?',opts:['Tengo poca o ninguna presencia digital profesional activa.','Tengo perfil en LinkedIn pero no lo actualizo con regularidad.','Publico contenido ocasionalmente sobre temas de salud y ventas.','Tengo una estrategia de posicionamiento activa con contenido regular sobre salud LATAM.']},
+  {dim:5,q:'¿Usas IA para crear contenido de posicionamiento como líder en el sector salud?',opts:['No creo contenido de posicionamiento profesional con IA.','He experimentado puntualmente con IA para crear algún texto.','Uso IA regularmente para crear posts, artículos y material de valor para mi red.','Tengo un flujo editorial asistido por IA: temas, formatos, calendario y publicación en salud LATAM.']},
+  {dim:5,q:'¿Qué tan claro y diferenciado es tu mensaje de propuesta de valor como director/a comercial en salud?',opts:['Me cuesta articular claramente mi propuesta de valor única.','Tengo un mensaje básico pero no diferenciado por audiencia o contexto.','Tengo un pitch refinado con apoyo de IA para diferentes interlocutores.','Tengo una propuesta de valor sofisticada por audiencia, potenciada y validada continuamente con IA.']},
+  {dim:5,q:'¿Has liderado la formación o adopción de IA en tu equipo comercial para el sector salud?',opts:['No he capacitado a mi equipo en el uso de IA.','He compartido algún recurso o herramienta de IA de manera puntual.','He facilitado sesiones de entrenamiento básico en IA para el equipo.','Tengo un programa formal de adopción de IA en el equipo con rutas, métricas y seguimiento.']},
+  {dim:5,q:'¿Contribuyes activamente al ecosistema de conocimiento sobre IA en ventas y salud en LATAM?',opts:['No contribuyo aún al conocimiento colectivo sobre IA en salud.','Comparto esporádicamente artículos o reflexiones en mis redes.','Soy referente interno en mi organización sobre IA aplicada a ventas en salud.','Soy una voz activa en LATAM sobre IA comercial en salud: charlas, publicaciones, comunidades.']}
 ];
 
-/* ═══════════════════════════════════════════════════════
-   LEVELS
-═══════════════════════════════════════════════════════ */
 const LEVELS = {
-  explorador: {
-    label:'🌱 Explorador IA', color:'#ff4757', bg:'rgba(255,71,87,.14)',
-    title:'Estás en el inicio del camino',
-    desc:'Tienes una base sólida desde la cual construir. La IA representa una enorme oportunidad para potenciar tu liderazgo en LATAM y tu argumentación en salud. Con un plan estructurado, en pocas semanas puedes avanzar de manera significativa.'
-  },
-  aceleracion: {
-    label:'🚀 En Aceleración', color:'#ff8c00', bg:'rgba(255,140,0,.14)',
-    title:'Estás ganando velocidad con IA',
-    desc:'Ya integras IA en varias áreas de tu trabajo. El siguiente paso es sistematizar ese uso, crear artefactos propios para tu rol y desarrollar capacidades especializadas en IA para la dirección comercial en salud LATAM.'
-  },
-  lider: {
-    label:'⚡ Líder IA', color:'#00d4ff', bg:'rgba(0,212,255,.14)',
-    title:'Eres un referente en adopción de IA',
-    desc:'Tienes un alto nivel de madurez en IA aplicada a tu rol. Lideras con IA de forma estratégica, tienes sistemas propios y potencias a tu equipo. El reto es escalar tu influencia en el ecosistema salud LATAM.'
-  }
+  e:{label:'🌱 Explorador IA',color:'#ff4757',bg:'rgba(255,71,87,.12)',
+     title:'Inicio del camino estratégico',
+     desc:'Tienes una base sólida para construir. La IA representa una enorme oportunidad para potenciar tu liderazgo en LATAM y tu argumentación en salud. Con un plan estructurado, en pocas semanas puedes avanzar de manera significativa.'},
+  a:{label:'🚀 En Aceleración',color:'#ff8c00',bg:'rgba(255,140,0,.12)',
+     title:'Ganando velocidad con IA',
+     desc:'Ya integras IA en varias áreas de tu trabajo. El siguiente paso es sistematizar ese uso, crear artefactos propios para tu rol y desarrollar capacidades especializadas para la dirección comercial en salud LATAM.'},
+  l:{label:'⚡ Líder IA',color:'#00d4ff',bg:'rgba(0,212,255,.12)',
+     title:'Referente en adopción de IA',
+     desc:'Alto nivel de madurez en IA aplicada a tu rol. Lideras con IA de forma estratégica, tienes sistemas propios y potencias a tu equipo. El reto ahora es escalar tu influencia en el ecosistema salud LATAM.'}
 };
 
-/* ═══════════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════════ */
-let state = {
-  nombre:'', email:'', empresa:'',
-  currentQ:0,
-  answers: new Array(25).fill(null),
-  direction: 'forward'
-};
+let S = {nombre:'',email:'',empresa:'',q:0,ans:new Array(25).fill(null)};
 
-/* ═══════════════════════════════════════════════════════
-   INIT UI
-═══════════════════════════════════════════════════════ */
-(function initUI() {
-  // Dimension chips in intro
-  const chips = document.getElementById('dims-chips');
-  if (chips) {
-    DIMS.forEach(d => {
-      const c = document.createElement('span');
-      c.className = 'dim-chip';
-      c.textContent = d.short;
-      c.style.color = d.color;
-      c.style.borderColor = d.color + '40';
-      chips.appendChild(c);
+/* ════════════════════════════════
+   INIT
+════════════════════════════════ */
+(function(){
+  // Dim cards in right panel
+  const cl = document.getElementById('dim-cards-list');
+  if(cl) {
+    DIMS.forEach((d,i)=>{
+      const el = document.createElement('div');
+      el.className = 'dim-card';
+      el.style.borderColor = d.color+'35';
+      el.style.animationDelay = (i*0.08)+'s';
+      el.innerHTML=`
+        <div class="dc-bullet" style="background:${d.color}"></div>
+        <div class="dc-info">
+          <div class="dc-name" style="color:${d.color}">${d.name}</div>
+          <div class="dc-sub">${d.sub}</div>
+        </div>
+        <div class="dc-count" style="color:${d.color}">5</div>`;
+      cl.appendChild(el);
     });
   }
-
-  // Hero SVG visualization
-  buildHeroSVG();
 })();
 
-function buildHeroSVG() {
-  const svg = document.getElementById('hero-svg');
-  if (!svg) return;
-
-  const W = 420, H = 400;
-  const cx = 210, cy = 195, maxR = 120;
-  const angles = DIMS.map((_, i) => (i * 72 - 90) * Math.PI / 180);
-  const pt = (r, i) => [cx + r * Math.cos(angles[i]), cy + r * Math.sin(angles[i])];
-
-  // Background rings
-  let html = `<defs>
-    <radialGradient id="core-glow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
-    </radialGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="3" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>`;
-
-  // Outer rings (decorative)
-  [170, 130, 90].forEach((r, i) => {
-    const op = [0.05, 0.07, 0.1][i];
-    const dash = i === 0 ? '5 7' : i === 1 ? '3 6' : 'none';
-    html += `<circle cx="${cx}" cy="${cy}" r="${r}" stroke="rgba(0,212,255,${op})" stroke-width="1" fill="none" stroke-dasharray="${dash}"/>`;
-  });
-
-  // Core glow
-  html += `<circle cx="${cx}" cy="${cy}" r="55" fill="url(#core-glow)"/>`;
-
-  // Axis lines
-  DIMS.forEach((dim, i) => {
-    const [x, y] = pt(maxR, i);
-    html += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${dim.color}" stroke-opacity="0.15" stroke-width="1"/>`;
-  });
-
-  // Pentagon filled area (all at 100% for hero)
-  const pentPts = DIMS.map((_, i) => pt(maxR * 0.72, i).map(v => v.toFixed(1)).join(',')).join(' ');
-  html += `<polygon points="${pentPts}" fill="rgba(0,212,255,0.06)" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>`;
-
-  // Dimension node connections + nodes
-  DIMS.forEach((dim, i) => {
-    const [x, y] = pt(maxR, i);
-    // Small inner node
-    const [xi, yi] = pt(maxR * 0.72, i);
-
-    html += `<circle cx="${xi.toFixed(1)}" cy="${yi.toFixed(1)}" r="3" fill="${dim.color}" opacity="0.6"/>`;
-
-    // Outer node
-    html += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="22" fill="${dim.color}14" stroke="${dim.color}" stroke-width="1.5" filter="url(#glow)"/>`;
-    html += `<text x="${x.toFixed(1)}" y="${(parseFloat(y) - 2).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" fill="${dim.color}" font-size="9" font-weight="800" font-family="Plus Jakarta Sans,system-ui,sans-serif">${dim.short.toUpperCase().slice(0,4)}</text>`;
-  });
-
-  // Core "IA" label
-  html += `<circle cx="${cx}" cy="${cy}" r="30" fill="rgba(0,212,255,0.08)" stroke="rgba(0,212,255,0.35)" stroke-width="1.5"/>`;
-  html += `<text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" fill="#00d4ff" font-size="16" font-weight="900" font-family="Plus Jakarta Sans,system-ui,sans-serif">IA</text>`;
-
-  svg.innerHTML = html;
+/* ════════════════════════════════
+   VIEW
+════════════════════════════════ */
+function showV(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const el = document.getElementById('view-'+id);
+  if(el){el.classList.add('active');window.scrollTo(0,0);}
 }
 
-/* ═══════════════════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════════════════ */
-function showView(id) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  const el = document.getElementById('view-' + id);
-  if (el) { el.classList.add('active'); window.scrollTo(0, 0); }
-}
-
-/* ═══════════════════════════════════════════════════════
+/* ════════════════════════════════
    START
-═══════════════════════════════════════════════════════ */
-function startQuiz() {
-  const nombre = document.getElementById('inp-nombre').value.trim();
-  if (!nombre) { document.getElementById('inp-nombre').focus(); return; }
-  state.nombre = nombre;
-  state.email  = document.getElementById('inp-email').value.trim();
-  state.empresa = document.getElementById('inp-empresa').value.trim();
-  state.currentQ = 0;
-  state.answers = new Array(25).fill(null);
-  buildDimDots();
-  showView('quiz');
-  renderQ('forward');
+════════════════════════════════ */
+function startQuiz(){
+  const n = document.getElementById('inp-n').value.trim();
+  if(!n){document.getElementById('inp-n').focus();return;}
+  S.nombre  = n;
+  S.email   = document.getElementById('inp-e').value.trim();
+  S.empresa = document.getElementById('inp-c').value.trim();
+  S.q = 0;
+  S.ans = new Array(25).fill(null);
+  buildDotRow();
+  showV('quiz');
+  renderQ('f');
+  document.addEventListener('keydown', kbHandler);
 }
 
-/* ═══════════════════════════════════════════════════════
-   DIM DOTS
-═══════════════════════════════════════════════════════ */
-function buildDimDots() {
-  const row = document.getElementById('dim-dots-row');
-  if (!row) return;
-  row.innerHTML = '';
-  DIMS.forEach((dim, gi) => {
-    const grp = document.createElement('div');
-    grp.className = 'dim-dot-group';
-    for (let qi = 0; qi < 5; qi++) {
-      const d = document.createElement('div');
-      d.className = 'ddot';
-      d.style.background = rgba(dim.color, 0.2);
-      d.id = `ddot-${gi * 5 + qi}`;
-      grp.appendChild(d);
+/* ════════════════════════════════
+   KEYBOARD
+════════════════════════════════ */
+function kbHandler(e){
+  const n = parseInt(e.key);
+  if(n>=1&&n<=4&&n<=QS[S.q].opts.length) selectAns(n-1);
+}
+
+/* ════════════════════════════════
+   DOTS
+════════════════════════════════ */
+function buildDotRow(){
+  const row = document.getElementById('dot-row');
+  if(!row)return;
+  row.innerHTML='';
+  DIMS.forEach((dim,gi)=>{
+    const g=document.createElement('div'); g.className='dg';
+    for(let i=0;i<5;i++){
+      const d=document.createElement('div');
+      d.className='dd'; d.id=`d-${gi*5+i}`;
+      d.style.background='rgba(255,255,255,0.08)';
+      g.appendChild(d);
     }
-    row.appendChild(grp);
-    if (gi < DIMS.length - 1) {
-      const sep = document.createElement('div');
-      sep.className = 'dim-dots-line';
-      row.appendChild(sep);
-    }
+    row.appendChild(g);
+    if(gi<DIMS.length-1){const s=document.createElement('div');s.className='dg-sep';row.appendChild(s);}
+  });
+}
+function updDots(idx){
+  QS.forEach((_,i)=>{
+    const d=document.getElementById('d-'+i); if(!d)return;
+    const dim=DIMS[QS[i].dim-1];
+    d.classList.remove('done','curr');
+    if(i<idx){d.classList.add('done');d.style.background=dim.color;d.style.color=dim.color;}
+    else if(i===idx){d.classList.add('curr');d.style.background=dim.color;d.style.color=dim.color;}
+    else{d.style.background='rgba(255,255,255,0.08)';}
   });
 }
 
-function updateDimDots(idx) {
-  QS.forEach((_, i) => {
-    const d = document.getElementById('ddot-' + i);
-    if (!d) return;
-    const dim = DIMS[QS[i].dim - 1];
-    if (i < idx) {
-      d.classList.add('answered'); d.classList.remove('current');
-      d.style.background = dim.color;
-    } else if (i === idx) {
-      d.classList.add('current'); d.classList.remove('answered');
-      d.style.background = dim.color;
-      d.style.color = dim.color;
-    } else {
-      d.classList.remove('answered', 'current');
-      d.style.background = rgba(dim.color, 0.2);
+/* ════════════════════════════════
+   RENDER Q
+════════════════════════════════ */
+function renderQ(dir){
+  const idx = S.q;
+  const q   = QS[idx];
+  const dim = DIMS[q.dim-1];
+
+  // Top bar
+  document.getElementById('dtb-dot').style.background = dim.color;
+  document.getElementById('dtb-dim').textContent = dim.name;
+  document.getElementById('dtb-dim').style.color = dim.color;
+  const dqs = QS.filter(x=>x.dim===q.dim);
+  document.getElementById('dtb-pos').textContent = `Pregunta ${dqs.indexOf(q)+1} de ${dqs.length}`;
+  const pct = Math.round(idx/QS.length*100);
+  const pb = document.getElementById('dtb-prog');
+  pb.style.width = pct+'%';
+  pb.style.background = `linear-gradient(90deg,${dim.color},${dim.color}88)`;
+
+  // Card anim
+  const card = document.getElementById('q-card');
+  card.classList.remove('asr','asl'); void card.offsetWidth;
+  card.classList.add(dir==='f'?'asr':'asl');
+  card.style.borderColor = dim.color+'25';
+
+  // Badge
+  const b = document.getElementById('q-num');
+  b.textContent = String(idx+1).padStart(2,'0');
+  b.style.background = dim.color;
+
+  document.getElementById('q-cnt').textContent = `Pregunta ${idx+1} de ${QS.length}`;
+  document.getElementById('q-txt').textContent = q.q;
+
+  // Options
+  const keys=['1','2','3','4'];
+  const c = document.getElementById('opts-list');
+  c.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt'+(S.ans[idx]===i?' sel':'');
+    btn.onclick=()=>selectAns(i);
+    btn.innerHTML=`<span class="opt-badge">${keys[i]}</span><span>${opt}</span>`;
+    if(S.ans[idx]===i){
+      btn.style.borderColor=dim.color;
+      btn.style.background=hxa(dim.color,.08);
+      btn.querySelector('.opt-badge').style.background=dim.color;
+      btn.querySelector('.opt-badge').style.color='#000';
     }
+    c.appendChild(btn);
   });
+
+  const fwd = document.getElementById('btn-fwd');
+  fwd.textContent = idx===QS.length-1 ? 'Ver resultados →' : 'Siguiente →';
+  fwd.style.background=`linear-gradient(135deg,${dim.color},${dim.color==='#00d4ff'?'#7b2fff':dim.color+'bb'})`;
+  fwd.classList.toggle('on', S.ans[idx]!==null);
+
+  document.getElementById('btn-back').style.display = idx>0 ? 'block':'none';
+  updDots(idx);
 }
 
-function rgba(hex, a) {
-  const r = parseInt(hex.slice(1,3),16);
-  const g = parseInt(hex.slice(3,5),16);
-  const b = parseInt(hex.slice(5,7),16);
+function hxa(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
   return `rgba(${r},${g},${b},${a})`;
 }
 
-/* ═══════════════════════════════════════════════════════
-   RENDER QUESTION
-═══════════════════════════════════════════════════════ */
-function renderQ(direction) {
-  const idx = state.currentQ;
-  const q   = QS[idx];
-  const dim = DIMS[q.dim - 1];
-  const total = QS.length;
-
-  // Progress
-  const pct = Math.round((idx / total) * 100);
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-pct').textContent  = pct + '%';
-
-  // Dim pill
-  document.getElementById('dim-pill-dot').style.background = dim.color;
-  document.getElementById('dim-pill-name').textContent = dim.name;
-  document.getElementById('dim-pill').style.borderColor = dim.color + '40';
-  const dimQs = QS.filter(x => x.dim === q.dim);
-  const dimPos = dimQs.indexOf(q) + 1;
-  document.getElementById('dim-pill-pos').textContent = `${dimPos} / ${dimQs.length}`;
-
-  // Question card with slide animation
-  const card = document.getElementById('question-card');
-  card.classList.remove('slide-right', 'slide-left');
-  void card.offsetWidth; // reflow
-  card.classList.add(direction === 'forward' ? 'slide-right' : 'slide-left');
-
-  // Question content
-  const numStr = String(idx + 1).padStart(2, '0');
-  const numBadge = document.getElementById('q-num-badge');
-  numBadge.textContent = numStr;
-  numBadge.style.background = dim.color;
-  document.getElementById('q-counter').textContent = `Pregunta ${idx + 1} de ${total}`;
-  document.getElementById('q-text').textContent = q.q;
-
-  // Options
-  const letters = ['A','B','C','D'];
-  const container = document.getElementById('options-list');
-  container.innerHTML = '';
-  q.opts.forEach((opt, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn' + (state.answers[idx] === i ? ' selected' : '');
-    btn.onclick = () => selectAnswer(i);
-    btn.innerHTML = `<span class="opt-badge">${letters[i]}</span><span>${opt}</span>`;
-    if (state.answers[idx] === i) {
-      btn.style.borderColor = dim.color;
-      btn.style.background = rgba(dim.color, 0.08);
-      btn.querySelector('.opt-badge').style.background = dim.color;
-      btn.querySelector('.opt-badge').style.color = '#000';
-    }
-    container.appendChild(btn);
+/* ════════════════════════════════
+   SELECT
+════════════════════════════════ */
+function selectAns(i){
+  S.ans[S.q]=i;
+  const dim=DIMS[QS[S.q].dim-1];
+  document.querySelectorAll('.opt').forEach((btn,j)=>{
+    const sel=j===i;
+    btn.classList.toggle('sel',sel);
+    btn.style.borderColor=sel?dim.color:'';
+    btn.style.background=sel?hxa(dim.color,.08):'';
+    const b=btn.querySelector('.opt-badge');
+    b.style.background=sel?dim.color:'';
+    b.style.color=sel?'#000':'';
   });
-
-  // Nav
-  document.getElementById('btn-prev').style.display = idx > 0 ? 'block' : 'none';
-  const nextBtn = document.getElementById('btn-next');
-  nextBtn.textContent = idx === total - 1 ? 'Ver mis resultados →' : 'Siguiente →';
-  nextBtn.style.background = `linear-gradient(135deg, ${dim.color}, ${dim.color === '#00d4ff' ? '#7b2fff' : dim.color + 'bb'})`;
-  nextBtn.classList.toggle('ready', state.answers[idx] !== null);
-
-  updateDimDots(idx);
+  document.getElementById('btn-fwd').classList.add('on');
+  setTimeout(nextQ,360);
 }
 
-/* ═══════════════════════════════════════════════════════
-   SELECT ANSWER
-═══════════════════════════════════════════════════════ */
-function selectAnswer(i) {
-  state.answers[state.currentQ] = i;
-  const dim = DIMS[QS[state.currentQ].dim - 1];
-  document.querySelectorAll('.opt-btn').forEach((btn, j) => {
-    const sel = j === i;
-    btn.classList.toggle('selected', sel);
-    btn.style.borderColor = sel ? dim.color : '';
-    btn.style.background  = sel ? rgba(dim.color, 0.08) : '';
-    const badge = btn.querySelector('.opt-badge');
-    badge.style.background = sel ? dim.color : '';
-    badge.style.color      = sel ? '#000' : '';
-  });
-  document.getElementById('btn-next').classList.add('ready');
-  // Auto-advance
-  setTimeout(() => { nextQ(); }, 360);
+/* ════════════════════════════════
+   NAV
+════════════════════════════════ */
+function nextQ(){
+  if(S.ans[S.q]===null)return;
+  if(S.q<QS.length-1){S.q++;renderQ('f');}
+  else finish();
 }
+function prevQ(){if(S.q>0){S.q--;renderQ('b');}}
 
-/* ═══════════════════════════════════════════════════════
-   NAVIGATION
-═══════════════════════════════════════════════════════ */
-function nextQ() {
-  if (state.answers[state.currentQ] === null) return;
-  if (state.currentQ < QS.length - 1) {
-    state.currentQ++;
-    renderQ('forward');
-  } else {
-    finishQuiz();
-  }
-}
-
-function prevQ() {
-  if (state.currentQ > 0) {
-    state.currentQ--;
-    renderQ('backward');
-  }
-}
-
-/* ═══════════════════════════════════════════════════════
+/* ════════════════════════════════
    FINISH
-═══════════════════════════════════════════════════════ */
-async function finishQuiz() {
-  showView('saving');
-  let totalRaw = 0;
-  const dimScores = [0,0,0,0,0];
-  QS.forEach((q, i) => {
-    const val = state.answers[i] || 0;
-    totalRaw += val;
-    dimScores[q.dim - 1] += val;
-  });
-  const scoreNorm = Math.round(totalRaw * 100 / 75);
-  const dimNorm   = dimScores.map(s => Math.round(s * 100 / 15));
-  let level;
-  if (scoreNorm < 50) level = LEVELS.explorador;
-  else if (scoreNorm < 75) level = LEVELS.aceleracion;
-  else level = LEVELS.lider;
-
-  const row = {
-    nombre: state.nombre, email: state.email || null,
-    empresa: state.empresa || null,
-    puntaje_total: scoreNorm,
-    puntaje_dim1: dimNorm[0], puntaje_dim2: dimNorm[1],
-    puntaje_dim3: dimNorm[2], puntaje_dim4: dimNorm[3],
-    puntaje_dim5: dimNorm[4], nivel: level.label
-  };
-  try { await sbInsert(row); } catch(e) { console.warn('Save error:', e); }
-  showResult(scoreNorm, totalRaw, dimNorm, level);
+════════════════════════════════ */
+async function finish(){
+  document.removeEventListener('keydown',kbHandler);
+  showV('saving');
+  let tot=0; const ds=[0,0,0,0,0];
+  QS.forEach((q,i)=>{const v=S.ans[i]||0;tot+=v;ds[q.dim-1]+=v;});
+  const score=Math.round(tot*100/75);
+  const dn=ds.map(s=>Math.round(s*100/15));
+  const lv=score<50?LEVELS.e:score<75?LEVELS.a:LEVELS.l;
+  try{
+    await sbPost({
+      nombre:S.nombre,email:S.email||null,empresa:S.empresa||null,
+      puntaje_total:score,
+      puntaje_dim1:dn[0],puntaje_dim2:dn[1],puntaje_dim3:dn[2],
+      puntaje_dim4:dn[3],puntaje_dim5:dn[4],nivel:lv.label
+    });
+  }catch(e){console.warn(e);}
+  showResult(score,tot,dn,lv);
 }
 
-/* ═══════════════════════════════════════════════════════
+/* ════════════════════════════════
    SHOW RESULT
-═══════════════════════════════════════════════════════ */
-function showResult(score, raw, dimNorm, level) {
-  showView('result');
+════════════════════════════════ */
+function showResult(score,raw,dn,lv){
+  showV('result');
+  document.getElementById('rh-name').textContent = S.nombre;
+  document.getElementById('rh-pts').textContent  = `${raw} de 75 pts · ${score}/100`;
 
-  document.getElementById('res-name').textContent = state.nombre;
-  document.getElementById('res-pts').textContent  = `${raw} de 75 puntos (${score}/100)`;
-
-  // Animated score counter
-  const scoreEl = document.getElementById('res-score');
-  scoreEl.textContent = '0';
-  scoreEl.style.color = level.color;
-  let current = 0;
-  const step = score / 60;
-  const timer = setInterval(() => {
-    current = Math.min(current + step, score);
-    scoreEl.textContent = Math.round(current);
-    if (current >= score) clearInterval(timer);
-  }, 16);
+  // Animated counter
+  const el = document.getElementById('rh-num');
+  el.style.color = lv.color;
+  let c=0; const step=score/65;
+  const t=setInterval(()=>{c=Math.min(c+step,score);el.textContent=Math.round(c);if(c>=score)clearInterval(t);},14);
 
   // Badge
-  const badge = document.getElementById('res-badge');
-  badge.textContent = level.label;
-  badge.style.background = level.bg;
-  badge.style.color = level.color;
-  badge.style.border = `1px solid ${level.color}50`;
+  const b=document.getElementById('rh-badge');
+  b.textContent=lv.label;
+  b.style.background=lv.bg;
+  b.style.color=lv.color;
+  b.style.border=`1px solid ${lv.color}55`;
 
-  document.getElementById('res-title').innerHTML = `<span style="color:${level.color}">${level.title}</span>`;
-  document.getElementById('res-desc').textContent = level.desc;
+  document.getElementById('rh-title').innerHTML=`<span style="color:${lv.color}">${lv.title}</span>`;
+  document.getElementById('rh-desc').textContent=lv.desc;
 
   // Radar
-  document.getElementById('radar-container').innerHTML = drawRadar(dimNorm, DIMS);
+  document.getElementById('radar-here').innerHTML=buildRadar(dn);
 
   // Bars
-  const barsEl = document.getElementById('dims-chart-rows');
-  barsEl.innerHTML = '';
-  DIMS.forEach((dim, i) => {
-    const row = document.createElement('div');
-    row.className = 'bar-row';
-    row.innerHTML = `
-      <span class="bar-label">${dim.short}</span>
-      <div class="bar-track"><div class="bar-fill" id="bf-${i}" style="width:0%;background:${dim.color}"></div></div>
-      <span class="bar-val" style="color:${dim.color}">${dimNorm[i]}%</span>
-    `;
-    barsEl.appendChild(row);
-    setTimeout(() => {
-      document.getElementById('bf-' + i).style.width = dimNorm[i] + '%';
-    }, 300 + i * 100);
+  const bc=document.getElementById('bars-here');
+  bc.innerHTML='';
+  DIMS.forEach((dim,i)=>{
+    const el2=document.createElement('div');
+    el2.className='bar-card';
+    el2.innerHTML=`
+      <div class="bc-hdr">
+        <span class="bc-name" style="color:${dim.color}">${dim.name}</span>
+        <span class="bc-val" style="color:${dim.color}">${dn[i]}%</span>
+      </div>
+      <div class="bc-track"><div id="bfi${i}" class="bc-fill" style="width:0%;background:${dim.color}"></div></div>`;
+    bc.appendChild(el2);
+    setTimeout(()=>{document.getElementById('bfi'+i).style.width=dn[i]+'%';},400+i*130);
   });
 }
 
-/* ═══════════════════════════════════════════════════════
-   RADAR CHART (SVG)
-═══════════════════════════════════════════════════════ */
-function drawRadar(dimNorm, dims) {
-  const cx = 150, cy = 155, maxR = 95;
-  const angles = dims.map((_, i) => (i * 72 - 90) * Math.PI / 180);
-  const pt = (r, i) => [cx + r * Math.cos(angles[i]), cy + r * Math.sin(angles[i])];
-  const polyPts = r => dims.map((_, i) => pt(r, i).map(v => v.toFixed(1)).join(',')).join(' ');
-
-  const grids = [25, 50, 75, 100].map(p => {
-    const r = maxR * p / 100;
-    return `<polygon points="${polyPts(r)}" fill="none" stroke="rgba(255,255,255,${p===100?0.12:0.06})" stroke-width="1"/>`;
-  }).join('');
-
-  const axes = dims.map((_, i) => {
-    const [x, y] = pt(maxR, i);
-    return `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`;
-  }).join('');
-
-  const dataPts = dims.map((_, i) => {
-    return pt(maxR * (dimNorm[i] / 100), i).map(v => v.toFixed(1)).join(',');
-  }).join(' ');
-
-  const labelR = 120;
-  const labels = dims.map((dim, i) => {
-    const [x, y] = pt(labelR, i);
-    const anchor = x < cx - 8 ? 'end' : x > cx + 8 ? 'start' : 'middle';
-    return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${anchor}" dominant-baseline="middle" fill="${dim.color}" font-size="10" font-weight="700" font-family="Plus Jakarta Sans,system-ui,sans-serif">${dim.short}</text>`;
-  }).join('');
-
-  const dots = dims.map((dim, i) => {
-    const [x, y] = pt(maxR * (dimNorm[i] / 100), i);
-    return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${dim.color}" stroke="#07111f" stroke-width="2"/>`;
-  }).join('');
-
-  return `<svg viewBox="0 0 300 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:260px;display:block;margin:0 auto">
-    <defs>
-      <linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.25"/>
-        <stop offset="100%" stop-color="#7b2fff" stop-opacity="0.25"/>
-      </linearGradient>
-    </defs>
+/* ════════════════════════════════
+   RADAR
+════════════════════════════════ */
+function buildRadar(dn){
+  const cx=150,cy=155,maxR=95;
+  const ang=DIMS.map((_,i)=>(i*72-90)*Math.PI/180);
+  const pt=(r,i)=>[cx+r*Math.cos(ang[i]),cy+r*Math.sin(ang[i])];
+  const poly=r=>DIMS.map((_,i)=>pt(r,i).map(v=>v.toFixed(1)).join(',')).join(' ');
+  const grids=[25,50,75,100].map(p=>`<polygon points="${poly(maxR*p/100)}" fill="none" stroke="rgba(255,255,255,${p===100?.1:.05})" stroke-width="1"/>`).join('');
+  const axes=DIMS.map((_,i)=>{const[x,y]=pt(maxR,i);return`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>`;}).join('');
+  const dpts=DIMS.map((_,i)=>pt(maxR*(dn[i]/100),i).map(v=>v.toFixed(1)).join(',')).join(' ');
+  const lbls=DIMS.map((d,i)=>{const[x,y]=pt(122,i);const a=x<cx-8?'end':x>cx+8?'start':'middle';return`<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="${a}" dominant-baseline="middle" fill="${d.color}" font-size="9.5" font-weight="700" font-family="Plus Jakarta Sans,sans-serif">${d.short}</text>`;}).join('');
+  const dots=DIMS.map((d,i)=>{const[x,y]=pt(maxR*(dn[i]/100),i);return`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${d.color}" stroke="#060c18" stroke-width="2"/>`;}).join('');
+  return`<svg viewBox="0 0 300 310" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:260px;display:block;margin:0 auto">
+    <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity=".22"/>
+      <stop offset="100%" stop-color="#7b2fff" stop-opacity=".22"/>
+    </linearGradient></defs>
     ${grids}${axes}
-    <polygon points="${dataPts}" fill="url(#rg2)" stroke="#00d4ff" stroke-width="1.5" stroke-opacity="0.7"/>
-    ${dots}${labels}
-  </svg>`;
+    <polygon points="${dpts}" fill="url(#rg)" stroke="#00d4ff" stroke-width="1.5" stroke-opacity=".65"/>
+    ${dots}${lbls}</svg>`;
 }
 
-/* ═══════════════════════════════════════════════════════
+/* ════════════════════════════════
    RESTART
-═══════════════════════════════════════════════════════ */
-function restart() {
-  state = { nombre:'', email:'', empresa:'', currentQ:0, answers:new Array(25).fill(null), direction:'forward' };
-  ['inp-nombre','inp-email','inp-empresa'].forEach(id => document.getElementById(id).value = '');
-  showView('intro');
+════════════════════════════════ */
+function restart(){
+  S={nombre:'',email:'',empresa:'',q:0,ans:new Array(25).fill(null)};
+  ['inp-n','inp-e','inp-c'].forEach(id=>document.getElementById(id).value='');
+  showV('intro');
 }
 
-/* ═══════════════════════════════════════════════════════
+/* ════════════════════════════════
    ADMIN
-═══════════════════════════════════════════════════════ */
-function goAdmin() {
-  showView('admin-login');
-  setTimeout(() => document.getElementById('admin-pass-inp').focus(), 100);
-}
-function checkAdminPass() {
-  const val = document.getElementById('admin-pass-inp').value;
-  if (val === ADMIN_PASS) {
-    document.getElementById('admin-pass-err').style.display = 'none';
-    document.getElementById('admin-pass-inp').value = '';
+════════════════════════════════ */
+function goAdmin(){showV('admin-login');setTimeout(()=>document.getElementById('apass').focus(),80);}
+function chkPass(){
+  if(document.getElementById('apass').value===APWD){
+    document.getElementById('passerr').style.display='none';
+    document.getElementById('apass').value='';
     loadAdmin();
-  } else {
-    document.getElementById('admin-pass-err').style.display = 'block';
-  }
+  }else{document.getElementById('passerr').style.display='block';}
 }
-async function loadAdmin() {
-  showView('admin');
-  const rows = await sbSelect();
-  if (!Array.isArray(rows)) {
-    document.getElementById('admin-tbody').innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text3)">Sin datos aún</td></tr>';
+async function loadAdmin(){
+  showV('admin');
+  const rows=await sbGet();
+  if(!Array.isArray(rows)||!rows.length){
+    document.getElementById('adm-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;color:var(--text3)">Sin datos aún</td></tr>';
     return;
   }
-  const avg  = rows.length ? Math.round(rows.reduce((a,r) => a + r.puntaje_total, 0) / rows.length) : 0;
-  const lvls = rows.reduce((acc, r) => {
-    const lbl = r.nivel || '';
-    if (lbl.includes('Líder')) acc.lider++;
-    else if (lbl.includes('Aceleración')) acc.acel++;
-    else acc.expl++;
-    return acc;
-  }, { lider:0, acel:0, expl:0 });
-
-  document.getElementById('admin-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-num">${rows.length}</div><div class="stat-label">Total respuestas</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--cyan)">${avg}</div><div class="stat-label">Score promedio</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--cyan)">${lvls.lider}</div><div class="stat-label">Líderes IA</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--orange)">${lvls.acel}</div><div class="stat-label">En Aceleración</div></div>
-    <div class="stat-card"><div class="stat-num" style="color:var(--red)">${lvls.expl}</div><div class="stat-label">Exploradores</div></div>`;
-
-  document.getElementById('admin-tbody').innerHTML = rows.map(r => {
-    const fecha = r.fecha_hora ? new Date(r.fecha_hora).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'2-digit'}) : '-';
-    const lbl = r.nivel || '';
-    const bc  = lbl.includes('Líder') ? 'lv-lid' : lbl.includes('Aceleración') ? 'lv-acel' : 'lv-exp';
-    return `<tr>
-      <td><strong>${r.nombre||'-'}</strong><br><small style="color:var(--text3)">${r.email||''}</small></td>
-      <td>${r.empresa||'-'}</td>
-      <td><strong style="color:var(--cyan)">${r.puntaje_total}/100</strong></td>
-      <td><span class="lv-badge ${bc}">${lbl.replace(/[🌱🚀⚡]/g,'').trim()}</span></td>
-      <td>${r.puntaje_dim1||0}%</td><td>${r.puntaje_dim2||0}%</td>
-      <td>${r.puntaje_dim3||0}%</td><td>${r.puntaje_dim4||0}%</td>
-      <td>${r.puntaje_dim5||0}%</td>
-      <td style="color:var(--text3)">${fecha}</td>
-    </tr>`;
-  }).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--text3)">Sin datos aún</td></tr>';
+  const avg=Math.round(rows.reduce((a,r)=>a+r.puntaje_total,0)/rows.length);
+  const lc=rows.reduce((acc,r)=>{const l=r.nivel||'';if(l.includes('Líder'))acc.l++;else if(l.includes('Aceleración'))acc.a++;else acc.e++;return acc;},{l:0,a:0,e:0});
+  document.getElementById('adm-stats').innerHTML=`
+    <div class="asc"><div class="asc-n">${rows.length}</div><div class="asc-l">Respuestas</div></div>
+    <div class="asc"><div class="asc-n">${avg}</div><div class="asc-l">Score promedio</div></div>
+    <div class="asc"><div class="asc-n" style="color:var(--c1)">${lc.l}</div><div class="asc-l">Líderes IA</div></div>
+    <div class="asc"><div class="asc-n" style="color:var(--c3)">${lc.a}</div><div class="asc-l">En Aceleración</div></div>
+    <div class="asc"><div class="asc-n" style="color:var(--c5)">${lc.e}</div><div class="asc-l">Exploradores</div></div>`;
+  document.getElementById('adm-tbody').innerHTML=rows.map(r=>{
+    const f=r.fecha_hora?new Date(r.fecha_hora).toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'2-digit'}):'-';
+    const l=r.nivel||'';const bc=l.includes('Líder')?'lv-l':l.includes('Aceleración')?'lv-a':'lv-e';
+    return`<tr><td><strong>${r.nombre||'-'}</strong><br><small style="color:var(--text3)">${r.email||''}</small></td><td>${r.empresa||'-'}</td><td><strong style="color:var(--c1)">${r.puntaje_total}/100</strong></td><td><span class="lv ${bc}">${l.replace(/[🌱🚀⚡]/g,'').trim()}</span></td><td>${r.puntaje_dim1||0}%</td><td>${r.puntaje_dim2||0}%</td><td>${r.puntaje_dim3||0}%</td><td>${r.puntaje_dim4||0}%</td><td>${r.puntaje_dim5||0}%</td><td style="color:var(--text3)">${f}</td></tr>`;
+  }).join('');
 }
-
-/* ═══════════════════════════════════════════════════════
-   BACKGROUND PARTICLES
-═══════════════════════════════════════════════════════ */
-(function() {
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, pts = [];
-
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-
-  function init() {
-    pts = Array.from({length: 55}, () => ({
-      x: Math.random() * W, y: Math.random() * H,
-      vx: (Math.random() - .5) * 0.25, vy: (Math.random() - .5) * 0.25,
-      r: Math.random() * 1.2 + 0.4,
-      a: Math.random() * 0.5 + 0.2
-    }));
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    pts.forEach(p => {
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0 || p.x > W) p.vx *= -1;
-      if (p.y < 0 || p.y > H) p.vy *= -1;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(0,212,255,${p.a * 0.35})`;
-      ctx.fill();
-    });
-    for (let i = 0; i < pts.length; i++) {
-      for (let j = i + 1; j < pts.length; j++) {
-        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        if (d < 95) {
-          ctx.beginPath();
-          ctx.moveTo(pts[i].x, pts[i].y);
-          ctx.lineTo(pts[j].x, pts[j].y);
-          ctx.strokeStyle = `rgba(0,212,255,${(1 - d/95) * 0.05})`;
-          ctx.stroke();
-        }
-      }
-    }
-    requestAnimationFrame(draw);
-  }
-
-  window.addEventListener('resize', () => { resize(); init(); });
-  resize(); init(); draw();
-})();
 </script>
 </body>
 </html>
