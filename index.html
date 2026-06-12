@@ -585,6 +585,20 @@
   </div>
 </div>
 
+<!-- ══ MODAL CONFIRMAR BORRADO ══ -->
+<div id="del-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:#0a1422;border:1px solid rgba(255,71,87,.4);border-radius:18px;padding:32px 28px;max-width:320px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+    <div style="font-size:2.2rem;margin-bottom:12px">🗑️</div>
+    <p style="font-size:.92rem;color:#eef3ff;margin-bottom:6px;font-weight:700">¿Eliminar esta respuesta?</p>
+    <p style="font-size:.78rem;color:#3d5670;margin-bottom:24px">Esta acción no se puede deshacer.</p>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button onclick="cancelDelete()" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#8aa4c0;border-radius:10px;padding:9px 20px;font-size:.82rem;font-weight:700;font-family:inherit;cursor:pointer">Cancelar</button>
+      <button id="del-confirm-btn" onclick="confirmDelete()" style="background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.5);color:#ff4757;border-radius:10px;padding:9px 20px;font-size:.82rem;font-weight:700;font-family:inherit;cursor:pointer">Sí, eliminar</button>
+    </div>
+    <p id="del-error" style="display:none;color:#ff4757;font-size:.74rem;margin-top:12px"></p>
+  </div>
+</div>
+
 <span class="adm-link" onclick="goAdmin()">admin</span>
 
 <script>
@@ -1152,20 +1166,60 @@ async function loadAdmin() {
   }
 }
 
-async function deleteRow(id) {
-  if (!confirm('¿Eliminar esta respuesta? Esta acción no se puede deshacer.')) return;
+var _pendingDeleteId = null;
+
+function deleteRow(id) {
+  _pendingDeleteId = id;
+  var m = document.getElementById('del-modal');
+  m.style.display = 'flex';
+  var errEl = document.getElementById('del-error');
+  errEl.style.display = 'none';
+  errEl.textContent = '';
+  var btn = document.getElementById('del-confirm-btn');
+  btn.disabled = false;
+  btn.textContent = 'Sí, eliminar';
+}
+
+function cancelDelete() {
+  _pendingDeleteId = null;
+  document.getElementById('del-modal').style.display = 'none';
+}
+
+async function confirmDelete() {
+  if (!_pendingDeleteId) return;
+  var id = _pendingDeleteId;
+  var btn = document.getElementById('del-confirm-btn');
+  var errEl = document.getElementById('del-error');
+  btn.disabled = true;
+  btn.textContent = 'Eliminando…';
+  errEl.style.display = 'none';
   try {
     var res = await fetch(SB_URL + '/rest/v1/' + TABLE + '?id=eq.' + id, {
       method: 'DELETE',
-      headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json'}
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      }
     });
     if (res.ok || res.status === 204) {
+      document.getElementById('del-modal').style.display = 'none';
+      _pendingDeleteId = null;
       loadAdmin();
     } else {
-      alert('Error al eliminar (status ' + res.status + ')');
+      var body = '';
+      try { body = await res.text(); } catch(e2) {}
+      errEl.textContent = 'Error ' + res.status + ': ' + (body || 'sin detalles');
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Sí, eliminar';
     }
   } catch(e) {
-    alert('Error al eliminar: ' + e.message);
+    errEl.textContent = 'Error de red: ' + e.message;
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Sí, eliminar';
   }
 }
 
