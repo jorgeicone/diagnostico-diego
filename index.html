@@ -363,6 +363,18 @@
     .plan-sess-acts li{position:relative;padding-left:13px;margin-bottom:3px}
     .plan-sess-acts li::before{content:'•';position:absolute;left:0;color:var(--c1)}
     .plan-sess-out{font-size:.72rem;color:var(--c2);font-weight:700}
+    .resp-dim-block{margin-bottom:20px}
+    .resp-dim-hdr{font-size:.78rem;font-weight:900;padding:7px 14px;border-radius:8px 8px 0 0;margin-bottom:1px;display:flex;align-items:center;gap:8px}
+    .resp-dim-hdr-pts{margin-left:auto;font-size:.7rem;opacity:.75;font-weight:700}
+    .resp-q{border-bottom:1px solid rgba(255,255,255,.05);padding:10px 14px}
+    .resp-q:last-child{border-bottom:none}
+    .resp-q-text{font-size:.76rem;color:rgba(255,255,255,.5);margin-bottom:7px;line-height:1.45}
+    .resp-opts{display:flex;flex-direction:column;gap:3px}
+    .resp-opt{font-size:.74rem;padding:5px 10px;border-radius:6px;color:rgba(255,255,255,.28);background:transparent;border:1px solid transparent;line-height:1.4;display:flex;align-items:flex-start;gap:8px}
+    .resp-opt.sel{color:#fff;background:rgba(0,212,255,.06);border-color:rgba(0,212,255,.22)}
+    .resp-opt-badge{font-size:.62rem;font-weight:900;min-width:18px;margin-top:1px;opacity:.7}
+    .resp-opt.sel .resp-opt-badge{color:var(--c1);opacity:1}
+    .resp-no-data{font-size:.8rem;color:rgba(255,255,255,.3);text-align:center;padding:30px 20px;background:rgba(255,255,255,.02);border-radius:12px;border:1px dashed rgba(255,255,255,.08);line-height:1.7}
     .adm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
     .astat{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055);border-radius:13px;padding:16px 14px}
     .astat-n{font-size:2.2rem;font-weight:900;line-height:1}
@@ -969,7 +981,7 @@ async function finish() {
     await fetch(SB_URL + '/rest/v1/' + TABLE, {
       method: 'POST',
       headers: {'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-      body: JSON.stringify({nombre:S.nombre,email:S.email||null,empresa:S.empresa||null,puntaje_total:score,puntaje_dim1:dn[0],puntaje_dim2:dn[1],puntaje_dim3:dn[2],puntaje_dim4:dn[3],puntaje_dim5:dn[4],nivel:lv.label})
+      body: JSON.stringify({nombre:S.nombre,email:S.email||null,empresa:S.empresa||null,puntaje_total:score,puntaje_dim1:dn[0],puntaje_dim2:dn[1],puntaje_dim3:dn[2],puntaje_dim4:dn[3],puntaje_dim5:dn[4],nivel:lv.label,respuestas:S.ans})
     });
   } catch(e) { console.warn('Supabase save error:', e); }
   showResult(score, tot, dn, lv);
@@ -1523,8 +1535,43 @@ function _renderDet() {
   document.getElementById('det-profile').innerHTML = '<div class="det-dims">'+dimsHTML+'</div>'+insHTML;
   setTimeout(function(){ ds.forEach(function(v,i){ var el=document.getElementById('ddf'+i); if(el) el.style.width=v+'%'; }); }, 80);
 
+  document.getElementById('det-answers').innerHTML = _buildAnswers(r);
   document.getElementById('det-plan').innerHTML = _buildPlan(r, ds, srt);
   switchDetTab(0);
+}
+
+function _buildAnswers(r) {
+  var ans = r.respuestas;
+  if (!ans || !Array.isArray(ans)) {
+    return '<div class="resp-no-data">⚠️ Este registro no tiene respuestas individuales guardadas.<br><span style="font-size:.72rem;color:rgba(255,255,255,.2)">Las respuestas individuales se guardan a partir de las nuevas participaciones. Los registros anteriores solo tienen los puntajes por dimensión.</span></div>';
+  }
+  var MAX_PER_DIM = 15;
+  return DIMS.map(function(dim, di) {
+    var qs = QS.map(function(q,i){return {q:q,i:i};}).filter(function(x){return x.q.dim === dim.id;});
+    var dimPts = qs.reduce(function(acc, x){ return acc + (ans[x.i] || 0); }, 0);
+    var dimPct = Math.round(dimPts * 100 / MAX_PER_DIM);
+    var qRows = qs.map(function(x, qi) {
+      var selIdx = ans[x.i] != null ? ans[x.i] : -1;
+      var opts = x.q.opts.map(function(optText, oi) {
+        var isSel = oi === selIdx;
+        return '<div class="resp-opt'+(isSel?' sel':'')+'">' +
+          '<span class="resp-opt-badge">'+(isSel ? '✔' : (oi+1)+'.')+'</span>' +
+          '<span>'+optText+'<span style="color:rgba(255,255,255,.18);font-size:.65rem"> — '+oi+'/3 pts</span></span>' +
+          '</div>';
+      }).join('');
+      return '<div class="resp-q">' +
+        '<div class="resp-q-text"><strong style="color:rgba(255,255,255,.3);font-size:.65rem">P'+(qi+1)+'.</strong> '+x.q.q+'</div>' +
+        '<div class="resp-opts">'+opts+'</div>' +
+        '</div>';
+    }).join('');
+    return '<div class="resp-dim-block">' +
+      '<div class="resp-dim-hdr" style="background:'+dim.color+'15;border:1px solid '+dim.color+'30;color:'+dim.color+'">' +
+        '<span>'+dim.name+'</span>' +
+        '<span class="resp-dim-hdr-pts">'+dimPts+'/'+MAX_PER_DIM+' pts · '+dimPct+'%</span>' +
+      '</div>' +
+      '<div style="border:1px solid '+dim.color+'18;border-top:none;border-radius:0 0 8px 8px;background:rgba(255,255,255,.012)">'+qRows+'</div>' +
+      '</div>';
+  }).join('');
 }
 
 function _lvl(s){ return s < 40 ? 'low' : s < 70 ? 'mid' : 'high'; }
@@ -1602,10 +1649,12 @@ function _buildPlan(r, ds, srt) {
       </div>
     </div>
     <div class="det-tabs">
-      <button class="det-tab on" onclick="switchDetTab(0)">👤 Perfil completo</button>
-      <button class="det-tab" onclick="switchDetTab(1)">🗓 Plan de 3 meses</button>
+      <button class="det-tab on" onclick="switchDetTab(0)">👤 Perfil</button>
+      <button class="det-tab" onclick="switchDetTab(1)">📋 Respuestas</button>
+      <button class="det-tab" onclick="switchDetTab(2)">🗓 Plan 3 meses</button>
     </div>
     <div class="det-pane on" id="det-profile"></div>
+    <div class="det-pane" id="det-answers"></div>
     <div class="det-pane" id="det-plan"></div>
   </div>
 </div>
