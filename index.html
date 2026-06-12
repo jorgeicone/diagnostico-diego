@@ -316,6 +316,53 @@
     .adm-filter-note.on{display:block}
     input[type=checkbox].adm-cb{accent-color:var(--c1);width:15px;height:15px;cursor:pointer;vertical-align:middle}
     tr.adm-sel-row>td{background:rgba(0,212,255,.06)!important}
+    .det-ov{display:none;position:fixed;inset:0;z-index:3000;background:rgba(5,13,31,.95);backdrop-filter:blur(14px);overflow-y:auto;padding:20px 16px}
+    .det-ov.on{display:flex;align-items:flex-start;justify-content:center;padding-top:30px}
+    .det-box{background:linear-gradient(160deg,rgba(18,26,48,1),rgba(10,18,35,1));border:1px solid rgba(0,212,255,.2);border-radius:22px;max-width:820px;width:100%;padding:28px 30px;position:relative;margin:0 auto 40px}
+    .det-close{position:absolute;top:14px;right:16px;background:rgba(255,255,255,.07);border:none;color:rgba(255,255,255,.5);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:.9rem;display:flex;align-items:center;justify-content:center;transition:.2s;font-family:var(--font)}
+    .det-close:hover{background:rgba(255,71,87,.2);color:#ff4757}
+    .det-nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .det-nav-btn{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.18);color:var(--c1);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:.78rem;font-weight:700;transition:.2s;font-family:var(--font)}
+    .det-nav-btn:hover:not(:disabled){background:rgba(0,212,255,.18)}
+    .det-nav-btn:disabled{opacity:.25;cursor:default}
+    .det-nav-pos{font-size:.78rem;color:var(--text3)}
+    .det-head{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;margin-bottom:20px}
+    .det-hname{font-size:1.45rem;font-weight:900;color:var(--text)}
+    .det-hmeta{font-size:.78rem;color:var(--text3);margin-top:5px}
+    .det-hbadge{text-align:center;min-width:85px}
+    .det-hbadge-num{font-size:2.6rem;font-weight:900;line-height:1}
+    .det-hbadge-lv{font-size:.68rem;font-weight:700;margin-top:7px;padding:4px 10px;border-radius:20px;display:inline-block;max-width:140px}
+    .det-tabs{display:flex;gap:6px;border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:12px;margin-bottom:18px}
+    .det-tab{padding:7px 18px;border-radius:10px;font-size:.8rem;font-weight:700;cursor:pointer;border:1.5px solid transparent;background:transparent;color:rgba(255,255,255,.35);transition:.2s;font-family:var(--font)}
+    .det-tab.on{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.28);color:var(--c1)}
+    .det-pane{display:none}
+    .det-pane.on{display:block}
+    .det-dims{display:flex;flex-direction:column;gap:14px}
+    .det-drow{display:grid;grid-template-columns:145px 1fr 46px;align-items:center;gap:10px}
+    .det-dlabel{font-size:.77rem;font-weight:800;text-align:right;line-height:1.3}
+    .det-dtrack{background:rgba(255,255,255,.08);border-radius:50px;height:11px;overflow:hidden}
+    .det-dfill{height:100%;border-radius:50px;transition:width 1.2s ease}
+    .det-dval{font-size:.82rem;font-weight:900}
+    .det-dinterp{grid-column:1/4;font-size:.71rem;color:rgba(255,255,255,.3);padding:0 8px;margin-top:-8px}
+    .det-insight-box{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.11);border-radius:12px;padding:14px 18px;margin-top:18px}
+    .det-insight-ttl{font-size:.76rem;font-weight:900;color:var(--c1);margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+    .det-insight-item{font-size:.79rem;color:var(--text2);margin-bottom:6px;padding-left:14px;position:relative}
+    .det-insight-item::before{content:'→';position:absolute;left:0;color:var(--c1)}
+    .plan-hdr{font-size:.79rem;color:var(--text3);margin-bottom:14px;padding:10px 14px;background:rgba(255,255,255,.03);border-radius:8px}
+    .plan-month{margin-bottom:22px}
+    .plan-month-h{font-size:.88rem;font-weight:900;color:var(--c1);background:rgba(0,212,255,.05);border-left:3px solid var(--c1);padding:8px 14px;border-radius:0 8px 8px 0;margin-bottom:10px}
+    .plan-sessions{display:flex;flex-direction:column;gap:7px}
+    .plan-sess{background:rgba(255,255,255,.024);border:1px solid rgba(255,255,255,.07);border-radius:11px;padding:13px 15px}
+    .plan-sess-h{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px;flex-wrap:wrap}
+    .plan-week-tag{background:rgba(123,47,255,.14);color:var(--c3);border:1px solid rgba(123,47,255,.22);border-radius:5px;padding:2px 8px;font-size:.67rem;font-weight:800;white-space:nowrap;flex-shrink:0}
+    .plan-dim-tag{border-radius:4px;padding:2px 7px;font-size:.66rem;font-weight:800;white-space:nowrap;flex-shrink:0}
+    .plan-sess-title{font-size:.83rem;font-weight:800;color:var(--text);flex:1;min-width:0}
+    .plan-sess-body{font-size:.75rem;color:var(--text3);line-height:1.55}
+    .plan-sess-obj{color:rgba(255,255,255,.45);margin-bottom:5px;font-style:italic}
+    .plan-sess-acts{padding-left:0;list-style:none;margin:0 0 5px}
+    .plan-sess-acts li{position:relative;padding-left:13px;margin-bottom:3px}
+    .plan-sess-acts li::before{content:'•';position:absolute;left:0;color:var(--c1)}
+    .plan-sess-out{font-size:.72rem;color:var(--c2);font-weight:700}
     .adm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
     .astat{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055);border-radius:13px;padding:16px 14px}
     .astat-n{font-size:2.2rem;font-weight:900;line-height:1}
@@ -1198,7 +1245,7 @@ async function loadAdmin() {
         '<td style="color:var(--c4)">'+(r.puntaje_dim4||0)+'%</td>'+
         '<td style="color:var(--c5)">'+(r.puntaje_dim5||0)+'%</td>'+
         '<td style="color:var(--text3)">'+f+'</td>'+
-        '<td><button onclick="deleteRow(\''+r.id+'\')" title="Eliminar esta respuesta" style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);color:#ff4757;border-radius:7px;padding:4px 9px;font-size:.72rem;cursor:pointer;transition:.2s;font-family:var(--font)" onmouseover="this.style.background=\'rgba(255,71,87,.25)\'" onmouseout="this.style.background=\'rgba(255,71,87,.1)\'">🗑️</button></td>'+
+        '<td style="display:flex;gap:5px;align-items:center"><button onclick="viewDetail(\''+r.id+'\')" title="Ver perfil y plan" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.28);color:#00d4ff;border-radius:7px;padding:4px 9px;font-size:.72rem;cursor:pointer;transition:.2s;font-family:var(--font)" onmouseover="this.style.background=\'rgba(0,212,255,.2)\'" onmouseout="this.style.background=\'rgba(0,212,255,.08)\'">👁 Ver</button><button onclick="deleteRow(\''+r.id+'\')" title="Eliminar esta respuesta" style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);color:#ff4757;border-radius:7px;padding:4px 9px;font-size:.72rem;cursor:pointer;transition:.2s;font-family:var(--font)" onmouseover="this.style.background=\'rgba(255,71,87,.25)\'" onmouseout="this.style.background=\'rgba(255,71,87,.1)\'">🗑️</button></td>'+
         '</tr>';
     }).join('');
 
@@ -1371,6 +1418,196 @@ function _doExportCSV(data, suffix) {
 }
 
 function exportCSV() { _doExportCSV(_adminData, 'todos'); }
+
+/* ════════════════════════════════════════════
+   DETAIL MODAL — perfil individual + plan
+   ════════════════════════════════════════════ */
+var _detIdx = 0;
+var _detTab = 0;
+
+/* Plantillas de sesiones por dimensión (Diego) */
+var SESS_DG = {
+  1:{name:'Ecosistema IA',color:'#00d4ff',
+    low:{title:'Activación IA: Mapear el ecosistema y elegir tus primeras herramientas',obj:'Entender el panorama de herramientas IA disponibles y adoptar las más estratégicas para tu rol directivo.',acts:['Auditoría de herramientas IA disponibles para dirección comercial en salud: ChatGPT, Copilot, Gemini, Claude','Práctica guiada: 8 prompts esenciales para análisis de mercado LATAM y gestión de portafolio','Instalar tu primer stack IA directivo: qué usar para qué tipo de tarea'],out:'Tu mapa de herramientas IA por tipo de decisión directiva, listo para aplicar esta semana'},
+    mid:{title:'Dominio del ecosistema: Integrar IA en tu flujo directivo cotidiano',obj:'Consolidar el uso de IA como copiloto estable en las decisiones y comunicaciones clave del rol.',acts:['Flujo IA integrado: cómo usar Copilot en reuniones, reportes y análisis de portafolio','Prompting avanzado para escenarios complejos de dirección comercial en salud LATAM','Biblioteca personal de prompts por tipo de decisión: análisis, comunicación, estrategia'],out:'Stack IA directivo operativo con protocolo documentado de uso cotidiano'},
+    high:{title:'Referente de ecosistema IA: Liderar la adopción en tu organización y red',obj:'Posicionarte como autoridad en IA aplicada a la dirección comercial en salud.',acts:['Diseñar guía de adopción de IA para equipos comerciales de salud LATAM','Evaluar y recomendar herramientas IA especializadas en farma/medtech para el sector','Construcción de red de conocimiento IA en salud: comunidades, publicaciones, eventos'],out:'Guía de adopción IA para tu organización + mapa de comunidades de práctica en salud IA'}},
+  2:{name:'IA en Salud',color:'#7b2fff',
+    low:{title:'IA especializada en salud: Del conocimiento general a la aplicación sectorial',obj:'Comprender cómo la IA transforma los modelos de negocio en salud y ciencia en LATAM.',acts:['Panorama IA en salud LATAM: farma, medtech, biotech — casos de uso reales y oportunidades','Regulación y compliance IA en salud: qué puedes hacer y qué limitaciones existen por mercado','Primeros casos de uso de IA en tu portafolio actual: análisis de mercado con datos sectoriales'],out:'Mapa de oportunidades IA en salud para tu portafolio actual con casos de uso priorizados'},
+    mid:{title:'IA estratégica en salud: De los casos de uso al diferencial competitivo',obj:'Aplicar IA de forma sofisticada para análisis de mercado, competencia y decisiones de portafolio.',acts:['Análisis de competencia con IA: monitoreo de pipeline, pricing y posicionamiento de rivales','Modelado de escenarios de mercado con IA para decisiones de lanzamiento y expansión LATAM','IA para análisis de datos de campo: KPIs de fuerza de ventas, cobertura, market share'],out:'Framework de análisis competitivo con IA aplicado a tu portafolio, listo para presentar a dirección'},
+    high:{title:'Innovación en salud con IA: Diseñar el futuro de tu categoría en LATAM',obj:'Liderar iniciativas de innovación basadas en IA que reposicionen tu organización en el mercado.',acts:['Co-diseñar con IA un roadmap de innovación para tu categoría terapéutica o portafolio','Construir business case de IA para inversión directiva: ROI, tiempos, recursos necesarios','Conectar con ecosistema de startups HealthTech IA relevante para tu mercado LATAM'],out:'Business case IA de innovación presentable a la dirección regional o global de tu empresa'}},
+  3:{name:'Dirección Comercial',color:'#ff8c00',
+    low:{title:'Dirección comercial aumentada: IA para tomar decisiones más rápidas y certeras',obj:'Integrar IA en el ciclo completo de decisión comercial para LATAM.',acts:['Forecasting con IA: modelos de proyección de ventas para mercados LATAM heterogéneos','Análisis de portafolio y priorización de productos con IA basada en datos de mercado','Templates de Business Review potenciados con IA para presentar a dirección regional'],out:'Tu próximo Business Review con análisis de mercado LATAM potenciado con IA'},
+    mid:{title:'Estrategia LATAM con IA: De los mercados clave a la expansión regional',obj:'Usar IA para diseñar estrategia comercial diferenciada por mercado en la región.',acts:['Segmentación de mercados LATAM con IA: criterios, priorización y plan de entrada','Análisis de canales y distribución en salud LATAM: qué funciona en qué mercado','Diseño de planes go-to-market con asistencia de IA para nuevos productos o mercados'],out:'Plan estratégico por mercado LATAM generado con IA, con prioridades y KPIs definidos'},
+    high:{title:'Liderazgo comercial transformador: IA como ventaja competitiva regional',obj:'Construir capacidad organizacional de IA en el equipo comercial LATAM.',acts:['Programa de capacitación IA para fuerza de ventas y gerentes regionales de LATAM','Métricas de madurez digital comercial: cómo medir y comunicar el avance al corporate','Diseñar el modelo operativo comercial del futuro con IA integrada en cada proceso'],out:'Roadmap de transformación digital comercial LATAM con métricas y responsables'}},
+  4:{name:'Productividad',color:'#00d48a',
+    low:{title:'Productividad directiva con IA: Recuperar 5 horas semanales de trabajo estratégico',obj:'Automatizar las tareas repetitivas de la función directiva y liberar tiempo para decisiones de alto valor.',acts:['Auditoría de tiempo: mapa de tareas directivas repetitivas que IA puede tomar','Automatizar reportes: generación de informes ejecutivos, tracking de KPIs, seguimiento de pipeline','IA para gestión de agenda y prioridades: cómo usar Copilot para enfocarte en lo que más importa'],out:'Mapa de automatizaciones + primera automatización ejecutiva activa que ahorra 3h/semana'},
+    mid:{title:'Liderazgo eficiente: IA para gestionar equipos, regiones y stakeholders',obj:'Integrar IA en la gestión de equipos comerciales distribuidos en LATAM.',acts:['Seguimiento de equipo con IA: dashboards automáticos de desempeño por región y producto','Comunicación ejecutiva con IA: correos, reportes y presentaciones en la mitad del tiempo','Preparación de reuniones de liderazgo con briefings automáticos generados por IA'],out:'Protocolo de gestión de equipo LATAM con IA integrada y documentado para replicar'},
+    high:{title:'Organización de alto rendimiento: IA como infraestructura del equipo directivo',obj:'Diseñar el sistema de trabajo del equipo directivo con IA integrada en cada proceso crítico.',acts:['Diseñar el "Operating System" del equipo directivo con IA: rituales, herramientas, métricas','Medir ROI de productividad IA: tiempo ahorrado × valor/hora directiva × impacto en resultados','Documentar y escalar el modelo de productividad IA a otros equipos o regiones'],out:'Manual de productividad directiva con IA para el equipo regional, replicable y medible'}},
+  5:{name:'Influencia',color:'#ff4757',
+    low:{title:'Posicionamiento estratégico: Construir autoridad en IA y salud LATAM',obj:'Desarrollar visibilidad y credibilidad como referente de transformación IA en salud.',acts:['Diseñar tu narrativa de liderazgo en IA aplicada a salud LATAM: qué dices, cómo lo dices','Publicar tu primera pieza de contenido de liderazgo: artículo LinkedIn, presentación, ponencia','Identificar los foros, congresos y comunidades clave donde tienes que estar presente'],out:'Tu narrativa de liderazgo IA en salud documentada + primera pieza de contenido publicada'},
+    mid:{title:'Influencia regional: De directivo respetado a referente del sector en LATAM',obj:'Construir presencia y red de influencia en el ecosistema de salud y IA en la región.',acts:['Estrategia de contenido para LinkedIn enfocada en IA aplicada a salud y dirección comercial','Mapa de influenciadores clave en salud IA LATAM: con quiénes conectar y cómo colaborar','Hablar en público sobre IA en salud: preparar ponencia para congreso o evento del sector'],out:'Plan de influencia LATAM con 3 iniciativas de visibilidad activas y en ejecución'},
+    high:{title:'Embajador de transformación: Convertir tu influencia en impacto organizacional y sectorial',obj:'Usar tu posicionamiento para liderar cambios de alto impacto en tu organización y el sector.',acts:['Diseñar y proponer iniciativa de transformación IA de alcance regional o global en tu empresa','Construir alianzas estratégicas con ecosistema HealthTech: startups, academia, reguladores','Publicar case study de transformación IA en salud LATAM en formato que genere visibilidad global'],out:'Iniciativa de transformación IA presentada a la alta dirección + alianza estratégica activada'}}
+};
+
+var INT_DG = {
+  4:{title:'Revisión del primer mes: Sintetizar logros y redefinir prioridades',obj:'Evaluar el progreso real en las primeras 4 semanas e identificar ajustes necesarios.',acts:['Autoevaluación honesta: ¿Qué generó impacto? ¿Qué fue difícil aplicar en el contexto de salud LATAM?','Compartir 3 resultados concretos con el equipo o la dirección regional','Definir 3 compromisos clave para el mes 2 con métricas claras de éxito'],out:'Informe de progreso mes 1 con aprendizajes y plan ajustado para el mes 2'},
+  8:{title:'Integración estratégica: IA como parte permanente de tu modelo de liderazgo',obj:'Conectar todas las capacidades desarrolladas en un sistema de liderazgo cohesivo.',acts:['Mapear tu modelo de liderazgo antes y después de IA: ¿qué ha cambiado estructuralmente?','Identificar los 3 procesos críticos donde IA ya es insustituible en tu función','Diseñar el "día ideal directivo con IA" y documentarlo para el equipo'],out:'Tu modelo de liderazgo con IA integrada, documentado y compartible con el equipo regional'},
+  11:{title:'Proyecto de impacto: Ejecutar una iniciativa estratégica real con todo el stack IA',obj:'Aplicar el conjunto completo de capacidades IA en un proyecto de alto valor para la organización.',acts:['Seleccionar una iniciativa real de alto impacto: lanzamiento de producto, expansión de mercado, transformación de equipo','Ejecutar con el stack completo de IA: análisis, diseño, comunicación, seguimiento','Documentar el proceso y los resultados como caso de éxito para la organización'],out:'Caso de éxito documentado de transformación IA en salud LATAM listo para presentar globalmente'},
+  12:{title:'Graduación y continuidad: Tu plan de transformación de los próximos 6 meses',obj:'Cerrar el ciclo de acompañamiento con evidencia de impacto y visión clara del siguiente nivel.',acts:['Comparar diagnóstico inicial vs. capacidades actuales: evidencia cuantificada de la transformación','Definir 5 hábitos IA que son ya parte permanente de tu modelo de liderazgo','Co-diseñar el plan de los próximos 6 meses: liderazgo de IA organizacional, influencia sectorial, innovación'],out:'Plan de continuidad de 6 meses + recomendación de adopción IA para tu equipo o región'}
+};
+
+function viewDetail(id) {
+  if (!_adminData || !_adminData.length) return;
+  _detIdx = _adminData.findIndex(function(r){ return r.id === id; });
+  if (_detIdx < 0) _detIdx = 0;
+  document.getElementById('det-ov').classList.add('on');
+  _renderDet();
+}
+function closeDet() { document.getElementById('det-ov').classList.remove('on'); }
+function navDet(dir) {
+  _detIdx = Math.max(0, Math.min(_adminData.length - 1, _detIdx + dir));
+  _renderDet();
+}
+function switchDetTab(n) {
+  _detTab = n;
+  document.querySelectorAll('.det-tab').forEach(function(t, i){ t.classList.toggle('on', i === n); });
+  document.querySelectorAll('.det-pane').forEach(function(p, i){ p.classList.toggle('on', i === n); });
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeDet(); });
+
+function _renderDet() {
+  var r = _adminData[_detIdx];
+  var total = _adminData.length;
+  document.getElementById('det-prev').disabled = _detIdx === 0;
+  document.getElementById('det-next').disabled = _detIdx === total - 1;
+  document.getElementById('det-pos').textContent = (_detIdx + 1) + ' de ' + total;
+  document.getElementById('det-hname').textContent = r.nombre || 'Sin nombre';
+  var meta = [r.empresa, r.email, r.fecha_hora ? new Date(r.fecha_hora).toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'}) : null].filter(Boolean);
+  document.getElementById('det-hmeta').textContent = meta.join(' · ');
+  var sc = r.puntaje_total || 0;
+  var nv = r.nivel || '';
+  var isL = nv.includes('⚡') || nv.includes('Líder');
+  var isA = nv.includes('🚀') || nv.includes('Aceleración');
+  var col = isL ? 'var(--c1)' : isA ? 'var(--c3)' : 'var(--c5)';
+  var bg = isL ? 'rgba(0,212,255,.15)' : isA ? 'rgba(255,140,0,.15)' : 'rgba(255,71,87,.15)';
+  document.getElementById('det-snum').textContent = sc;
+  document.getElementById('det-snum').style.color = col;
+  document.getElementById('det-slv').textContent = nv;
+  document.getElementById('det-slv').style.cssText = 'background:'+bg+';color:'+col;
+
+  var ds = [r.puntaje_dim1||0, r.puntaje_dim2||0, r.puntaje_dim3||0, r.puntaje_dim4||0, r.puntaje_dim5||0];
+  var interp = [
+    ['Primeros pasos con IA — oportunidad de adoptar herramientas que ya cambian el mercado','Uso regular del ecosistema — el siguiente paso es integración y especialización','Domina el ecosistema IA — puede liderar la adopción en su organización de salud'],
+    ['IA sectorial aún por explorar — el diferencial competitivo está aquí','Conocimiento IA en salud en desarrollo — profundizar en casos de uso regulatorios y comerciales','Referente en IA aplicada a salud y ciencia — puede diseñar estrategia de innovación'],
+    ['Alta oportunidad de transformar la dirección comercial LATAM con IA','Integración IA en lo comercial en curso — el siguiente nivel es diseño estratégico regional','IA integrada en la dirección comercial — puede replicar el modelo en su organización'],
+    ['La productividad directiva puede multiplicarse con IA — alta prioridad','Productividad con IA en desarrollo — construir sistema integrado de trabajo directivo','Alta productividad con IA — puede diseñar el Operating System del equipo directivo'],
+    ['El posicionamiento como referente IA en salud LATAM está por construirse','Influencia creciente — el siguiente paso es visibilidad regional y alianzas estratégicas','Referente consolidado en salud IA LATAM — puede liderar transformaciones de alto impacto']
+  ];
+  var dimsHTML = DIMS.map(function(dim, i) {
+    var li = ds[i] < 40 ? 0 : ds[i] < 70 ? 1 : 2;
+    return '<div class="det-drow">'+
+      '<div class="det-dlabel" style="color:'+dim.color+'">'+dim.short+'</div>'+
+      '<div class="det-dtrack"><div class="det-dfill" id="ddf'+i+'" style="width:0%;background:'+dim.color+'"></div></div>'+
+      '<div class="det-dval" style="color:'+dim.color+'">'+ds[i]+'%</div>'+
+      '<div class="det-dinterp">'+interp[i][li]+'</div>'+
+      '</div>';
+  }).join('');
+  var srt = ds.map(function(s,i){return{i:i,s:s};}).sort(function(a,b){return a.s-b.s;});
+  var wk = DIMS[srt[0].i], st = DIMS[srt[4].i], gap = srt[4].s - srt[0].s;
+  var insHTML = '<div class="det-insight-box"><div class="det-insight-ttl">💡 Insights clave</div>'+
+    '<div class="det-insight-item">Dimensión prioritaria: <strong style="color:'+wk.color+'">'+wk.name+'</strong> ('+srt[0].s+'%) — primera enfocada en el plan de acompañamiento</div>'+
+    '<div class="det-insight-item">Dimensión más fuerte: <strong style="color:'+st.color+'">'+st.name+'</strong> ('+srt[4].s+'%) — palanca para acelerar las áreas más débiles</div>'+
+    (gap > 40 ? '<div class="det-insight-item">Brecha de '+gap+' puntos entre dimensiones — el plan prioriza nivelar antes de escalar</div>'
+              : '<div class="det-insight-item">Perfil equilibrado (brecha '+gap+' pts) — el plan puede enfocarse en profundidad, no en remediación</div>')+
+    '</div>';
+  document.getElementById('det-profile').innerHTML = '<div class="det-dims">'+dimsHTML+'</div>'+insHTML;
+  setTimeout(function(){ ds.forEach(function(v,i){ var el=document.getElementById('ddf'+i); if(el) el.style.width=v+'%'; }); }, 80);
+
+  document.getElementById('det-plan').innerHTML = _buildPlan(r, ds, srt);
+  switchDetTab(0);
+}
+
+function _lvl(s){ return s < 40 ? 'low' : s < 70 ? 'mid' : 'high'; }
+function _advLvl(s){ return s < 40 ? 'mid' : 'high'; }
+
+function _sessCard(wk, dimIdx, lvl, isAdv) {
+  var d = SESS_DG[dimIdx + 1];
+  var s = d[lvl];
+  return '<div class="plan-sess">'+
+    '<div class="plan-sess-h">'+
+      '<span class="plan-week-tag">Semana '+wk+'</span>'+
+      '<span class="plan-dim-tag" style="background:'+d.color+'20;color:'+d.color+';border:1px solid '+d.color+'44">'+d.name+'</span>'+
+      '<span class="plan-sess-title">'+s.title+(isAdv ? ' — nivel avanzado' : '')+'</span>'+
+    '</div>'+
+    '<div class="plan-sess-body">'+
+      '<div class="plan-sess-obj">🎯 '+s.obj+'</div>'+
+      '<ul class="plan-sess-acts">'+s.acts.map(function(a){return '<li>'+a+'</li>';}).join('')+'</ul>'+
+      '<div class="plan-sess-out">✅ '+s.out+'</div>'+
+    '</div></div>';
+}
+function _intCard(wk, key) {
+  var s = INT_DG[key];
+  return '<div class="plan-sess">'+
+    '<div class="plan-sess-h">'+
+      '<span class="plan-week-tag">Semana '+wk+'</span>'+
+      '<span class="plan-dim-tag" style="background:rgba(255,255,255,.05);color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1)">Integración</span>'+
+      '<span class="plan-sess-title">'+s.title+'</span>'+
+    '</div>'+
+    '<div class="plan-sess-body">'+
+      '<div class="plan-sess-obj">🎯 '+s.obj+'</div>'+
+      '<ul class="plan-sess-acts">'+s.acts.map(function(a){return '<li>'+a+'</li>';}).join('')+'</ul>'+
+      '<div class="plan-sess-out">✅ '+s.out+'</div>'+
+    '</div></div>';
+}
+
+function _buildPlan(r, ds, srt) {
+  var hdr = '<div class="plan-hdr">Plan personalizado para <strong style="color:var(--c1)">'+
+    (r.nombre||'el participante')+'</strong> · Score actual: <strong style="color:var(--c1)">'+(r.puntaje_total||0)+'/100</strong> · '+
+    'Dimensión prioritaria: <strong style="color:'+DIMS[srt[0].i].color+'">'+DIMS[srt[0].i].short+'</strong></div>';
+  return hdr+
+    '<div class="plan-month"><div class="plan-month-h">📅 Mes 1 — Diagnóstico y Activación (Semanas 1–4)</div><div class="plan-sessions">'+
+      _sessCard(1, srt[0].i, _lvl(srt[0].s), false)+
+      _sessCard(2, srt[1].i, _lvl(srt[1].s), false)+
+      _sessCard(3, srt[2].i, _lvl(srt[2].s), false)+
+      _intCard(4, 4)+
+    '</div></div>'+
+    '<div class="plan-month"><div class="plan-month-h">🔥 Mes 2 — Integración y Práctica (Semanas 5–8)</div><div class="plan-sessions">'+
+      _sessCard(5, srt[3].i, _lvl(srt[3].s), false)+
+      _sessCard(6, srt[4].i, _lvl(srt[4].s), false)+
+      _sessCard(7, srt[0].i, _advLvl(srt[0].s), true)+
+      _intCard(8, 8)+
+    '</div></div>'+
+    '<div class="plan-month"><div class="plan-month-h">🚀 Mes 3 — Liderazgo y Sostenibilidad (Semanas 9–12)</div><div class="plan-sessions">'+
+      _sessCard(9, srt[1].i, _advLvl(srt[1].s), true)+
+      _sessCard(10, srt[2].i, _advLvl(srt[2].s), true)+
+      _intCard(11, 11)+
+      _intCard(12, 12)+
+    '</div></div>';
+}
 </script>
+<!-- ─── DETAIL MODAL ─── -->
+<div class="det-ov" id="det-ov" onclick="if(event.target===this)closeDet()">
+  <div class="det-box">
+    <button class="det-close" onclick="closeDet()">✕</button>
+    <div class="det-nav-row">
+      <button class="det-nav-btn" id="det-prev" onclick="navDet(-1)">← Anterior</button>
+      <span class="det-nav-pos" id="det-pos">1 de 1</span>
+      <button class="det-nav-btn" id="det-next" onclick="navDet(1)">Siguiente →</button>
+    </div>
+    <div class="det-head">
+      <div><div class="det-hname" id="det-hname"></div><div class="det-hmeta" id="det-hmeta"></div></div>
+      <div class="det-hbadge">
+        <div class="det-hbadge-num" id="det-snum">—</div>
+        <div class="det-hbadge-lv" id="det-slv"></div>
+      </div>
+    </div>
+    <div class="det-tabs">
+      <button class="det-tab on" onclick="switchDetTab(0)">👤 Perfil completo</button>
+      <button class="det-tab" onclick="switchDetTab(1)">🗓 Plan de 3 meses</button>
+    </div>
+    <div class="det-pane on" id="det-profile"></div>
+    <div class="det-pane" id="det-plan"></div>
+  </div>
+</div>
 </body>
 </html>
