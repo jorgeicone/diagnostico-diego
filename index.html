@@ -1155,7 +1155,7 @@ async function loadAdmin() {
         '<td style="color:var(--c4)">'+(r.puntaje_dim4||0)+'%</td>'+
         '<td style="color:var(--c5)">'+(r.puntaje_dim5||0)+'%</td>'+
         '<td style="color:var(--text3)">'+f+'</td>'+
-        '<td><button onclick="deleteRow('+r.id+')" title="Eliminar esta respuesta" style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);color:#ff4757;border-radius:7px;padding:4px 9px;font-size:.72rem;cursor:pointer;transition:.2s;font-family:var(--font)" onmouseover="this.style.background=\'rgba(255,71,87,.25)\'" onmouseout="this.style.background=\'rgba(255,71,87,.1)\'">🗑️</button></td>'+
+        '<td><button onclick="deleteRow(\''+r.id+'\')" title="Eliminar esta respuesta" style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3);color:#ff4757;border-radius:7px;padding:4px 9px;font-size:.72rem;cursor:pointer;transition:.2s;font-family:var(--font)" onmouseover="this.style.background=\'rgba(255,71,87,.25)\'" onmouseout="this.style.background=\'rgba(255,71,87,.1)\'">🗑️</button></td>'+
         '</tr>';
     }).join('');
 
